@@ -1,4 +1,4 @@
-package com.example.greencirculation
+package com.example.circulationmaze
 
 import android.widget.ImageView
 import androidx.collection.FloatFloatPair

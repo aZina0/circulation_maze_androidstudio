@@ -1,4 +1,4 @@
-package com.example.greencirculation
+package com.example.circulationmaze
 
 
 class Vector2i(x: Int, y: Int) {

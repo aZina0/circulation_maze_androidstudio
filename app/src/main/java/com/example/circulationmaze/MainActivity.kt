@@ -1,4 +1,4 @@
-package com.example.greencirculation
+package com.example.circulationmaze
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -9,30 +9,31 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import com.example.circulationmaze.R
-import com.example.circulationmaze.ui.theme.CirculationMazeTheme
+import com.example.circulationmaze.ui.theme.AppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        window.setNavigationBarContrastEnforced(false)
         setContent {
-            CirculationMazeTheme {
+            AppTheme (
+                dynamicColor = false,
+            ) {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    LoginScreen(modifier = Modifier.padding(innerPadding))
                 }
             }
         }
-        Game.createNewGame(this, 3095248787, 13, 13)
+//        Game.createNewGame(this, 3095248787, 13, 13)
     }
 }
 

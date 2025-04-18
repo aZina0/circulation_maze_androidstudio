@@ -1,4 +1,4 @@
-package com.example.greencirculation
+package com.example.circulationmaze
 
 import android.content.Context
 
@@ -111,7 +111,7 @@ object Game {
 //                }
 //
 //                grid.add_child(piece)
-                pieces[coordinate] = piece
+//                pieces[coordinate] = piece
             }
 
         }
