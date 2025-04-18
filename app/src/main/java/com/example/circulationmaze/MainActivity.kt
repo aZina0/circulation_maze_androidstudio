@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import com.example.circulationmaze.registerLogin.RegisterLogin
 import com.example.circulationmaze.ui.theme.AppTheme
 
 class MainActivity : ComponentActivity() {
@@ -27,7 +28,7 @@ class MainActivity : ComponentActivity() {
                 dynamicColor = false,
             ) {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    RegisterScreen(modifier = Modifier.padding(innerPadding))
+                    RegisterLogin(modifier = Modifier.padding(innerPadding))
                 }
             }
         }
