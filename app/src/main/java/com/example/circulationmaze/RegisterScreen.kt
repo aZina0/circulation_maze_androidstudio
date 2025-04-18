@@ -24,9 +24,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun LoginScreen(modifier: Modifier) {
-    var usernameOrEmail by remember { mutableStateOf("") }
+fun RegisterScreen(modifier: Modifier) {
+    var username by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var passwordAgain by remember { mutableStateOf("") }
 
     fun onRegisterClick() {
         Log.d("MyApp", "register clicked")
@@ -45,9 +47,15 @@ fun LoginScreen(modifier: Modifier) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             OutlinedTextField(
-                value = usernameOrEmail,
-                onValueChange = { usernameOrEmail = it },
-                label = { Text(text = "Username or email") },
+                value = username,
+                onValueChange = { username = it },
+                label = { Text(text = "Username") },
+                singleLine = true,
+            )
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it },
+                label = { Text(text = "Email") },
                 singleLine = true,
             )
             OutlinedTextField(
@@ -56,24 +64,30 @@ fun LoginScreen(modifier: Modifier) {
                 label = { Text(text = "Password") },
                 singleLine = true,
             )
-            Text(
-                text = "Don't have an account?"
+            OutlinedTextField(
+                value = passwordAgain,
+                onValueChange = { passwordAgain = it },
+                label = { Text(text = "Confirm password") },
+                singleLine = true,
             )
             Text(
-                text = "Register.",
+                text = "Already have an account?"
+            )
+            Text(
+                text = "Log in.",
                 modifier = Modifier
-                    .clickable { onRegisterClick() },
+                    .clickable { onLoginClick() },
                 style = MaterialTheme.typography.bodyLarge.copy(
                     textDecoration = TextDecoration.Underline,
                 ),
             )
             Button(
-                onClick = { onLoginClick() },
+                onClick = { onRegisterClick() },
                 modifier = Modifier.size(width = 150.dp, height = 60.dp),
                 shape = RoundedCornerShape(percent = 30)
             ) {
                 Text (
-                    text = "Log in",
+                    text = "Register",
                     fontSize = 24.sp,
                 )
             }
