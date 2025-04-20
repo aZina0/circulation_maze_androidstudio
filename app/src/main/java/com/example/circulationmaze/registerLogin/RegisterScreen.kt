@@ -22,6 +22,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.circulationmaze.RelativeVerticalSpacer
 
 @Composable
 fun RegisterScreen(modifier: Modifier, onSwapToLogin: () -> Unit) {
@@ -34,26 +35,33 @@ fun RegisterScreen(modifier: Modifier, onSwapToLogin: () -> Unit) {
 
     }
 
-
     Box (
-        modifier = modifier.fillMaxSize()
-            .background(MaterialTheme.colorScheme.surfaceContainerLowest)
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.surfaceContainerLowest),
+        contentAlignment = Alignment.Center,
     ) {
-        Column (
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        Column {
+            RelativeVerticalSpacer(
+                percent = 0.1f,
+            )
             OutlinedTextField(
                 value = username,
                 onValueChange = { username = it },
                 label = { Text(text = "Username") },
                 singleLine = true,
             )
+            RelativeVerticalSpacer(
+                percent = 0.01f,
+            )
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
                 label = { Text(text = "Email") },
                 singleLine = true,
+            )
+            RelativeVerticalSpacer(
+                percent = 0.01f,
             )
             OutlinedTextField(
                 value = password,
@@ -69,6 +77,9 @@ fun RegisterScreen(modifier: Modifier, onSwapToLogin: () -> Unit) {
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
             )
+            RelativeVerticalSpacer(
+                percent = 0.075f,
+            )
             Text(
                 text = "Already have an account?"
             )
@@ -80,9 +91,14 @@ fun RegisterScreen(modifier: Modifier, onSwapToLogin: () -> Unit) {
                     textDecoration = TextDecoration.Underline,
                 ),
             )
+            RelativeVerticalSpacer(
+                percent = 0.075f,
+            )
             Button(
                 onClick = { onRegisterClick() },
-                modifier = Modifier.size(width = 150.dp, height = 60.dp),
+                modifier = Modifier
+                    .size(width = 150.dp, height = 60.dp)
+                    .align(alignment = Alignment.End),
                 shape = RoundedCornerShape(percent = 30)
             ) {
                 Text (
@@ -92,5 +108,4 @@ fun RegisterScreen(modifier: Modifier, onSwapToLogin: () -> Unit) {
             }
         }
     }
-
 }

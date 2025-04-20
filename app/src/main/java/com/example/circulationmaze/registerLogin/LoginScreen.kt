@@ -22,6 +22,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.circulationmaze.RelativeVerticalSpacer
 
 @Composable
 fun LoginScreen(modifier: Modifier, onRegisterClick: () -> Unit) {
@@ -34,18 +35,23 @@ fun LoginScreen(modifier: Modifier, onRegisterClick: () -> Unit) {
 
 
     Box (
-        modifier = modifier.fillMaxSize()
-            .background(MaterialTheme.colorScheme.surfaceContainerLowest)
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.surfaceContainerLowest),
+        contentAlignment = Alignment.Center,
     ) {
-        Column (
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        Column {
+            RelativeVerticalSpacer(
+                percent = 0.2f,
+            )
             OutlinedTextField(
                 value = usernameOrEmail,
                 onValueChange = { usernameOrEmail = it },
                 label = { Text(text = "Username or email") },
                 singleLine = true,
+            )
+            RelativeVerticalSpacer(
+                percent = 0.01f,
             )
             OutlinedTextField(
                 value = password,
@@ -54,8 +60,11 @@ fun LoginScreen(modifier: Modifier, onRegisterClick: () -> Unit) {
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
             )
+            RelativeVerticalSpacer(
+                percent = 0.1f,
+            )
             Text(
-                text = "Don't have an account?"
+                text = "Don't have an account?",
             )
             Text(
                 text = "Register.",
@@ -65,10 +74,15 @@ fun LoginScreen(modifier: Modifier, onRegisterClick: () -> Unit) {
                     textDecoration = TextDecoration.Underline,
                 ),
             )
+            RelativeVerticalSpacer(
+                percent = 0.1f,
+            )
             Button(
                 onClick = { onLoginClick() },
-                modifier = Modifier.size(width = 150.dp, height = 60.dp),
-                shape = RoundedCornerShape(percent = 30)
+                modifier = Modifier
+                    .size(width = 150.dp, height = 60.dp)
+                    .align(alignment = Alignment.End),
+                shape = RoundedCornerShape(percent = 30),
             ) {
                 Text (
                     text = "Log in",
