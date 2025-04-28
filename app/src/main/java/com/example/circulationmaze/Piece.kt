@@ -12,7 +12,16 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.unit.IntOffset
 
+
+private val UP = IntOffset(0, 1)
+private val RIGHT = IntOffset(1, 0)
+private val DOWN = IntOffset(0, -1)
+private val LEFT = IntOffset(-1, 0)
+private val SIDES: Array<IntOffset> = arrayOf(UP, RIGHT, DOWN, LEFT)
+
+//private val BACKGROUND_COLOR = Color()
 
 class Piece {
 
@@ -33,17 +42,11 @@ class Piece {
 //    signal rotated
 
     companion object {
-        val UP = Vector2i.UP
-        val RIGHT = Vector2i.RIGHT
-        val DOWN = Vector2i.DOWN
-        val LEFT = Vector2i.LEFT
-        val SIDES: Array<Vector2i> = arrayOf(UP, RIGHT, DOWN, LEFT)
-
 //        val DEFAULT_COLOR: Color = Color.getColor("#515151")
         val SIZE: Float = 64.0F
         val ANIMATION_SPEED: Float = 0.1F
 
-        var shuffledSides: Array<Vector2i> = arrayOf(UP, RIGHT, DOWN, LEFT)
+        var shuffledSides: Array<IntOffset> = arrayOf(UP, RIGHT, DOWN, LEFT)
     }
 
     var locked: Boolean = false
@@ -62,8 +65,8 @@ class Piece {
     var isRootPiece: Boolean = false
 
     var type: Type = Type.NONE
-//    var coordinate: Vector2i
-    var coordinate: Vector2i = Vector2i(0, 0)
+//    var coordinate: IntOffset
+    var coordinate: IntOffset = IntOffset(0, 0)
     var direction: Int = 0
 //    var looped_counter := 0 : set = setLoopedCounter
     var position by mutableStateOf(Offset(0f, 0f))
@@ -74,7 +77,7 @@ class Piece {
 
 
 
-    fun init(scale: FloatFloatPair, coordinate: Vector2i, type: Type, rootPiece: Boolean = false) {
+    fun init(scale: FloatFloatPair, coordinate: IntOffset, type: Type, rootPiece: Boolean = false) {
 //        this.scale = scale
         this.coordinate = coordinate
         this.type = type
@@ -95,6 +98,7 @@ class Piece {
     fun draw(drawScope: DrawScope) {
         Log.d("TEST", "redrawn " + position)
         with(drawScope) {
+            drawRect(Color.Gray, topLeft = position, size = Size(80f, 80f))
             rotate(degrees = rotation, pivot = position + Offset(80f, 80f) / 2f) {
                 drawRect(Color.Blue, topLeft = position, size = Size(80f, 80f))
             }
@@ -138,7 +142,7 @@ class Piece {
 //        node.visible = false
 //
 //        for (source_piece: Piece in source_pieces) {
-//            var relative_coordinate: Vector2i = source_piece.coordinate - coordinate
+//            var relative_coordinate: IntOffset = source_piece.coordinate - coordinate
 ////            when (relative_coordinate) {
 ////                UP -> $up.visible = true
 ////                RIGHT -> $right.visible = true
@@ -226,11 +230,11 @@ class Piece {
 
 
 
-//    fun swapType(connectionTypes: MutableMap<Vector2i, String> = mutableMapOf()) {
+//    fun swapType(connectionTypes: MutableMap<IntOffset, String> = mutableMapOf()) {
 //        var linkCount: Int = 0
 //        var barrierCount: Int = 0
 //
-//        for (side: Vector2i in SIDES) {
+//        for (side: IntOffset in SIDES) {
 //            var connectionType: String
 //            if (side in connectionTypes) {
 //                connectionType = connectionTypes[side].toString()
@@ -286,7 +290,7 @@ class Piece {
 
 
 //    fun solveAndSpread(
-//    connectionTypes: Dictionary[Vector2i, StringName] = {},
+//    connectionTypes: Dictionary[IntOffset, StringName] = {},
 //    random_choice:= false
 //    ): Boolean:
 //
@@ -497,8 +501,8 @@ class Piece {
 //    for orientation: Array in [[UP, DOWN], [LEFT, RIGHT]]:
 //    var iPieceLine: Array[Piece] = [self]
 //
-//    var firstDirection: Vector2i = orientation[0]
-//    var secondDirection: Vector2i = orientation[1]
+//    var firstDirection: IntOffset = orientation[0]
+//    var secondDirection: IntOffset = orientation[1]
 //    var sideChecks:= 0
 //
 //    while true:
@@ -560,8 +564,8 @@ class Piece {
 //
 //    return neighbourPieces
 
-//    fun getSidesWithNeighbours(): Dictionary[Vector2i, Piece]:
-//    var neighbourPieces: Dictionary[Vector2i, Piece] = {}
+//    fun getSidesWithNeighbours(): Dictionary[IntOffset, Piece]:
+//    var neighbourPieces: Dictionary[IntOffset, Piece] = {}
 //    for side in SIDES:
 //    if Game.validCoordinate(coordinate + side):
 //    neighbourPieces[side] = Game.pieces[coordinate + side]
@@ -579,10 +583,10 @@ class Piece {
 //
 //    return neighbourPieces
 
-//    fun getSidesWithConnectedNeighbours(): Dictionary[Vector2i, Piece]:
+//    fun getSidesWithConnectedNeighbours(): Dictionary[IntOffset, Piece]:
 //    var sidesWithNeighbours:= getSidesWithNeighbours()
 //
-//    for side: Vector2i in sidesWithNeighbours.keys():
+//    for side: IntOffset in sidesWithNeighbours.keys():
 //    if not connected(sidesWithNeighbours[side]):
 //    sidesWithNeighbours.erase(side)
 //
@@ -611,8 +615,8 @@ class Piece {
 
 
 
-//    fun getLinks(): Dictionary[Vector2i, Boolean]:
-//    var links: Dictionary[Vector2i, Boolean] = {
+//    fun getLinks(): Dictionary[IntOffset, Boolean]:
+//    var links: Dictionary[IntOffset, Boolean] = {
 //        UP : false,
 //        RIGHT : false,
 //        DOWN : false,
@@ -675,7 +679,7 @@ class Piece {
 
 
 
-//    fun getNeighboursConnectionType(side: Vector2i): StringName:
+//    fun getNeighboursConnectionType(side: IntOffset): StringName:
 //    var neighbourCoordinate:= coordinate + side
 //    if not Game.validCoordinate(neighbourCoordinate):
 //    return &"barrier"
@@ -874,7 +878,7 @@ class Piece {
 //    return false
 //
 //
-//    static fun getShuffledSides(): Array[Vector2i]:
+//    static fun getShuffledSides(): Array[IntOffset]:
 //    shuffledSides.shuffle()
 //    return shuffledSides
 //
