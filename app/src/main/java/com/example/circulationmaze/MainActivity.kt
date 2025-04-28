@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
-import com.example.circulationmaze.registerLogin.RegisterLogin
 import com.example.circulationmaze.ui.theme.AppTheme
 
 class MainActivity : ComponentActivity() {
@@ -32,7 +31,8 @@ class MainActivity : ComponentActivity() {
                 dynamicColor = false,
             ) {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    RegisterLogin(modifier = Modifier.padding(innerPadding))
+//                    RegisterLogin(modifier = Modifier.padding(innerPadding))
+                    GameComposable(modifier = Modifier.padding(innerPadding))
                 }
             }
         }

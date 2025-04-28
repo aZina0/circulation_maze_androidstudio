@@ -1,9 +1,17 @@
 package com.example.circulationmaze
 
+import android.util.Log
 import android.widget.ImageView
 import androidx.collection.FloatFloatPair
-import androidx.compose.runtime.Composable
-
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.rotate
 
 
 class Piece {
@@ -58,6 +66,8 @@ class Piece {
     var coordinate: Vector2i = Vector2i(0, 0)
     var direction: Int = 0
 //    var looped_counter := 0 : set = setLoopedCounter
+    var position by mutableStateOf(Offset(0f, 0f))
+    var rotation by mutableFloatStateOf(0f)
 
     var linked_pieces: Array<Piece> = emptyArray()
     var source_pieces: Array<Piece> = emptyArray()
@@ -81,7 +91,15 @@ class Piece {
         val imageView: ImageView = ImageView(null)
         }
     }
-
+//    var test = Offset(1, 1)
+    fun draw(drawScope: DrawScope) {
+        Log.d("TEST", "redrawn " + position)
+        with(drawScope) {
+            rotate(degrees = rotation, pivot = position + Offset(80f, 80f) / 2f) {
+                drawRect(Color.Blue, topLeft = position, size = Size(80f, 80f))
+            }
+        }
+    }
 
 //    fun _ready() {
 //        position = Vector2(1, 1) + (scale * SIZE + Vector2(1, 1)) * Vector2(coordinate)

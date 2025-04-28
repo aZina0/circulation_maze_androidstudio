@@ -1,6 +1,52 @@
 package com.example.circulationmaze
 
 import android.content.Context
+import android.util.Log
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
+
+
+@Composable
+fun GameComposable(modifier: Modifier = Modifier) {
+    val piece1 = Piece()
+    val piece2 = Piece()
+    piece1.position = Offset(0f, 0f)
+    piece2.position = Offset(85f, 0f)
+    Game.pieces[IntOffset(0, 0)] = piece1
+    Game.pieces[IntOffset(1, 0)] = piece2
+
+    Canvas(
+        modifier = modifier.fillMaxSize()
+    ) {
+        for (piece in Game.pieces.values) {
+            piece.draw(this)
+        }
+
+    }
+    ControlsComposable(modifier)
+}
+
+@Composable
+fun ControlsComposable(modifier: Modifier = Modifier) {
+    Column(modifier = modifier.fillMaxSize().padding(top=100.dp)) {
+        Button(
+            onClick = {
+                Game.pieces[IntOffset(0, 0)]!!.rotation += 15f
+            }
+        ) {
+            Text(text = "1")
+        }
+    }
+}
 
 
 object Game {
@@ -16,7 +62,7 @@ object Game {
     val TARGET_O_PIECE_RATIO = 0.25F
 
     var highlight = Vector2i(-1, -1)
-    var pieces: MutableMap<Vector2i, Piece> = mutableMapOf()
+    var pieces: MutableMap<IntOffset, Piece> = mutableMapOf()
     var pieceCount = 0
     var gridRows = 0
     var gridColumns = 0
@@ -158,7 +204,7 @@ object Game {
         var loopyPieces: MutableList<Piece> = mutableListOf()
 
         while (true) {
-            loopyPieces.add(pieces[Vector2i(x, y)]!!)
+            loopyPieces.add(pieces[IntOffset(x, y)]!!)
 
             if (Vector2i(x, y) == gridCenterCoordinate) {
                 break
