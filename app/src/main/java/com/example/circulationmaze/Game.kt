@@ -183,15 +183,15 @@ object Game {
 
 
     fun getLoopyPieceList(reverse: Boolean = false): MutableList<Piece> {
-        var leftBorder: Int = 0
-        var rightBorder: Int = gridColumns - 1
-        var upBorder: Int = 0
-        var downBorder: Int = gridRows - 1
-        var direction: String = "right"
-        var x: Int = 0
-        var y: Int = 0
+        var leftBorder = 0
+        var rightBorder = gridColumns - 1
+        var upBorder = 0
+        var downBorder = gridRows - 1
+        var direction = "right"
+        var x = 0
+        var y = 0
 
-        var loopyPieces: MutableList<Piece> = mutableListOf()
+        val loopyPieces: MutableList<Piece> = mutableListOf()
 
         while (true) {
             loopyPieces.add(pieces[IntOffset(x, y)]!!)
@@ -201,10 +201,10 @@ object Game {
             }
 
             when (direction) {
-                "right" -> x += 1
-                "down" -> y += 1
-                "left" -> x -= 1
-                "up" -> y -= 1
+                "right" -> { x += 1 }
+                "down" -> { y += 1 }
+                "left" -> { x -= 1 }
+                "up" -> { y -= 1 }
             }
 
             if (x > rightBorder) {
@@ -407,7 +407,7 @@ object Game {
 
 
     fun countOPieces(): Int {
-        var count: Int = 0
+        var count = 0
         for (piece: Piece in pieces.values) {
             if (piece.type == Piece.Type.O) {
                 count += 1

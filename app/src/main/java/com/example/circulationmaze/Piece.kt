@@ -18,11 +18,16 @@ private val DOWN = IntOffset(0, -1)
 private val LEFT = IntOffset(-1, 0)
 private val SIDES = arrayOf(UP, RIGHT, DOWN, LEFT)
 
+private val FREE = Piece.ConnectionType.FREE
+private val BARRIER = Piece.ConnectionType.BARRIER
+private val LINK = Piece.ConnectionType.LINK
+
 //private val BACKGROUND_COLOR = Color()
 
-class Piece(coordinate: IntOffset, type: Type) {
+class Piece(val coordinate: IntOffset, type: Type) {
 
     enum class Type {O, I, L, T, NONE}
+    enum class ConnectionType {FREE, BARRIER, LINK}
 
     companion object {
 //        val DEFAULT_COLOR: Color = Color.getColor("#515151")
@@ -31,6 +36,61 @@ class Piece(coordinate: IntOffset, type: Type) {
         var scale = 1f
 
         var shuffledSides = arrayOf(UP, RIGHT, DOWN, LEFT)
+
+
+        fun sameConnectionType(
+            connectionTypes: Map<IntOffset, ConnectionType>,
+            relativePosition: String,
+            typeToCheck: ConnectionType
+        ): Boolean {
+
+            when (relativePosition) {
+                "adjacent" -> {
+                    if (
+                        connectionTypes[LEFT] == connectionTypes[UP] &&
+                        connectionTypes[LEFT] == typeToCheck
+                    ) {
+                        return true
+
+                    } else if (
+                        connectionTypes[UP] == connectionTypes[RIGHT] &&
+                        connectionTypes[UP] == typeToCheck
+                    ) {
+                        return true
+
+                    } else if (
+                        connectionTypes[RIGHT] == connectionTypes[DOWN] &&
+                        connectionTypes[RIGHT] == typeToCheck
+                    ) {
+                        return true
+
+                    } else if (
+                        connectionTypes[DOWN] == connectionTypes[LEFT] &&
+                        connectionTypes[DOWN] == typeToCheck
+                    ) {
+                        return true
+                    }
+                }
+
+
+                "across" -> {
+                    if (
+                        connectionTypes[LEFT] == connectionTypes[RIGHT] &&
+                        connectionTypes[LEFT] == typeToCheck
+                    ) {
+                        return true
+                    }
+                    else if (
+                        connectionTypes[UP] == connectionTypes[DOWN] &&
+                        connectionTypes[UP] == typeToCheck
+                    ) {
+                        return true
+                    }
+                }
+            }
+
+            return false
+        }
     }
 
     var locked = false
@@ -48,12 +108,8 @@ class Piece(coordinate: IntOffset, type: Type) {
     var flashing = false
     var isRootPiece = false
 
-    val coordinate = coordinate
     var type = type
-        set(value) {
-            field = value
-            triggerRedraw()
-        }
+        private set
 
     var direction = 0
 //    var looped_counter := 0 : set = setLoopedCounter
@@ -66,7 +122,7 @@ class Piece(coordinate: IntOffset, type: Type) {
     var linked_pieces: Array<Piece> = emptyArray()
     var source_pieces: Array<Piece> = emptyArray()
 
-    var redrawTrigger by mutableStateOf(false)
+    private var redrawTrigger by mutableStateOf(false)
 
     init {
         position = Offset(
@@ -86,7 +142,7 @@ class Piece(coordinate: IntOffset, type: Type) {
         }
     }
 
-    fun triggerRedraw() {
+    private fun triggerRedraw() {
         redrawTrigger = !redrawTrigger
     }
 
@@ -98,6 +154,7 @@ class Piece(coordinate: IntOffset, type: Type) {
 
     fun changeType(pieceType: Type) {
         type = pieceType
+        triggerRedraw()
     }
 
 
@@ -209,60 +266,60 @@ class Piece(coordinate: IntOffset, type: Type) {
 
 
 
-//    fun swapType(connectionTypes: MutableMap<IntOffset, String> = mutableMapOf()) {
-//        var linkCount: Int = 0
-//        var barrierCount: Int = 0
-//
-//        for (side: IntOffset in SIDES) {
-//            var connectionType: String
-//            if (side in connectionTypes) {
-//                connectionType = connectionTypes[side].toString()
-//            } else {
-//                connectionType = getNeighboursConnectionType(side)
-//                connectionTypes[side] = connectionType
-//            }
-//
-//            if (connectionType == "barrier") {
-//                barrierCount += 1
-//            } else if (connectionType == "link") {
-//                linkCount += 1
-//            }
-//        }
-//
-//
-//        if (
-//            (
-//                sameConnectionType(connectionTypes, "adjacent", "barrier") &&
-//                barrierCount == 2
-//            )
-//            ||
-//            (
-//                sameConnectionType(connectionTypes, "adjacent", "link") &&
-//                linkCount == 2
-//            )
-//        ) {
-//            changeType(Type.L)
-//
-//        } else if (
-//            (
-//                sameConnectionType(connectionTypes, "across", "barrier") &&
-//                barrierCount == 2
-//            )
-//            ||
-//            (
-//                sameConnectionType(connectionTypes, "across", "link") &&
-//                linkCount == 2
-//            )
-//        ) {
-//            changeType(Type.I)
-//
-//        } else if (linkCount == 1 || barrierCount == 3) {
-//            changeType(Type.O)
-//
-//        } else if (linkCount == 3 || barrierCount == 1) {
-//            changeType(Type.T)
-//        }
-//    }
+    fun swapType(connectionTypes: MutableMap<IntOffset, ConnectionType> = mutableMapOf()) {
+        var linkCount = 0
+        var barrierCount = 0
+
+        for (side in SIDES) {
+            var connectionType: ConnectionType
+            if (side in connectionTypes) {
+                connectionType = connectionTypes[side]!!
+            } else {
+                connectionType = getNeighboursConnectionType(side)
+                connectionTypes[side] = connectionType
+            }
+
+            if (connectionType == BARRIER) {
+                barrierCount += 1
+            } else if (connectionType == LINK) {
+                linkCount += 1
+            }
+        }
+
+
+        if (
+            (
+                sameConnectionType(connectionTypes, "adjacent", BARRIER) &&
+                barrierCount == 2
+            )
+            ||
+            (
+                sameConnectionType(connectionTypes, "adjacent", LINK) &&
+                linkCount == 2
+            )
+        ) {
+            changeType(Type.L)
+
+        } else if (
+            (
+                sameConnectionType(connectionTypes, "across", BARRIER) &&
+                barrierCount == 2
+            )
+            ||
+            (
+                sameConnectionType(connectionTypes, "across", LINK) &&
+                linkCount == 2
+            )
+        ) {
+            changeType(Type.I)
+
+        } else if (linkCount == 1 || barrierCount == 3) {
+            changeType(Type.O)
+
+        } else if (linkCount == 3 || barrierCount == 1) {
+            changeType(Type.T)
+        }
+    }
 
 
 
@@ -296,13 +353,13 @@ class Piece(coordinate: IntOffset, type: Type) {
 //    else:
 //    connectionType = getNeighboursConnectionType(side)
 //
-//    if connectionType == &"barrier":
+//    if connectionType == &BARRIER:
 //    barrierCount += 1
-//    elif connectionType == &"link":
+//    else if connectionType == &LINK:
 //    linkCount += 1
 //
-//    link[side] = connectionType == &"link"
-//    barrier[side] = connectionType == &"barrier"
+//    link[side] = connectionType == &LINK
+//    barrier[side] = connectionType == &BARRIER
 //
 //
 //    match type:
@@ -311,27 +368,27 @@ class Piece(coordinate: IntOffset, type: Type) {
 //    if link[DOWN]:
 //    rotateTo0()
 //    return true
-//    elif link[LEFT]:
+//    else if link[LEFT]:
 //    rotateTo90()
 //    return true
-//    elif link[UP]:
+//    else if link[UP]:
 //    rotateTo180()
 //    return true
-//    elif link[RIGHT]:
+//    else if link[RIGHT]:
 //    rotateTo270()
 //    return true
 //
-//    elif barrierCount == 3:
+//    else if barrierCount == 3:
 //    if barrier[RIGHT] and barrier[UP] and barrier[LEFT]:
 //    rotateTo0()
 //    return true
-//    elif barrier[UP] and barrier[RIGHT] and barrier[DOWN]:
+//    else if barrier[UP] and barrier[RIGHT] and barrier[DOWN]:
 //    rotateTo90()
 //    return true
-//    elif barrier[DOWN] and barrier[RIGHT] and barrier[LEFT]:
+//    else if barrier[DOWN] and barrier[RIGHT] and barrier[LEFT]:
 //    rotateTo180()
 //    return true
-//    elif barrier[UP] and barrier[LEFT] and barrier[DOWN]:
+//    else if barrier[UP] and barrier[LEFT] and barrier[DOWN]:
 //    rotateTo270()
 //    return true
 //
@@ -343,35 +400,35 @@ class Piece(coordinate: IntOffset, type: Type) {
 //    ):
 //    pass
 //
-//    elif (
+//    else if (
 //    (link[RIGHT] and link[DOWN]) or (barrier[LEFT] and barrier[UP]) or
 //    (link[RIGHT] and barrier[UP]) or (link[DOWN] and barrier[LEFT])
 //    ):
 //    rotateTo0()
 //    return true
 //
-//    elif (
+//    else if (
 //    (link[DOWN] and link[LEFT]) or (barrier[UP] and barrier[RIGHT]) or
 //    (link[DOWN] and barrier[RIGHT]) or (link[LEFT] and barrier[UP])
 //    ):
 //    rotateTo90()
 //    return true
 //
-//    elif (
+//    else if (
 //    (link[LEFT] and link[UP]) or (barrier[RIGHT] and barrier[DOWN]) or
 //    (link[LEFT] and barrier[DOWN]) or (link[UP] and barrier[RIGHT])
 //    ):
 //    rotateTo180()
 //    return true
 //
-//    elif (
+//    else if (
 //    (link[UP] and link[RIGHT]) or (barrier[DOWN] and barrier[LEFT]) or
 //    (link[UP] and barrier[LEFT]) or (link[RIGHT] and barrier[DOWN])
 //    ):
 //    rotateTo270()
 //    return true
 //
-//    elif random_choice:
+//    else if random_choice:
 //    if link[DOWN] or barrier[UP]:
 //    if randf() >= 0.5:
 //    rotateTo0()
@@ -379,7 +436,7 @@ class Piece(coordinate: IntOffset, type: Type) {
 //    else:
 //    rotateTo90()
 //    return true
-//    elif link[LEFT] or barrier[RIGHT]:
+//    else if link[LEFT] or barrier[RIGHT]:
 //    if randf() >= 0.5:
 //    rotateTo90()
 //    return true
@@ -387,14 +444,14 @@ class Piece(coordinate: IntOffset, type: Type) {
 //    rotateTo180()
 //    return true
 //
-//    elif link[UP] or barrier[DOWN]:
+//    else if link[UP] or barrier[DOWN]:
 //    if randf() >= 0.5:
 //    rotateTo180()
 //    return true
 //    else:
 //    rotateTo270()
 //    return true
-//    elif link[RIGHT] or barrier[LEFT]:
+//    else if link[RIGHT] or barrier[LEFT]:
 //    if randf() >= 0.5:
 //    rotateTo270()
 //    return true
@@ -409,7 +466,7 @@ class Piece(coordinate: IntOffset, type: Type) {
 //    else:
 //    rotateTo0()
 //    return true
-//    elif barrier[UP] or barrier[DOWN] or link[LEFT] or link[RIGHT]:
+//    else if barrier[UP] or barrier[DOWN] or link[LEFT] or link[RIGHT]:
 //    if link[UP] or link[DOWN] or barrier[LEFT] or barrier[RIGHT]:
 //    pass
 //    else:
@@ -419,19 +476,19 @@ class Piece(coordinate: IntOffset, type: Type) {
 //    Piece.Type.T:
 //    if barrierCount > 1 or linkCount == 4:
 //    pass
-//    elif barrier[LEFT] or (link[UP] and link[RIGHT] and link[DOWN]):
+//    else if barrier[LEFT] or (link[UP] and link[RIGHT] and link[DOWN]):
 //    rotateTo0()
 //    return true
-//    elif barrier[UP] or (link[RIGHT] and link[DOWN] and link[LEFT]):
+//    else if barrier[UP] or (link[RIGHT] and link[DOWN] and link[LEFT]):
 //    rotateTo90()
 //    return true
-//    elif barrier[RIGHT] or (link[DOWN] and link[LEFT] and link[UP]):
+//    else if barrier[RIGHT] or (link[DOWN] and link[LEFT] and link[UP]):
 //    rotateTo180()
 //    return true
-//    elif barrier[DOWN] or (link[LEFT] and link[UP] and link[RIGHT]):
+//    else if barrier[DOWN] or (link[LEFT] and link[UP] and link[RIGHT]):
 //    rotateTo270()
 //    return true
-//    elif random_choice:
+//    else if random_choice:
 //    if link[UP] and link[DOWN]:
 //    if randf() > 0.5:
 //    rotateTo0()
@@ -439,35 +496,35 @@ class Piece(coordinate: IntOffset, type: Type) {
 //    else:
 //    rotateTo180()
 //    return true
-//    elif link[LEFT] and link[RIGHT]:
+//    else if link[LEFT] and link[RIGHT]:
 //    if randf() > 0.5:
 //    rotateTo90()
 //    return true
 //    else:
 //    rotateTo270()
 //    return true
-//    elif link[RIGHT] and link[DOWN]:
+//    else if link[RIGHT] and link[DOWN]:
 //    if randf() > 0.5:
 //    rotateTo0()
 //    return true
 //    else:
 //    rotateTo90()
 //    return true
-//    elif link[DOWN] and link[LEFT]:
+//    else if link[DOWN] and link[LEFT]:
 //    if randf() > 0.5:
 //    rotateTo90()
 //    return true
 //    else:
 //    rotateTo180()
 //    return true
-//    elif link[LEFT] and link[UP]:
+//    else if link[LEFT] and link[UP]:
 //    if randf() > 0.5:
 //    rotateTo180()
 //    return true
 //    else:
 //    rotateTo270()
 //    return true
-//    elif link[UP] and link[RIGHT]:
+//    else if link[UP] and link[RIGHT]:
 //    if randf() > 0.5:
 //    rotateTo270()
 //    return true
@@ -494,7 +551,7 @@ class Piece(coordinate: IntOffset, type: Type) {
 //    var checkPiece: Piece = Game.pieces[checkCoordinate]
 //    if checkPiece.type == Type.I:
 //    iPieceLine.push_front(checkPiece)
-//    elif checkPiece.type == Type.O:
+//    else if checkPiece.type == Type.O:
 //    sideChecks += 1
 //    break
 //    else:
@@ -513,7 +570,7 @@ class Piece(coordinate: IntOffset, type: Type) {
 //    var checkPiece: Piece = Game.pieces[checkCoordinate]
 //    if checkPiece.type == Type.I:
 //    iPieceLine.append(checkPiece)
-//    elif checkPiece.type == Type.O:
+//    else if checkPiece.type == Type.O:
 //    sideChecks += 1
 //    break
 //    else:
@@ -524,7 +581,7 @@ class Piece(coordinate: IntOffset, type: Type) {
 //    for iPiece in iPieceLine:
 //    iPiece.rotateTo90()
 //    iPiece.locked = true
-//    elif orientation == [LEFT, RIGHT]:
+//    else if orientation == [LEFT, RIGHT]:
 //    for iPiece in iPieceLine:
 //    iPiece.rotateTo0()
 //    iPiece.locked = true
@@ -594,88 +651,117 @@ class Piece(coordinate: IntOffset, type: Type) {
 
 
 
-//    fun getLinks(): Dictionary[IntOffset, Boolean]:
-//    var links: Dictionary[IntOffset, Boolean] = {
-//        UP : false,
-//        RIGHT : false,
-//        DOWN : false,
-//        LEFT : false,
-//    }
-//
-//    match type:
-//    Type.O:
-//    match direction:
-//    0:
-//    links[DOWN] = true
-//    90:
-//    links[LEFT] = true
-//    180:
-//    links[UP] = true
-//    270:
-//    links[RIGHT] = true
-//    Type.I:
-//    match direction:
-//    0, 180:
-//    links[DOWN] = true
-//    links[UP] = true
-//    90,	270:
-//    links[RIGHT] = true
-//    links[LEFT] = true
-//    Type.L:
-//    match direction:
-//    0:
-//    links[RIGHT] = true
-//    links[DOWN] = true
-//    90:
-//    links[DOWN] = true
-//    links[LEFT] = true
-//    180:
-//    links[LEFT] = true
-//    links[UP] = true
-//    270:
-//    links[UP] = true
-//    links[RIGHT] = true
-//    Type.T:
-//    match direction:
-//    0:
-//    links[UP] = true
-//    links[RIGHT] = true
-//    links[DOWN] = true
-//    90:
-//    links[RIGHT] = true
-//    links[DOWN] = true
-//    links[LEFT] = true
-//    180:
-//    links[DOWN] = true
-//    links[LEFT] = true
-//    links[UP] = true
-//    270:
-//    links[LEFT] = true
-//    links[UP] = true
-//    links[RIGHT] = true
-//
-//    return links
+    fun getLinks(): Map<IntOffset, Boolean> {
+        val links = mutableMapOf<IntOffset, Boolean>()
+        links[UP] = false
+        links[RIGHT] = false
+        links[DOWN] = false
+        links[LEFT] = false
+
+        when (type) {
+            Type.O -> {
+                when (direction) {
+                    0 -> {
+                        links[DOWN] = true
+                    }
+                    90 -> {
+                        links[LEFT] = true
+                    }
+                    180 -> {
+                        links[UP] = true
+                    }
+                    270 -> {
+                        links[RIGHT] = true
+                    }
+                }
+            }
+
+            Type.I -> {
+                when (direction) {
+                    0, 180 -> {
+                        links[DOWN] = true
+                        links[UP] = true
+                    }
+                    90, 270 -> {
+                        links[RIGHT] = true
+                        links[LEFT] = true
+                    }
+                }
+            }
+            Type.L -> {
+                when (direction) {
+                    0 -> {
+                        links[RIGHT] = true
+                        links[DOWN] = true
+                    }
+                    90 -> {
+                        links[DOWN] = true
+                        links[LEFT] = true
+                    }
+                    180 -> {
+                        links[LEFT] = true
+                        links[UP] = true
+                    }
+                    270 -> {
+                        links[UP] = true
+                        links[RIGHT] = true
+                    }
+                }
+            }
+            Type.T -> {
+                when (direction) {
+                    0 -> {
+                        links[UP] = true
+                        links[RIGHT] = true
+                        links[DOWN] = true
+                    }
+                    90 -> {
+                        links[RIGHT] = true
+                        links[DOWN] = true
+                        links[LEFT] = true
+                    }
+                    180 -> {
+                        links[DOWN] = true
+                        links[LEFT] = true
+                        links[UP] = true
+                    }
+                    270 -> {
+                        links[LEFT] = true
+                        links[UP] = true
+                        links[RIGHT] = true
+                    }
+                }
+            }
+            Type.NONE -> {}
+        }
+        return links
+    }
 
 
 
-//    fun getNeighboursConnectionType(side: IntOffset): StringName:
-//    var neighbourCoordinate:= coordinate + side
-//    if not Game.validCoordinate(neighbourCoordinate):
-//    return &"barrier"
-//
-//    var neighbourPiece: Piece = Game.pieces[neighbourCoordinate]
-//
-//    if not neighbourPiece.locked:
-//    if self.type == Piece.Type.O and neighbourPiece.type == Piece.Type.O:
-//    return &"barrier"
-//    else:
-//    return &"free"
-//
-//    var neighbourSideStates:= neighbourPiece.getLinks()
-//    if neighbourSideStates[-side]:
-//    return &"link"
-//    else:
-//    return &"barrier"
+    fun getNeighboursConnectionType(side: IntOffset): ConnectionType {
+        val neighbourCoordinate = coordinate + side
+        if (!Game.validCoordinate(neighbourCoordinate)) {
+            return BARRIER
+        }
+
+        val neighbourPiece = Game.pieces[neighbourCoordinate]!!
+
+        if (!neighbourPiece.locked) {
+            if (type == Type.O && neighbourPiece.type == Type.O) {
+                return BARRIER
+            } else {
+                return FREE
+            }
+        }
+
+        val neighbourSideStates = neighbourPiece.getLinks()
+        if (neighbourSideStates[-side]!!) {
+            return LINK
+        } else {
+            return BARRIER
+        }
+    }
 
 
 
@@ -724,13 +810,13 @@ class Piece(coordinate: IntOffset, type: Type) {
 //    direction += 180
 //    if direction == 360:
 //    direction = 0
-//    elif direction == 450:
+//    else if direction == 450:
 //    direction = 90
 //
 //    if not instant:
 //    if direction == 0:
 //    $symbol.rotation_degrees = -180
-//    elif direction == 90:
+//    else if direction == 90:
 //    $symbol.rotation_degrees = -90
 //    get_tree().create_tween().tween_property(
 //    $symbol,
@@ -807,56 +893,6 @@ class Piece(coordinate: IntOffset, type: Type) {
 //    print("--- ", piece.coordinate)
 
 
-
-//    static fun sameConnectionType(
-//    connectionTypes : Dictionary,
-//    relativePosition : StringName,
-//    typeToCheck : StringName
-//    ): Boolean:
-//
-//    if relativePosition == &"adjacent":
-//    if (
-//    connectionTypes[LEFT] == connectionTypes[UP] and
-//    connectionTypes[LEFT] == typeToCheck
-//    ):
-//    return true
-//
-//    elif (
-//    connectionTypes[UP] == connectionTypes[RIGHT] and
-//    connectionTypes[UP] == typeToCheck
-//    ):
-//    return true
-//
-//    elif (
-//    connectionTypes[RIGHT] == connectionTypes[DOWN] and
-//    connectionTypes[RIGHT] == typeToCheck
-//    ):
-//    return true
-//
-//    elif (
-//    connectionTypes[DOWN] == connectionTypes[LEFT] and
-//    connectionTypes[DOWN] == typeToCheck
-//    ):
-//    return true
-//
-//    return false
-//
-//
-//    elif relativePosition == &"across":
-//    if (
-//    connectionTypes[LEFT] == connectionTypes[RIGHT] and
-//    connectionTypes[LEFT] == typeToCheck
-//    ):
-//    return true
-//
-//
-//    return false
-//
-//    else:
-//    assert(false, "Invalid type of relativePosition: '{0}'".format([relativePosition]))
-//    return false
-//
-//
 //    static fun getShuffledSides(): Array[IntOffset]:
 //    shuffledSides.shuffle()
 //    return shuffledSides
