@@ -1,10 +1,7 @@
 package com.example.circulationmaze
 
 import android.util.Log
-import android.widget.ImageView
-import androidx.collection.FloatFloatPair
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
@@ -19,85 +16,69 @@ private val UP = IntOffset(0, 1)
 private val RIGHT = IntOffset(1, 0)
 private val DOWN = IntOffset(0, -1)
 private val LEFT = IntOffset(-1, 0)
-private val SIDES: Array<IntOffset> = arrayOf(UP, RIGHT, DOWN, LEFT)
+private val SIDES = arrayOf(UP, RIGHT, DOWN, LEFT)
 
 //private val BACKGROUND_COLOR = Color()
 
-class Piece {
+class Piece(coordinate: IntOffset, type: Type) {
 
     enum class Type {O, I, L, T, NONE}
-//    const textures = {
-//        Type.O: preload("res://assets/images/O.png"),
-//        Type.I: preload("res://assets/images/I.png"),
-//        Type.L: preload("res://assets/images/L.png"),
-//        Type.T: preload("res://assets/images/T.png"),
-//        Type.NONE: null,
-//    }
-
-
-
-
-//    signal activated
-//    signal deactivated
-//    signal rotated
 
     companion object {
 //        val DEFAULT_COLOR: Color = Color.getColor("#515151")
-        val SIZE: Float = 64.0F
-        val ANIMATION_SPEED: Float = 0.1F
+        const val BASE_SIZE = 64.0F
+        var animationSpeed = 0.1F
+        var scale = 1f
 
-        var shuffledSides: Array<IntOffset> = arrayOf(UP, RIGHT, DOWN, LEFT)
+        var shuffledSides = arrayOf(UP, RIGHT, DOWN, LEFT)
     }
 
-    var locked: Boolean = false
+    var locked = false
 //        set(value) {
 //            setLock(value)
 //        }
-    var highlighted: Boolean = false
+    var highlighted = false
 //        set(value) {
 //            setHighlight(value)
 //        }
-    var active: Boolean = false
+    var active = false
 //        set(value) {
 //            setActive(value)
 //        }
-    var flashing: Boolean = false
-    var isRootPiece: Boolean = false
+    var flashing = false
+    var isRootPiece = false
 
-    var type: Type = Type.NONE
-//    var coordinate: IntOffset
-    var coordinate: IntOffset = IntOffset(0, 0)
-    var direction: Int = 0
+    val coordinate = coordinate
+    var type = type
+        set(value) {
+            field = value
+            triggerRedraw()
+        }
+
+    var direction = 0
 //    var looped_counter := 0 : set = setLoopedCounter
-    var position by mutableStateOf(Offset(0f, 0f))
-    var rotation by mutableFloatStateOf(0f)
-
+    var position = Offset(0f, 0f)
+    var rotation = 0f
+        set(value) {
+            field = value
+            triggerRedraw()
+        }
     var linked_pieces: Array<Piece> = emptyArray()
     var source_pieces: Array<Piece> = emptyArray()
 
+    var redrawTrigger by mutableStateOf(false)
 
-
-    fun init(scale: FloatFloatPair, coordinate: IntOffset, type: Type, rootPiece: Boolean = false) {
-//        this.scale = scale
-        this.coordinate = coordinate
-        this.type = type
-
-        if (rootPiece) {
-            isRootPiece = true
-            active = true
-        } else {
-            isRootPiece = false
-
-//            rotated.connect(Game._on_piece_rotated.bind(self))
-
-
-        val imageView: ImageView = ImageView(null)
-        }
+    init {
+        position = Offset(
+            1f + (scale * BASE_SIZE + 1f) * coordinate.x,
+            1f + (scale * BASE_SIZE + 1f) * coordinate.y,
+        )
     }
-//    var test = Offset(1, 1)
+
     fun draw(drawScope: DrawScope) {
         Log.d("TEST", "redrawn " + position)
         with(drawScope) {
+            redrawTrigger
             drawRect(Color.Gray, topLeft = position, size = Size(80f, 80f))
             rotate(degrees = rotation, pivot = position + Offset(80f, 80f) / 2f) {
                 drawRect(Color.Blue, topLeft = position, size = Size(80f, 80f))
@@ -105,10 +86,9 @@ class Piece {
         }
     }
 
-//    fun _ready() {
-//        position = Vector2(1, 1) + (scale * SIZE + Vector2(1, 1)) * Vector2(coordinate)
-//        refresh()
-//    }
+    fun triggerRedraw() {
+        redrawTrigger = !redrawTrigger
+    }
 
 
 //    fun _to_string(): String {
@@ -116,10 +96,9 @@ class Piece {
 //    }
 
 
-//    fun changeType(pieceType: Type) {
-//        type = pieceType
-//        refresh()
-//    }
+    fun changeType(pieceType: Type) {
+        type = pieceType
+    }
 
 
 //    fun refresh() {

@@ -9,20 +9,14 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import kotlin.math.roundToInt
+import kotlin.random.Random
 
 
 @Composable
 fun GameComposable(modifier: Modifier = Modifier) {
-    val piece1 = Piece()
-    val piece2 = Piece()
-    piece1.position = Offset(0f, 0f)
-    piece2.position = Offset(85f, 0f)
-    Game.pieces[IntOffset(0, 0)] = piece1
-    Game.pieces[IntOffset(1, 0)] = piece2
-
     Canvas(
         modifier = modifier.fillMaxSize()
     ) {
@@ -36,7 +30,9 @@ fun GameComposable(modifier: Modifier = Modifier) {
 
 @Composable
 fun ControlsComposable(modifier: Modifier = Modifier) {
-    Column(modifier = modifier.fillMaxSize().padding(top=100.dp)) {
+    Column(modifier = modifier
+        .fillMaxSize()
+        .padding(top = 100.dp)) {
         Button(
             onClick = {
                 Game.pieces[IntOffset(0, 0)]!!.rotation += 15f
@@ -48,25 +44,27 @@ fun ControlsComposable(modifier: Modifier = Modifier) {
 }
 
 
+private val UP = IntOffset(0, 1)
+private val RIGHT = IntOffset(1, 0)
+private val DOWN = IntOffset(0, -1)
+private val LEFT = IntOffset(-1, 0)
+private val SIDES = arrayOf(UP, RIGHT, DOWN, LEFT)
+
 object Game {
 
-    val UP = Vector2i.UP
-    val RIGHT = Vector2i.RIGHT
-    val DOWN = Vector2i.DOWN
-    val LEFT = Vector2i.LEFT
-    val SIDES = arrayOf(UP, RIGHT, DOWN, LEFT)
 
     val DELAY = 0.01F
     val ATTEMPT_AMOUNT = 10
     val TARGET_O_PIECE_RATIO = 0.25F
 
-    var highlight = Vector2i(-1, -1)
+    var highlight = IntOffset(-1, -1)
     var pieces: MutableMap<IntOffset, Piece> = mutableMapOf()
     var pieceCount = 0
     var gridRows = 0
     var gridColumns = 0
-    var gridCenterCoordinate = Vector2i(-1, -1)
+    var gridCenterCoordinate = IntOffset(-1, -1)
     var targetOPieceCount = 0
+    var rootPiece: Piece? = null
 
     var playerPlaying = false
     var loopPathingEnabled = false
@@ -87,7 +85,7 @@ object Game {
         this.gridRows = gridRows
         this.gridColumns = gridColumns
         pieceCount = gridRows * gridColumns
-        gridCenterCoordinate = (Vector2i(gridColumns, gridRows) - Vector2i.ONE) / 2
+        gridCenterCoordinate = (IntOffset(gridColumns, gridRows) - IntOffset(1, 1)) / 2F
 
 //        Reset highlight coordinate
         highlight = gridCenterCoordinate
@@ -129,55 +127,48 @@ object Game {
 
 
     fun spawnPieces() {
-//        var pieceScale:= (
-//            (main_node.get_window().size.x - 2.0 - gridColumns + 1.0)
-//            / (Piece.SIZE * gridColumns) * Vector2.ONE
-//        )
+        Piece.scale = (1080f - 2f - gridColumns + 1f) / (Piece.BASE_SIZE * gridColumns)
 
         for (x in 0..gridColumns) {
             for (y in 0..gridRows) {
-                var coordinate: Vector2i = Vector2i(x, y)
+                val coordinate = IntOffset(x, y)
+                var piece: Piece
 
-//                val box: Button
+                if (coordinate == gridCenterCoordinate) {
+                    val randomPieceType = Piece.Type.entries.drop(1).dropLast(1).random()
+                    piece = Piece(coordinate, randomPieceType)
+                    rootPiece = piece
+//                    piece.activate()
+                } else {
+                    piece = Piece(coordinate, Piece.Type.NONE)
+                }
 
-//                if (coordinate == gridCenterCoordinate) {
-//                    piece.init(
-//                        pieceScale,
-//                        coordinate,
-//                        Piece.Type.values().slice(1)[randi() % 3],
-//                        true
-//                    )
-//                } else {
-//                    piece.init(
-//                        pieceScale,
-//                        coordinate,
-//                        Piece.Type.none,
-//                    )
-//                }
-//
-//                grid.add_child(piece)
-//                pieces[coordinate] = piece
+                pieces[coordinate] = piece
             }
 
         }
 
-//        targetOPieceCount = round(pieceCount * TARGET_O_PIECE_RATIO)
-//        var extraOPiecesCount: Int = countOPieces() - targetOPieceCount
+        targetOPieceCount = (pieceCount * TARGET_O_PIECE_RATIO).roundToInt()
+        var extraOPiecesCount = countOPieces() - targetOPieceCount
 //
-//        while extraOPiecesCount > 0:
-//            var randomCoordinate:= Vector2i(
-//                randi_range(0, gridColumns - 1),
-//                randi_range(0, gridRows - 1)
-//            )
-//            if randomCoordinate == gridCenterCoordinate:
-//                continue
-//            if pieces[randomCoordinate].type != Piece.Type.O:
-//                continue
+        while (extraOPiecesCount > 0) {
+            var randomCoordinate = IntOffset(
+                Random.nextInt(0, gridColumns),
+                Random.nextInt(0, gridRows)
+            )
+            if (randomCoordinate == gridCenterCoordinate) {
+                continue
+            }
+            if (pieces[randomCoordinate]!!.type != Piece.Type.O) {
+                continue
+            }
 //            pieces[randomCoordinate].changeType(Piece.Type.values().slice(1)[randi() % 3])
-//            extraOPiecesCount -= 1
+            extraOPiecesCount -= 1
+        }
+
 //
 //        while extraOPiecesCount < 0:
-//            var randomCoordinate:= Vector2i(
+//            var randomCoordinate:= IntOffset(
 //                randi_range(0, gridColumns - 1),
 //                randi_range(0, gridRows - 1)
 //            )
@@ -205,7 +196,7 @@ object Game {
         while (true) {
             loopyPieces.add(pieces[IntOffset(x, y)]!!)
 
-            if (Vector2i(x, y) == gridCenterCoordinate) {
+            if (IntOffset(x, y) == gridCenterCoordinate) {
                 break
             }
 
@@ -315,7 +306,7 @@ object Game {
 //        # connectSubgraph(piece)
 //
 //        var connectedNeighbourPieces: Array[Piece] = []
-//        for side: Vector2i in [Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.LEFT]:
+//        for side: IntOffset in [IntOffset.UP, IntOffset.RIGHT, IntOffset.DOWN, IntOffset.LEFT]:
 //            var neighbourPiece_coordinate:= coordinate + side
 //            if not validCoordinate(neighbourPiece_coordinate):
 //                continue
@@ -383,9 +374,9 @@ object Game {
 //    }
 
 
-//    fun updateHighlight(direction: Vector2i) {
-//        if highlight == Vector2i(-1, -1):
-//            highlight = Vector2i(0, 0)
+//    fun updateHighlight(direction: IntOffset) {
+//        if highlight == IntOffset(-1, -1):
+//            highlight = IntOffset(0, 0)
 //        else:
 //            pieces[highlight].highlighted = false
 //            highlight += direction
@@ -402,7 +393,7 @@ object Game {
 
 
 
-    fun validCoordinate(coordinate: Vector2i): Boolean {
+    fun validCoordinate(coordinate: IntOffset): Boolean {
         if (
             coordinate.x >= 0 && coordinate.x < gridColumns &&
             coordinate.y >= 0 && coordinate.y < gridRows
