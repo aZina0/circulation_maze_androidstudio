@@ -9,6 +9,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
@@ -17,6 +20,11 @@ import kotlin.random.Random
 
 @Composable
 fun GameComposable(modifier: Modifier = Modifier) {
+    Piece.iPieceImage = ImageBitmap.imageResource(id = R.drawable.i_piece)
+    Piece.lPieceImage = ImageBitmap.imageResource(id = R.drawable.l_piece)
+    Piece.oPieceImage = ImageBitmap.imageResource(id = R.drawable.o_piece)
+    Piece.tPieceImage = ImageBitmap.imageResource(id = R.drawable.t_piece)
+
     Canvas(
         modifier = modifier.fillMaxSize()
     ) {
@@ -35,7 +43,7 @@ fun ControlsComposable(modifier: Modifier = Modifier) {
         .padding(top = 100.dp)) {
         Button(
             onClick = {
-                Game.pieces[IntOffset(0, 0)]!!.rotation += 15f
+                Game.pieces[IntOffset(0, 0)]!!.rotation += 15
             }
         ) {
             Text(text = "1")
@@ -44,11 +52,6 @@ fun ControlsComposable(modifier: Modifier = Modifier) {
 }
 
 
-private val UP = IntOffset(0, 1)
-private val RIGHT = IntOffset(1, 0)
-private val DOWN = IntOffset(0, -1)
-private val LEFT = IntOffset(-1, 0)
-private val SIDES = arrayOf(UP, RIGHT, DOWN, LEFT)
 
 object Game {
 
@@ -58,7 +61,7 @@ object Game {
     val TARGET_O_PIECE_RATIO = 0.25F
 
     var highlight = IntOffset(-1, -1)
-    var pieces: MutableMap<IntOffset, Piece> = mutableMapOf()
+    var pieces = mutableMapOf<IntOffset, Piece>()
     var pieceCount = 0
     var gridRows = 0
     var gridColumns = 0
@@ -76,11 +79,9 @@ object Game {
 
 //        Delete old pieces
 //        pieces.clear()
-//        for child in grid.get_children():
-//        child.queue_free()
 
 //        seed(customSeed)
-//        Piece.resetShuffledSides()
+        Piece.resetShuffledSides()
 
         this.gridRows = gridRows
         this.gridColumns = gridColumns
@@ -127,20 +128,29 @@ object Game {
 
 
     fun spawnPieces() {
-        Piece.scale = (1080f - 2f - gridColumns + 1f) / (Piece.BASE_SIZE * gridColumns)
+        val totalUnscaledPiecesSize = Piece.BASE_SIZE * gridColumns
+        val spacing = 2f
+        val spaceAvailableForEachPiece = 1080f / gridColumns - spacing
+        Piece.scale = spaceAvailableForEachPiece * gridColumns / totalUnscaledPiecesSize
 
-        for (x in 0..gridColumns) {
-            for (y in 0..gridRows) {
+
+        for (x in 0 until gridColumns) {
+            for (y in 0 until gridRows) {
                 val coordinate = IntOffset(x, y)
                 var piece: Piece
 
+                val position = Offset(
+                    spacing / 2 + coordinate.x * Piece.scale * Piece.BASE_SIZE + spacing * coordinate.x,
+                    spacing / 2 + coordinate.y * Piece.scale * Piece.BASE_SIZE + spacing * coordinate.y,
+                )
+
                 if (coordinate == gridCenterCoordinate) {
                     val randomPieceType = Piece.Type.entries.drop(1).dropLast(1).random()
-                    piece = Piece(coordinate, randomPieceType)
+                    piece = Piece(coordinate, position, randomPieceType)
                     rootPiece = piece
 //                    piece.activate()
                 } else {
-                    piece = Piece(coordinate, Piece.Type.NONE)
+                    piece = Piece(coordinate, position, Piece.Type.T)
                 }
 
                 pieces[coordinate] = piece
