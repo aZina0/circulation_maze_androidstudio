@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.unit.IntOffset
+import kotlin.random.Random
 
 
 val UP = IntOffset(0, 1)
@@ -18,6 +19,10 @@ val RIGHT = IntOffset(1, 0)
 val DOWN = IntOffset(0, -1)
 val LEFT = IntOffset(-1, 0)
 val SIDES = arrayOf(UP, RIGHT, DOWN, LEFT)
+
+private val FREE = Piece.ConnectionType.FREE
+private val BARRIER = Piece.ConnectionType.BARRIER
+private val LINK = Piece.ConnectionType.LINK
 
 private const val INSTANT_ROTATION = true
 
@@ -225,6 +230,10 @@ class Piece(val coordinate: IntOffset, private val position: Offset, type: Type)
 ////                $symbol.modulate = DEFAULT_COLOR
 //    }
 
+    fun lock() {
+        locked = true
+    }
+
 //    fun setLock(value: Boolean) {
 //        locked = value
 //        if value:
@@ -236,6 +245,10 @@ class Piece(val coordinate: IntOffset, private val position: Offset, type: Type)
 //        if Game.playerPlaying:
 //        History.add_action(self, History.ActionType.unlock)
 //    }
+
+    fun activate() {
+        active = true
+    }
 
 //    fun setActive(value: Boolean) {
 //        if (isRootPiece && !value) {
@@ -303,9 +316,9 @@ class Piece(val coordinate: IntOffset, private val position: Offset, type: Type)
                 connections[side] = connectionType
             }
 
-            if (connectionType == ConnectionType.BARRIER) {
+            if (connectionType == BARRIER) {
                 barrierCount += 1
-            } else if (connectionType == ConnectionType.LINK) {
+            } else if (connectionType == LINK) {
                 linkCount += 1
             }
         }
@@ -313,12 +326,12 @@ class Piece(val coordinate: IntOffset, private val position: Offset, type: Type)
 
         if (
             (
-                sameConnectionType(connections, "adjacent", ConnectionType.BARRIER) &&
+                sameConnectionType(connections, "adjacent", BARRIER) &&
                 barrierCount == 2
             )
             ||
             (
-                sameConnectionType(connections, "adjacent", ConnectionType.LINK) &&
+                sameConnectionType(connections, "adjacent", LINK) &&
                 linkCount == 2
             )
         ) {
@@ -326,12 +339,12 @@ class Piece(val coordinate: IntOffset, private val position: Offset, type: Type)
 
         } else if (
             (
-                sameConnectionType(connections, "across", ConnectionType.BARRIER) &&
+                sameConnectionType(connections, "across", BARRIER) &&
                 barrierCount == 2
             )
             ||
             (
-                sameConnectionType(connections, "across", ConnectionType.LINK) &&
+                sameConnectionType(connections, "across", LINK) &&
                 linkCount == 2
             )
         ) {
@@ -349,271 +362,315 @@ class Piece(val coordinate: IntOffset, private val position: Offset, type: Type)
 
 
 
-//    fun solveAndSpread(
-//    connectionTypes: Dictionary[IntOffset, StringName] = {},
-//    random_choice:= false
-//    ): Boolean:
-//
-//    var solved:= solve(connectionTypes, random_choice)
-//    if solved:
-//    locked = true
-//    for neighbour in getNeighbours():
-//    if !neighbour.locked:
-//    neighbour.solveAndSpread()
-//
-//    return solved
+    fun solveAndSpread(
+        connectionTypes: Map<IntOffset, ConnectionType> = mapOf(),
+        randomChoice: Boolean = false
+    ): Boolean {
+        val solved = solve(connectionTypes, randomChoice)
+        if (solved) {
+            lock()
+            for (neighbour in getNeighbours()) {
+                if (!neighbour.locked) {
+                    neighbour.solveAndSpread()
+                }
+            }
+        }
+        return solved
+    }
 
 
-//    fun solve(connectionTypes:= {}, random_choice:= false): Boolean:
-//    var linkCount:= 0
-//    var barrierCount:= 0
-//    var link:= {}
-//    var barrier:= {}
-//
-//    for side in SIDES:
-//    var connectionType: StringName
-//    if side in connectionTypes:
-//    connectionType = connectionTypes[side]
-//    else:
-//    connectionType = getNeighboursConnectionType(side)
-//
-//    if connectionType == &BARRIER:
-//    barrierCount += 1
-//    else if connectionType == &LINK:
-//    linkCount += 1
-//
-//    link[side] = connectionType == &LINK
-//    barrier[side] = connectionType == &BARRIER
-//
-//
-//    match type:
-//    Type.O:
-//    if linkCount == 1:
-//    if link[DOWN]:
-//    rotateTo0()
-//    return true
-//    else if link[LEFT]:
-//    rotateTo90()
-//    return true
-//    else if link[UP]:
-//    rotateTo180()
-//    return true
-//    else if link[RIGHT]:
-//    rotateTo270()
-//    return true
-//
-//    else if barrierCount == 3:
-//    if barrier[RIGHT] && barrier[UP] && barrier[LEFT]:
-//    rotateTo0()
-//    return true
-//    else if barrier[UP] && barrier[RIGHT] && barrier[DOWN]:
-//    rotateTo90()
-//    return true
-//    else if barrier[DOWN] && barrier[RIGHT] && barrier[LEFT]:
-//    rotateTo180()
-//    return true
-//    else if barrier[UP] && barrier[LEFT] && barrier[DOWN]:
-//    rotateTo270()
-//    return true
-//
-//
-//    Piece.Type.L:
-//    if (
-//    (link[RIGHT] && link[LEFT]) || (link[UP] && link[DOWN]) ||
-//    (barrier[RIGHT] && barrier[LEFT]) || (barrier[UP] && barrier[DOWN])
-//    ):
-//    pass
-//
-//    else if (
-//    (link[RIGHT] && link[DOWN]) || (barrier[LEFT] && barrier[UP]) ||
-//    (link[RIGHT] && barrier[UP]) || (link[DOWN] && barrier[LEFT])
-//    ):
-//    rotateTo0()
-//    return true
-//
-//    else if (
-//    (link[DOWN] && link[LEFT]) || (barrier[UP] && barrier[RIGHT]) ||
-//    (link[DOWN] && barrier[RIGHT]) || (link[LEFT] && barrier[UP])
-//    ):
-//    rotateTo90()
-//    return true
-//
-//    else if (
-//    (link[LEFT] && link[UP]) || (barrier[RIGHT] && barrier[DOWN]) ||
-//    (link[LEFT] && barrier[DOWN]) || (link[UP] && barrier[RIGHT])
-//    ):
-//    rotateTo180()
-//    return true
-//
-//    else if (
-//    (link[UP] && link[RIGHT]) || (barrier[DOWN] && barrier[LEFT]) ||
-//    (link[UP] && barrier[LEFT]) || (link[RIGHT] && barrier[DOWN])
-//    ):
-//    rotateTo270()
-//    return true
-//
-//    else if random_choice:
-//    if link[DOWN] || barrier[UP]:
-//    if randf() >= 0.5:
-//    rotateTo0()
-//    return true
-//    else:
-//    rotateTo90()
-//    return true
-//    else if link[LEFT] || barrier[RIGHT]:
-//    if randf() >= 0.5:
-//    rotateTo90()
-//    return true
-//    else:
-//    rotateTo180()
-//    return true
-//
-//    else if link[UP] || barrier[DOWN]:
-//    if randf() >= 0.5:
-//    rotateTo180()
-//    return true
-//    else:
-//    rotateTo270()
-//    return true
-//    else if link[RIGHT] || barrier[LEFT]:
-//    if randf() >= 0.5:
-//    rotateTo270()
-//    return true
-//    else:
-//    rotateTo0()
-//    return true
-//
-//    Piece.Type.I:
-//    if barrier[LEFT] || barrier[RIGHT] || link[UP] || link[DOWN]:
-//    if link[LEFT] || link[RIGHT] || barrier[UP] || barrier[DOWN]:
-//    pass
-//    else:
-//    rotateTo0()
-//    return true
-//    else if barrier[UP] || barrier[DOWN] || link[LEFT] || link[RIGHT]:
-//    if link[UP] || link[DOWN] || barrier[LEFT] || barrier[RIGHT]:
-//    pass
-//    else:
-//    rotateTo90()
-//    return true
-//
-//    Piece.Type.T:
-//    if barrierCount > 1 || linkCount == 4:
-//    pass
-//    else if barrier[LEFT] || (link[UP] && link[RIGHT] && link[DOWN]):
-//    rotateTo0()
-//    return true
-//    else if barrier[UP] || (link[RIGHT] && link[DOWN] && link[LEFT]):
-//    rotateTo90()
-//    return true
-//    else if barrier[RIGHT] || (link[DOWN] && link[LEFT] && link[UP]):
-//    rotateTo180()
-//    return true
-//    else if barrier[DOWN] || (link[LEFT] && link[UP] && link[RIGHT]):
-//    rotateTo270()
-//    return true
-//    else if random_choice:
-//    if link[UP] && link[DOWN]:
-//    if randf() > 0.5:
-//    rotateTo0()
-//    return true
-//    else:
-//    rotateTo180()
-//    return true
-//    else if link[LEFT] && link[RIGHT]:
-//    if randf() > 0.5:
-//    rotateTo90()
-//    return true
-//    else:
-//    rotateTo270()
-//    return true
-//    else if link[RIGHT] && link[DOWN]:
-//    if randf() > 0.5:
-//    rotateTo0()
-//    return true
-//    else:
-//    rotateTo90()
-//    return true
-//    else if link[DOWN] && link[LEFT]:
-//    if randf() > 0.5:
-//    rotateTo90()
-//    return true
-//    else:
-//    rotateTo180()
-//    return true
-//    else if link[LEFT] && link[UP]:
-//    if randf() > 0.5:
-//    rotateTo180()
-//    return true
-//    else:
-//    rotateTo270()
-//    return true
-//    else if link[UP] && link[RIGHT]:
-//    if randf() > 0.5:
-//    rotateTo270()
-//    return true
-//    else:
-//    rotateTo0()
-//    return true
-//
-//
-//    if type == Type.I:
-//    for orientation: Array in [[UP, DOWN], [LEFT, RIGHT]]:
-//    var iPieceLine: Array[Piece] = [self]
-//
-//    var firstDirection: IntOffset = orientation[0]
-//    var secondDirection: IntOffset = orientation[1]
-//    var sideChecks:= 0
-//
-//    while true:
-//    var edgePiece:= iPieceLine[0]
-//    var checkCoordinate:= edgePiece.coordinate + firstDirection
-//
-//    if !Game.validCoordinate(checkCoordinate):
-//    break
-//
-//    var checkPiece: Piece = Game.pieces[checkCoordinate]
-//    if checkPiece.type == Type.I:
-//    iPieceLine.push_front(checkPiece)
-//    else if checkPiece.type == Type.O:
-//    sideChecks += 1
-//    break
-//    else:
-//    break
-//
-//    if sideChecks == 0:
-//    continue
-//
-//    while true:
-//    var edgePiece:= iPieceLine[iPieceLine.size() - 1]
-//    var checkCoordinate:= edgePiece.coordinate + secondDirection
-//
-//    if !Game.validCoordinate(checkCoordinate):
-//    break
-//
-//    var checkPiece: Piece = Game.pieces[checkCoordinate]
-//    if checkPiece.type == Type.I:
-//    iPieceLine.append(checkPiece)
-//    else if checkPiece.type == Type.O:
-//    sideChecks += 1
-//    break
-//    else:
-//    break
-//
-//    if sideChecks == 2:
-//    if orientation == [UP, DOWN]:
-//    for iPiece in iPieceLine:
-//    iPiece.rotateTo90()
-//    iPiece.locked = true
-//    else if orientation == [LEFT, RIGHT]:
-//    for iPiece in iPieceLine:
-//    iPiece.rotateTo0()
-//    iPiece.locked = true
-//    return true
-//
-//
-//    return false
+    fun solve(
+        connectionTypes: Map<IntOffset, ConnectionType>,
+        randomChoice: Boolean = false
+    ): Boolean {
+        var linkCount = 0
+        var barrierCount = 0
+        val link = mutableMapOf<IntOffset, Boolean>()
+        val barrier = mutableMapOf<IntOffset, Boolean>()
 
+        for (side in SIDES) {
+            var connectionType: ConnectionType
+            if (connectionTypes.contains(side)) {
+                connectionType = connectionTypes[side]!!
+            } else {
+                connectionType = getNeighboursConnectionType(side)
+            }
+
+            if (connectionType == BARRIER) {
+                barrierCount += 1
+            } else if (connectionType == LINK) {
+                linkCount += 1
+            }
+
+            link[side] = connectionType == LINK
+            barrier[side] = connectionType == BARRIER
+        }
+
+
+        when (type) {
+            Type.O -> {
+                if (linkCount == 1) {
+                    if (link[DOWN]!!) {
+                        rotateTo0()
+                        return true
+                    } else if (link[LEFT]!!) {
+                        rotateTo90()
+                        return true
+                    } else if (link[UP]!!) {
+                        rotateTo180()
+                        return true
+                    } else if (link[RIGHT]!!) {
+                        rotateTo270()
+                        return true
+                    }
+                } else if (barrierCount == 3) {
+                    if (barrier[RIGHT]!! && barrier[UP]!! && barrier[LEFT]!!) {
+                        rotateTo0()
+                        return true
+                    } else if (barrier[UP]!! && barrier[RIGHT]!! && barrier[DOWN]!!) {
+                        rotateTo90()
+                        return true
+                    } else if (barrier[DOWN]!! && barrier[RIGHT]!! && barrier[LEFT]!!) {
+                        rotateTo180()
+                        return true
+                    } else if (barrier[UP]!! && barrier[LEFT]!! && barrier[DOWN]!!) {
+                        rotateTo270()
+                        return true
+                    }
+                }
+            }
+
+            Type.L -> {
+                if (
+                    (link[RIGHT]!! && link[LEFT]!!) || (link[UP]!! && link[DOWN]!!) ||
+                    (barrier[RIGHT]!! && barrier[LEFT]!!) || (barrier[UP]!! && barrier[DOWN]!!)
+                ) {
+
+                } else if (
+                    (link[RIGHT]!! && link[DOWN]!!) || (barrier[LEFT]!! && barrier[UP]!!) ||
+                    (link[RIGHT]!! && barrier[UP]!!) || (link[DOWN]!! && barrier[LEFT]!!)
+                ) {
+                    rotateTo0()
+                    return true
+
+                } else if (
+                    (link[DOWN]!! && link[LEFT]!!) || (barrier[UP]!! && barrier[RIGHT]!!) ||
+                    (link[DOWN]!! && barrier[RIGHT]!!) || (link[LEFT]!! && barrier[UP]!!)
+                ) {
+                    rotateTo90()
+                    return true
+
+                } else if (
+                    (link[LEFT]!! && link[UP]!!) || (barrier[RIGHT]!! && barrier[DOWN]!!) ||
+                    (link[LEFT]!! && barrier[DOWN]!!) || (link[UP]!! && barrier[RIGHT]!!)
+                ) {
+                    rotateTo180()
+                    return true
+
+                } else if (
+                    (link[UP]!! && link[RIGHT]!!) || (barrier[DOWN]!! && barrier[LEFT]!!) ||
+                    (link[UP]!! && barrier[LEFT]!!) || (link[RIGHT]!! && barrier[DOWN]!!)
+                ) {
+                    rotateTo270()
+                    return true
+
+                } else if (randomChoice) {
+                    if (link[DOWN]!! || barrier[UP]!!) {
+                        if (Random.nextFloat() >= 0.5) {
+                            rotateTo0()
+                            return true
+                        } else {
+                            rotateTo90()
+                            return true
+                        }
+                    } else if (link[LEFT]!! || barrier[RIGHT]!!) {
+                        if (Random.nextFloat() >= 0.5) {
+                            rotateTo90()
+                            return true
+                        } else {
+                            rotateTo180()
+                            return true
+                        }
+                    } else if (link[UP]!! || barrier[DOWN]!!) {
+                        if (Random.nextFloat() >= 0.5) {
+                            rotateTo180()
+                            return true
+                        } else {
+                            rotateTo270()
+                            return true
+                        }
+                    }
+                    else if (link[RIGHT]!! || barrier[LEFT]!!) {
+                        if (Random.nextFloat() >= 0.5) {
+                            rotateTo270()
+                            return true
+                        } else {
+                            rotateTo0()
+                            return true
+                        }
+                    }
+                }
+            }
+
+            Type.I -> {
+                if (barrier[LEFT]!! || barrier[RIGHT]!! || link[UP]!! || link[DOWN]!!) {
+                    if (link[LEFT]!! || link[RIGHT]!! || barrier[UP]!! || barrier[DOWN]!!) {
+
+                    } else {
+                        rotateTo0()
+                        return true
+                    }
+                } else if (barrier[UP]!! || barrier[DOWN]!! || link[LEFT]!! || link[RIGHT]!!) {
+                    if (link[UP]!! || link[DOWN]!! || barrier[LEFT]!! || barrier[RIGHT]!!) {
+
+                    } else {
+                        rotateTo90()
+                        return true
+                    }
+                }
+            }
+
+            Type.T -> {
+                if (barrierCount > 1 || linkCount == 4) {
+
+                } else if (barrier[LEFT]!! || (link[UP]!! && link[RIGHT]!! && link[DOWN]!!)) {
+                    rotateTo0()
+                    return true
+                } else if (barrier[UP]!! || (link[RIGHT]!! && link[DOWN]!! && link[LEFT]!!)) {
+                    rotateTo90()
+                    return true
+                } else if (barrier[RIGHT]!! || (link[DOWN]!! && link[LEFT]!! && link[UP]!!)) {
+                    rotateTo180()
+                    return true
+                } else if (barrier[DOWN]!! || (link[LEFT]!! && link[UP]!! && link[RIGHT]!!)) {
+                    rotateTo270()
+                    return true
+                } else if (randomChoice) {
+                    if (link[UP]!! && link[DOWN]!!) {
+                        if (Random.nextFloat() > 0.5) {
+                            rotateTo0()
+                            return true
+                        } else {
+                            rotateTo180()
+                            return true
+                        }
+                    } else if (link[LEFT]!! && link[RIGHT]!!) {
+                        if (Random.nextFloat() > 0.5) {
+                            rotateTo90()
+                            return true
+                        } else {
+                            rotateTo270()
+                            return true
+                        }
+                    } else if (link[RIGHT]!! && link[DOWN]!!) {
+                        if (Random.nextFloat() > 0.5) {
+                            rotateTo0()
+                            return true
+                        } else {
+                            rotateTo90()
+                            return true
+                        }
+                    } else if (link[DOWN]!! && link[LEFT]!!) {
+                        if (Random.nextFloat() > 0.5) {
+                            rotateTo90()
+                            return true
+                        } else {
+                            rotateTo180()
+                            return true
+                        }
+                    } else if (link[LEFT]!! && link[UP]!!) {
+                        if (Random.nextFloat() > 0.5) {
+                            rotateTo180()
+                            return true
+                        } else {
+                            rotateTo270()
+                            return true
+                        }
+                    } else if (link[UP]!! && link[RIGHT]!!) {
+                        if (Random.nextFloat() > 0.5) {
+                            rotateTo270()
+                            return true
+                        } else {
+                            rotateTo0()
+                            return true
+                        }
+                    }
+                }
+            }
+
+            Type.NONE -> {}
+        }
+
+
+        if (type == Type.I) {
+            for (orientation in listOf(Pair(UP, DOWN), Pair(LEFT, RIGHT))) {
+                val iPieceLine = mutableListOf(this)
+
+                val firstDirection = orientation.first
+                val secondDirection = orientation.second
+                var sideChecks = 0
+
+                while (true) {
+                    val edgePiece = iPieceLine[0]
+                    val checkCoordinate = edgePiece.coordinate + firstDirection
+
+                    if (!Game.validCoordinate(checkCoordinate)) {
+                        break
+                    }
+
+                    val checkPiece = Game.pieces[checkCoordinate]!!
+                    if (checkPiece.type == Type.I) {
+                        iPieceLine.add(0, checkPiece)
+                    } else if (checkPiece.type == Type.O) {
+                        sideChecks += 1
+                        break
+                    } else {
+                        break
+                    }
+                }
+
+                if (sideChecks == 0) {
+                    continue
+                }
+
+                while (true) {
+                    val edgePiece = iPieceLine[iPieceLine.size - 1]
+                    val checkCoordinate = edgePiece.coordinate + secondDirection
+
+                    if (!Game.validCoordinate(checkCoordinate)) {
+                        break
+                    }
+
+                    val checkPiece = Game.pieces[checkCoordinate]!!
+                    if (checkPiece.type == Type.I) {
+                        iPieceLine.add(checkPiece)
+                    } else if (checkPiece.type == Type.O) {
+                        sideChecks += 1
+                        break
+                    } else {
+                        break
+                    }
+                }
+
+                if (sideChecks == 2) {
+                    if (orientation == Pair(UP, DOWN)) {
+                        for (iPiece in iPieceLine) {
+                            iPiece.rotateTo90()
+                            iPiece.lock()
+                        }
+                    } else if (orientation == Pair(LEFT, RIGHT)) {
+                        for (iPiece in iPieceLine) {
+                            iPiece.rotateTo0()
+                            iPiece.lock()
+                        }
+                    }
+                    return true
+                }
+            }
+        }
+
+        return false
+    }
 
 
     fun getNeighbours(): List<Piece> {
@@ -787,24 +844,24 @@ class Piece(val coordinate: IntOffset, private val position: Offset, type: Type)
     fun getNeighboursConnectionType(side: IntOffset): ConnectionType {
         val neighbourCoordinate = coordinate + side
         if (!Game.validCoordinate(neighbourCoordinate)) {
-            return ConnectionType.BARRIER
+            return BARRIER
         }
 
         val neighbourPiece = Game.pieces[neighbourCoordinate]!!
 
         if (!neighbourPiece.locked) {
             if (type == Type.O && neighbourPiece.type == Type.O) {
-                return ConnectionType.BARRIER
+                return BARRIER
             } else {
-                return ConnectionType.FREE
+                return FREE
             }
         }
 
         val neighbourSideStates = neighbourPiece.getLinks()
         if (neighbourSideStates[-side]!!) {
-            return ConnectionType.LINK
+            return LINK
         } else {
-            return ConnectionType.BARRIER
+            return BARRIER
         }
     }
 
