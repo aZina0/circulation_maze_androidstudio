@@ -139,7 +139,6 @@ class Piece(val coordinate: IntOffset, private val position: Offset, type: Type)
 
 
     fun draw(drawScope: DrawScope) {
-        Log.d("TEST", "redrawn $position")
         with(drawScope) {
             redrawTrigger
             rotate(
@@ -714,7 +713,7 @@ class Piece(val coordinate: IntOffset, private val position: Offset, type: Type)
     fun getSidesWithConnectedNeighbours(): Map<IntOffset, Piece> {
         val sidesWithNeighbours = getSidesWithNeighbours().toMutableMap()
 
-        for (side in sidesWithNeighbours.keys) {
+        for (side in sidesWithNeighbours.keys.toSet()) {
             if (!connected(sidesWithNeighbours[side]!!)) {
                 sidesWithNeighbours.remove(side)
             }
