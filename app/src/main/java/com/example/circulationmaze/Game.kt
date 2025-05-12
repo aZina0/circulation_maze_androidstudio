@@ -1,6 +1,5 @@
 package com.example.circulationmaze
 
-import android.content.Context
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -74,11 +73,11 @@ object Game {
 
 
 
-    fun createNewGame(context: Context, customSeed: Long, gridRows: Int, gridColumns: Int) {
+    fun createNewGame(customSeed: Long, gridRows: Int, gridColumns: Int) {
         playerPlaying = false
 
 //        Delete old pieces
-//        pieces.clear()
+        pieces.clear()
 
 //        seed(customSeed)
         Piece.resetShuffledSides()
@@ -96,7 +95,7 @@ object Game {
         spawnPieces()
 //        print("Spawned O piece count: ", countOPieces())
 
-//        var generationSuccess: = await TreeGeneration . generate ()
+        var generationSuccess = TreeGeneration.generate()
 
 //        print("Final O piece count: ", countOPieces())
 //        if generationSuccess:
@@ -148,9 +147,9 @@ object Game {
                     val randomPieceType = Piece.Type.entries.drop(1).dropLast(1).random()
                     piece = Piece(coordinate, position, randomPieceType)
                     rootPiece = piece
-//                    piece.activate()
+                    piece.activate()
                 } else {
-                    piece = Piece(coordinate, position, Piece.Type.T)
+                    piece = Piece(coordinate, position, Piece.Type.NONE)
                 }
 
                 pieces[coordinate] = piece
@@ -160,9 +159,9 @@ object Game {
 
         targetOPieceCount = (pieceCount * TARGET_O_PIECE_RATIO).roundToInt()
         var extraOPiecesCount = countOPieces() - targetOPieceCount
-//
+
         while (extraOPiecesCount > 0) {
-            var randomCoordinate = IntOffset(
+            val randomCoordinate = IntOffset(
                 Random.nextInt(0, gridColumns),
                 Random.nextInt(0, gridRows)
             )
@@ -172,22 +171,25 @@ object Game {
             if (pieces[randomCoordinate]!!.type != Piece.Type.O) {
                 continue
             }
-//            pieces[randomCoordinate].changeType(Piece.Type.values().slice(1)[randi() % 3])
+            pieces[randomCoordinate]!!.changeType(Piece.Type.NONE)
             extraOPiecesCount -= 1
         }
 
-//
-//        while extraOPiecesCount < 0:
-//            var randomCoordinate:= IntOffset(
-//                randi_range(0, gridColumns - 1),
-//                randi_range(0, gridRows - 1)
-//            )
-//            if randomCoordinate == gridCenterCoordinate:
-//                continue
-//            if pieces[randomCoordinate].type == Piece.Type.O:
-//                continue
-//            pieces[randomCoordinate].changeType(Piece.Type.O)
-//            extraOPiecesCount += 1
+
+        while (extraOPiecesCount < 0) {
+            var randomCoordinate = IntOffset(
+                Random.nextInt(0, gridColumns),
+                Random.nextInt(0, gridRows)
+            )
+            if (randomCoordinate == gridCenterCoordinate) {
+                continue
+            }
+            if (pieces[randomCoordinate]!!.type == Piece.Type.O) {
+                continue
+            }
+            pieces[randomCoordinate]!!.changeType(Piece.Type.O)
+            extraOPiecesCount += 1
+        }
     }
 
 

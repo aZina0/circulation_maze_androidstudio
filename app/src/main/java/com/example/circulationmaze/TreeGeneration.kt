@@ -2,6 +2,7 @@ package com.example.circulationmaze
 
 import android.util.Log
 import androidx.compose.ui.unit.IntOffset
+import kotlin.random.Random
 
 
 object TreeGeneration {
@@ -22,8 +23,8 @@ object TreeGeneration {
                         repeat = true
                     } else {
                         piece.rotateTo0()
+                        piece.changeType(Piece.Type.NONE)
                     }
-                    piece.changeType(Piece.Type.NONE)
                 }
             }
 
@@ -155,7 +156,7 @@ object TreeGeneration {
     }
 
 
-    fun connectOPieceToTree(oPiece: Piece): Boolean {
+    private fun connectOPieceToTree(oPiece: Piece): Boolean {
         val path = mutableListOf(oPiece)
         val attemptedPieces = mutableListOf<Piece>()
 
@@ -164,7 +165,7 @@ object TreeGeneration {
 
             var pathHead: Piece
             if (path.size > 0) {
-                pathHead = path[-1]
+                pathHead = path.last()
             } else {
                 return false
             }
@@ -253,7 +254,7 @@ object TreeGeneration {
 
             var previousNeighbourSide: IntOffset
             if (pathHead != oPiece) {
-                previousNeighbourSide = path[-2].coordinate - pathHead.coordinate
+                previousNeighbourSide = path[path.size - 2].coordinate - pathHead.coordinate
 
                 pathHead.swapType(
                     mutableMapOf(
@@ -289,296 +290,333 @@ object TreeGeneration {
             path.add(nextPiece)
         }
     }
-//
-//
-//
-//static func fillEmptyPiece(emptyPiece : Piece) -> bool:
-//	# emptyPiece.flash(Color.YELLOW)
-//	# await Global.create_timer(0.25)
-//	var neighbours := emptyPiece.getSidesWithNeighbours()
-//
-//	for sideWithNeighbour in neighbours:
-//		var pieceBecomingConnect := neighbours[sideWithNeighbour]
-//
-//		if pieceBecomingConnect.type == Piece.Type.O && pieceBecomingConnect.active:
-//			var pieceBecomingO := emptyPiece
-//
-//			var sideWithConnect := pieceBecomingConnect.coordinate - pieceBecomingO.coordinate
-//			pieceBecomingO.changeType(Piece.Type.O)
-//			pieceBecomingO.solve({sideWithConnect: &"link"})
-//			pieceBecomingO.lock()
-//			pieceBecomingO.active = true
-//
-//			var sideWithO := pieceBecomingO.coordinate - pieceBecomingConnect.coordinate
-//			var sideWithOrigin : IntOffset = \
-//				pieceBecomingConnect.getSidesWithConnectedNeighbours().keys()[0]
-//			pieceBecomingConnect.swapType({
-//				sideWithO: &"link",
-//				sideWithOrigin: &"link"
-//			})
-//			pieceBecomingConnect.solve({
-//				sideWithO: &"link",
-//				sideWithOrigin: &"link"
-//			})
-//			return true
-//
-//
-//	var noneNeigbhourPieceCount := 0
-//	for sideWithNeighbour in neighbours:
-//		if neighbours[sideWithNeighbour].type == Piece.Type.none:
-//			noneNeigbhourPieceCount += 1
-//
-//
-//	if noneNeigbhourPieceCount == 0:
-//		# emptyPiece.flash(Color.PURPLE)
-//		var sideIndices := range(4)
-//		sideIndices.shuffle()
-//
-//		for index in range(4):
-//			var firstSide := SIDES[sideIndices[index]]
-//			var secondSide := SIDES[(sideIndices[index] + 1) % 4]
-//
-//			if !(firstSide in neighbours && secondSide in neighbours):
-//				continue
-//
-//			var firstNeighbour := neighbours[firstSide]
-//			var secondNeighbour := neighbours[secondSide]
-//			var cornerNeighbour := Game.pieces[emptyPiece.coordinate + firstSide + secondSide]
-//
-//			if !(
-//				cornerNeighbour.type == Piece.Type.T &&
-//				firstNeighbour.connected(cornerNeighbour) &&
-//				secondNeighbour.connected(cornerNeighbour) &&
-//				(firstNeighbour.type != Piece.Type.T || firstNeighbour.type != Piece.Type.T)
-//			):
-//				continue
-//
-//			# firstNeighbour.flash(Color.BLUE)
-//			# secondNeighbour.flash(Color.BLUE)
-//			# cornerNeighbour.flash(Color.BLUE)
-//
-//			firstNeighbour.locked = false
-//			secondNeighbour.locked = false
-//			cornerNeighbour.locked = false
-//
-//			emptyPiece.changeType(Piece.Type.L)
-//			emptyPiece.solve({
-//				firstSide: &"link",
-//				secondSide: &"link"
-//			})
-//			emptyPiece.lock()
-//			emptyPiece.active = true
-//
-//			if firstNeighbour.type == Piece.Type.T:
-//				firstNeighbour.solve()
-//				firstNeighbour.lock()
-//				cornerNeighbour.swapType()
-//				cornerNeighbour.solve()
-//				cornerNeighbour.lock()
-//				secondNeighbour.swapType()
-//				secondNeighbour.solve()
-//				secondNeighbour.lock()
-//
-//			else if secondNeighbour.type == Piece.Type.T:
-//				secondNeighbour.solve()
-//				secondNeighbour.lock()
-//				cornerNeighbour.swapType()
-//				cornerNeighbour.solve()
-//				cornerNeighbour.lock()
-//				firstNeighbour.swapType()
-//				firstNeighbour.solve()
-//				firstNeighbour.lock()
-//
-//			else:
-//				cornerNeighbour.swapType({
-//					firstNeighbour.coordinate - cornerNeighbour.coordinate: &"link"
-//				})
-//				cornerNeighbour.solve({
-//					firstNeighbour.coordinate - cornerNeighbour.coordinate: &"link"
-//				})
-//				cornerNeighbour.lock()
-//				firstNeighbour.changeType(Piece.Type.T)
-//				firstNeighbour.solve()
-//				firstNeighbour.lock()
-//				secondNeighbour.swapType()
-//				secondNeighbour.solve()
-//				secondNeighbour.lock()
-//
-//			return true
-//
-//	return false
-//
-//
-//
-//static func fillEmptyPiecePair(piecePair : Array[Piece]) -> bool:
-//	var nonePiece1 := piecePair[0]
-//	var nonePiece2 := piecePair[1]
-//
-//	if nonePiece1.active || nonePiece2.active:
-//		return false
-//
-//	var piece1Neighbours := nonePiece1.getSidesWithNeighbours()
-//	var piece2Neighbours := nonePiece2.getSidesWithNeighbours()
-//
-//	for _orientation in range(2):
-//		var sidesWithNeighbours : Array[IntOffset]
-//
-//		if nonePiece1.coordinate - nonePiece2.coordinate in [LEFT, RIGHT]:
-//			sidesWithNeighbours = [UP, DOWN]
-//		else if nonePiece1.coordinate - nonePiece2.coordinate in [UP, DOWN]:
-//			sidesWithNeighbours = [LEFT, RIGHT]
-//
-//		for side in sidesWithNeighbours:
-//			if !(piece1Neighbours.has(side) && piece2Neighbours.has(side)):
-//				continue
-//
-//			var treePiece1 := piece1Neighbours[side]
-//			var treePiece2 := piece2Neighbours[side]
-//
-//			if !treePiece1.connected(treePiece2):
-//				continue
-//
-//			if treePiece1.type != Piece.Type.T || treePiece2.type != Piece.Type.T:
-//
-//				nonePiece1.changeType(Piece.Type.L)
-//				nonePiece1.solve({
-//					side: &"link",
-//					nonePiece2.coordinate - nonePiece1.coordinate: &"link"
-//				})
-//				nonePiece1.lock()
-//				nonePiece1.active = true
-//
-//				nonePiece2.changeType(Piece.Type.L)
-//				nonePiece2.solve({
-//					side: &"link",
-//					nonePiece1.coordinate - nonePiece2.coordinate: &"link"
-//				})
-//				nonePiece2.lock()
-//				nonePiece2.active = true
-//
-//				if treePiece1.type == Piece.Type.T:
-//					treePiece2.locked = false
-//					treePiece1.solve()
-//					treePiece2.swapType()
-//					treePiece2.solve()
-//					treePiece2.lock()
-//				else if treePiece2.type == Piece.Type.T:
-//					treePiece1.locked = false
-//					treePiece2.solve()
-//					treePiece1.swapType()
-//					treePiece1.solve()
-//					treePiece1.lock()
-//				else:
-//					treePiece1.locked = false
-//					treePiece2.locked = false
-//					treePiece1.swapType()
-//					treePiece1.solve()
-//					treePiece2.swapType()
-//					treePiece2.solve()
-//					treePiece1.lock()
-//					treePiece2.lock()
-//
-//				return true
-//
-//			else if treePiece1.type == Piece.Type.T && treePiece2.type == Piece.Type.T:
-//				treePiece1.locked = false
-//				treePiece2.locked = false
-//
-//				nonePiece1.changeType(Piece.Type.L)
-//				nonePiece2.changeType(Piece.Type.L)
-//				nonePiece1.solve()
-//				nonePiece2.solve()
-//				nonePiece1.lock()
-//				nonePiece2.lock()
-//				nonePiece1.active = true
-//				nonePiece2.active = true
-//
-//				treePiece1.solve()
-//				treePiece2.solve()
-//				treePiece1.lock()
-//				treePiece2.lock()
-//				treePiece1.active = true
-//				treePiece2.active = true
-//
-//				return true
-//
-//	return false
-//
-//
-//
-//static func hijackOPieces(hijackCountNeeded : int) -> bool:
-//	if hijackCountNeeded == 0:
-//		return true
-//
-//	var piecesHijacked := 0
-//
-//	var pieces : Array[Piece] = Game.pieces.values()
-//	pieces.shuffle()
-//
-//	for piece in pieces:
-//		if !(piece.type == Piece.Type.O && piece.locked):
-//			continue
-//
-//		var neighbours := piece.getSidesWithNeighbours()
-//
-//		var randomIndexShift := randi_range(0, 3)
-//		for index in range(4):
-//			var firstSide := SIDES[(index + randomIndexShift) % 4]
-//			var secondSide := SIDES[(index + randomIndexShift + 1) % 4]
-//
-//			if !(firstSide in neighbours && secondSide in neighbours):
-//				continue
-//
-//			var firstNeighbour := neighbours[firstSide]
-//			var secondNeighbour := neighbours[secondSide]
-//			var cornerNeighbour := Game.pieces[piece.coordinate + firstSide + secondSide]
-//
-//			if !(
-//				firstNeighbour.connected(cornerNeighbour) &&
-//				secondNeighbour.connected(cornerNeighbour) &&
-//				(piece.connected(firstNeighbour) || piece.connected(secondNeighbour))
-//			):
-//				continue
-//
-//			if firstNeighbour.type == Piece.Type.T && secondNeighbour.type == Piece.Type.O:
-//				firstNeighbour.locked = false
-//				secondNeighbour.locked = false
-//				piece.locked = false
-//
-//				secondNeighbour.changeType(Piece.Type.L)
-//				secondNeighbour.solve()
-//				secondNeighbour.lock()
-//				piece.solve()
-//				piece.lock()
-//				firstNeighbour.swapType()
-//				firstNeighbour.solve()
-//				firstNeighbour.lock()
-//
-//				piecesHijacked += 1
-//				if piecesHijacked == hijackCountNeeded:
-//					return true
-//				break
-//
-//			else if firstNeighbour.type == Piece.Type.O && secondNeighbour.type == Piece.Type.T:
-//				firstNeighbour.locked = false
-//				secondNeighbour.locked = false
-//				piece.locked = false
-//
-//				firstNeighbour.changeType(Piece.Type.L)
-//				firstNeighbour.solve()
-//				firstNeighbour.lock()
-//				piece.solve()
-//				piece.lock()
-//				secondNeighbour.swapType()
-//				secondNeighbour.solve()
-//				secondNeighbour.lock()
-//
-//				piecesHijacked += 1
-//				if piecesHijacked == hijackCountNeeded:
-//					return true
-//				break
-//
-//
-//	return false
+
+
+
+    private fun fillEmptyPiece(emptyPiece : Piece): Boolean {
+        val neighbours = emptyPiece.getSidesWithNeighbours()
+
+        for (sideWithNeighbour in neighbours.keys) {
+            val pieceBecomingConnect = neighbours[sideWithNeighbour]!!
+
+            if (pieceBecomingConnect.type == Piece.Type.O && pieceBecomingConnect.active) {
+                val pieceBecomingO = emptyPiece
+
+                val sideWithConnect = pieceBecomingConnect.coordinate - pieceBecomingO.coordinate
+                pieceBecomingO.changeType(Piece.Type.O)
+                pieceBecomingO.solve(
+                    mutableMapOf(sideWithConnect to Piece.ConnectionType.LINK)
+                )
+                pieceBecomingO.lock()
+                pieceBecomingO.activate()
+
+                val sideWithO = pieceBecomingO.coordinate - pieceBecomingConnect.coordinate
+                val sideWithOrigin = pieceBecomingConnect.getSidesWithConnectedNeighbours().keys.first()
+                pieceBecomingConnect.swapType(
+                    mutableMapOf(
+                        sideWithO to Piece.ConnectionType.LINK,
+                        sideWithOrigin to Piece.ConnectionType.LINK,
+                    )
+                )
+                pieceBecomingConnect.solve(
+                    mutableMapOf(
+                        sideWithO to Piece.ConnectionType.LINK,
+                        sideWithOrigin to Piece.ConnectionType.LINK,
+                    )
+                )
+                return true
+            }
+        }
+
+
+        var noneNeighbourPieceCount = 0
+        for (sideWithNeighbour in neighbours.keys) {
+            if (neighbours[sideWithNeighbour]!!.type == Piece.Type.NONE) {
+                noneNeighbourPieceCount += 1
+            }
+        }
+
+
+        if (noneNeighbourPieceCount == 0) {
+//            emptyPiece.flash(Color.PURPLE)
+            val sideIndices = arrayOf(0, 1, 2, 3)
+            sideIndices.shuffle()
+
+            for (index in 0 until 4) {
+                val firstSide = SIDES[sideIndices[index]]
+                val secondSide = SIDES[(sideIndices[index] + 1) % 4]
+
+                if (!(firstSide in neighbours && secondSide in neighbours)) {
+                    continue
+                }
+
+                val firstNeighbour = neighbours[firstSide]!!
+                val secondNeighbour = neighbours[secondSide]!!
+                val cornerNeighbour = Game.pieces[emptyPiece.coordinate + firstSide + secondSide]!!
+
+                if (!(
+                    cornerNeighbour.type == Piece.Type.T &&
+                    firstNeighbour.connected(cornerNeighbour) &&
+                    secondNeighbour.connected(cornerNeighbour) &&
+                    (firstNeighbour.type != Piece.Type.T || firstNeighbour.type != Piece.Type.T)
+                )) {
+                    continue
+                }
+
+//                firstNeighbour.flash(Color.BLUE)
+//                secondNeighbour.flash(Color.BLUE)
+//                cornerNeighbour.flash(Color.BLUE)
+
+                firstNeighbour.unlock()
+                secondNeighbour.unlock()
+                cornerNeighbour.unlock()
+
+                emptyPiece.changeType(Piece.Type.L)
+                emptyPiece.solve(
+                    mutableMapOf(
+                        firstSide to Piece.ConnectionType.LINK,
+                        secondSide to Piece.ConnectionType.LINK,
+                    )
+                )
+                emptyPiece.lock()
+                emptyPiece.activate()
+
+                if (firstNeighbour.type == Piece.Type.T) {
+                    firstNeighbour.solve()
+                    firstNeighbour.lock()
+                    cornerNeighbour.swapType()
+                    cornerNeighbour.solve()
+                    cornerNeighbour.lock()
+                    secondNeighbour.swapType()
+                    secondNeighbour.solve()
+                    secondNeighbour.lock()
+                } else if (secondNeighbour.type == Piece.Type.T) {
+                    secondNeighbour.solve()
+                    secondNeighbour.lock()
+                    cornerNeighbour.swapType()
+                    cornerNeighbour.solve()
+                    cornerNeighbour.lock()
+                    firstNeighbour.swapType()
+                    firstNeighbour.solve()
+                    firstNeighbour.lock()
+                } else {
+                    cornerNeighbour.swapType(
+                        mutableMapOf(
+                            firstNeighbour.coordinate - cornerNeighbour.coordinate to
+                                Piece.ConnectionType.LINK,
+                        )
+                    )
+                    cornerNeighbour.solve(
+                        mutableMapOf(
+                            firstNeighbour.coordinate - cornerNeighbour.coordinate to
+                                    Piece.ConnectionType.LINK,
+                        )
+                    )
+
+                    cornerNeighbour.lock()
+                    firstNeighbour.changeType(Piece.Type.T)
+                    firstNeighbour.solve()
+                    firstNeighbour.lock()
+                    secondNeighbour.swapType()
+                    secondNeighbour.solve()
+                    secondNeighbour.lock()
+                }
+
+                return true
+            }
+        }
+
+        return false
+    }
+
+
+    fun fillEmptyPiecePair(piecePair: Pair<Piece, Piece>): Boolean {
+        val nonePiece1 = piecePair.first
+        val nonePiece2 = piecePair.second
+
+        if (nonePiece1.active || nonePiece2.active) {
+            return false
+        }
+
+        val piece1Neighbours = nonePiece1.getSidesWithNeighbours()
+        val piece2Neighbours = nonePiece2.getSidesWithNeighbours()
+
+        for (orientation in 0 until 2) {
+            var sidesWithNeighbours: List<IntOffset>
+            val relativeCoordinate = nonePiece1.coordinate - nonePiece2.coordinate
+
+            if (listOf(LEFT, RIGHT).contains(relativeCoordinate)) {
+                sidesWithNeighbours = listOf(UP, DOWN)
+            } else {
+                sidesWithNeighbours = listOf(LEFT, RIGHT)
+            }
+
+            for (side in sidesWithNeighbours) {
+                if (!(piece1Neighbours.containsKey(side) && piece2Neighbours.containsKey(side))) {
+                    continue
+                }
+
+                val treePiece1 = piece1Neighbours[side]!!
+                val treePiece2 = piece2Neighbours[side]!!
+
+                if (!treePiece1.connected(treePiece2)) {
+                    continue
+                }
+
+                if (treePiece1.type != Piece.Type.T || treePiece2.type != Piece.Type.T) {
+                    nonePiece1.changeType(Piece.Type.L)
+                    nonePiece1.solve(mutableMapOf(
+                        side to Piece.ConnectionType.LINK,
+                        (nonePiece2.coordinate - nonePiece1.coordinate) to Piece.ConnectionType.LINK,
+                    ))
+                    nonePiece1.lock()
+                    nonePiece1.activate()
+
+                    nonePiece2.changeType(Piece.Type.L)
+                    nonePiece2.solve(mutableMapOf(
+                        side to Piece.ConnectionType.LINK,
+                        (nonePiece1.coordinate - nonePiece2.coordinate) to Piece.ConnectionType.LINK,
+                    ))
+                    nonePiece2.lock()
+                    nonePiece2.activate()
+
+                    if (treePiece1.type == Piece.Type.T) {
+                        treePiece2.unlock()
+                        treePiece1.solve()
+                        treePiece2.swapType()
+                        treePiece2.solve()
+                        treePiece2.lock()
+                    } else if (treePiece2.type == Piece.Type.T) {
+                        treePiece1.unlock()
+                        treePiece2.solve()
+                        treePiece1.swapType()
+                        treePiece1.solve()
+                        treePiece1.lock()
+                    } else {
+                        treePiece1.unlock()
+                        treePiece2.unlock()
+                        treePiece1.swapType()
+                        treePiece1.solve()
+                        treePiece2.swapType()
+                        treePiece2.solve()
+                        treePiece1.lock()
+                        treePiece2.lock()
+                    }
+
+                    return true
+                }
+
+                else if (treePiece1.type == Piece.Type.T && treePiece2.type == Piece.Type.T) {
+                    treePiece1.unlock()
+                    treePiece2.unlock()
+
+                    nonePiece1.changeType(Piece.Type.L)
+                    nonePiece2.changeType(Piece.Type.L)
+                    nonePiece1.solve()
+                    nonePiece2.solve()
+                    nonePiece1.lock()
+                    nonePiece2.lock()
+                    nonePiece1.activate()
+                    nonePiece2.activate()
+
+                    treePiece1.solve()
+                    treePiece2.solve()
+                    treePiece1.lock()
+                    treePiece2.lock()
+                    treePiece1.activate()
+                    treePiece2.activate()
+
+                    return true
+                }
+            }
+        }
+
+        return false
+    }
+
+
+
+    fun hijackOPieces(hijackCountNeeded: Int): Boolean {
+        if (hijackCountNeeded == 0) {
+            return true
+        }
+
+        var piecesHijacked = 0
+        val pieces = Game.pieces.values.shuffled()
+        for (piece in pieces) {
+            if (!(piece.type == Piece.Type.O && piece.locked)) {
+                continue
+            }
+
+            val neighbours = piece.getSidesWithNeighbours()
+
+            val randomIndexShift = Random.nextInt(0, 4)
+            for (index in 0 until 4) {
+                val firstSide = SIDES[(index + randomIndexShift) % 4]
+                val secondSide = SIDES[(index + randomIndexShift + 1) % 4]
+
+                if (!(firstSide in neighbours && secondSide in neighbours)) {
+                    continue
+                }
+
+                val firstNeighbour = neighbours[firstSide]!!
+                val secondNeighbour = neighbours[secondSide]!!
+                val cornerNeighbour = Game.pieces[piece.coordinate + firstSide + secondSide]!!
+
+                if (!(
+                    firstNeighbour.connected(cornerNeighbour) &&
+                    secondNeighbour.connected(cornerNeighbour) &&
+                    (piece.connected(firstNeighbour) || piece.connected(secondNeighbour))
+                )) {
+                    continue
+                }
+
+                if (firstNeighbour.type == Piece.Type.T && secondNeighbour.type == Piece.Type.O) {
+                    firstNeighbour.unlock()
+                    secondNeighbour.unlock()
+                    piece.unlock()
+
+                    secondNeighbour.changeType(Piece.Type.L)
+                    secondNeighbour.solve()
+                    secondNeighbour.lock()
+                    piece.solve()
+                    piece.lock()
+                    firstNeighbour.swapType()
+                    firstNeighbour.solve()
+                    firstNeighbour.lock()
+
+                    piecesHijacked += 1
+                    if (piecesHijacked == hijackCountNeeded) {
+                        return true
+                    }
+                    break
+                }
+
+                else if (firstNeighbour.type == Piece.Type.O && secondNeighbour.type == Piece.Type.T) {
+                    firstNeighbour.unlock()
+                    secondNeighbour.unlock()
+                    piece.unlock()
+
+                    firstNeighbour.changeType(Piece.Type.L)
+                    firstNeighbour.solve()
+                    firstNeighbour.lock()
+                    piece.solve()
+                    piece.lock()
+                    secondNeighbour.swapType()
+                    secondNeighbour.solve()
+                    secondNeighbour.lock()
+
+                    piecesHijacked += 1
+                    if (piecesHijacked == hijackCountNeeded) {
+                        return true
+                    }
+                    break
+                }
+            }
+        }
+
+
+        return false
+    }
 
 }

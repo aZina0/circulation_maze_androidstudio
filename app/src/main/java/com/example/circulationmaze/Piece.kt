@@ -1,6 +1,5 @@
 package com.example.circulationmaze
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -234,6 +233,10 @@ class Piece(val coordinate: IntOffset, private val position: Offset, type: Type)
         locked = true
     }
 
+    fun unlock() {
+        locked = false
+    }
+
 //    fun setLock(value: Boolean) {
 //        locked = value
 //        if value:
@@ -380,7 +383,7 @@ class Piece(val coordinate: IntOffset, private val position: Offset, type: Type)
 
 
     fun solve(
-        connectionTypes: Map<IntOffset, ConnectionType>,
+        connectionTypes: Map<IntOffset, ConnectionType> = emptyMap(),
         randomChoice: Boolean = false
     ): Boolean {
         var linkCount = 0
@@ -872,22 +875,27 @@ class Piece(val coordinate: IntOffset, private val position: Offset, type: Type)
         if (direction == 360) {
             direction = 0
         }
+        rotation += 90
+        if (rotation == 360) {
+            rotation = 0
+        }
 
-        if (!instant) {
-            if (direction == 0) {
-                rotation = -90
-            }
+//        if (!instant) {
+//            if (direction == 0) {
+//                rotation = -90
+//            }
 //            get_tree().create_tween().tween_property(
 //                $symbol,
 //                "rotation_degrees",
 //                direction,
 //                ANIMATION_SPEED
 //            )
-        }
+//        }
 
 //        if Game.playerPlaying:
 //        History.add_action(self, History.ActionType.rotateCW90)
 //        rotated.emit()
+        triggerRedraw()
     }
 
     fun rotateByCCW90(instant: Boolean = INSTANT_ROTATION) {
@@ -895,22 +903,29 @@ class Piece(val coordinate: IntOffset, private val position: Offset, type: Type)
         if (direction == -90) {
             direction = 270
         }
+        rotation -= 90
+        if (rotation == -90) {
+            rotation = 270
+        }
 
-        if (!instant) {
-            if (direction == 270) {
-                rotation = 360
-            }
+
+
+//        if (!instant) {
+//            if (direction == 270) {
+//                rotation = 360
+//            }
 //            get_tree().create_tween().tween_property(
 //                $symbol,
 //                "rotation_degrees",
 //                direction,
 //                ANIMATION_SPEED
 //            )
-        }
+//        }
 
 //        if Game.playerPlaying:
 //        History.add_action(self, History.ActionType.rotateCCW90)
 //        rotated.emit()
+        triggerRedraw()
     }
 
     fun rotateBy180(instant: Boolean = INSTANT_ROTATION) {
@@ -920,24 +935,31 @@ class Piece(val coordinate: IntOffset, private val position: Offset, type: Type)
         } else if (direction == 450) {
             direction = 90
         }
+        rotation += 180
+        if (rotation == 360) {
+            rotation = 0
+        } else if (rotation == 450) {
+            rotation = 90
+        }
 
-        if (!instant) {
-            if (direction == 0) {
-                rotation = -180
-            } else if (direction == 90) {
-                rotation = -90
-            }
+//        if (!instant) {
+//            if (direction == 0) {
+//                rotation = -180
+//            } else if (direction == 90) {
+//                rotation = -90
+//            }
 //            get_tree().create_tween().tween_property(
 //                $symbol,
 //                "rotation_degrees",
 //                direction,
 //                ANIMATION_SPEED
 //            )
-        }
+//        }
 
 //        if Game.playerPlaying:
 //        History.add_action(self, History.ActionType.rotate180)
 //        rotated.emit()
+        triggerRedraw()
     }
 
 
