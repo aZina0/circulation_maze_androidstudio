@@ -1,6 +1,7 @@
-package com.example.circulationmaze
+package com.example.circulationmaze.game
 
 import androidx.compose.ui.unit.IntOffset
+import com.example.circulationmaze.Global
 import kotlin.random.Random
 
 
@@ -227,7 +228,7 @@ object TreeGeneration {
                 ) {
                     validSidesPrio1.add(side)
                 }
-                else if (neighbour.type == Piece.Type.NONE ) {
+                else if (neighbour.type == Piece.Type.NONE) {
                     validSidesPrio2.add(side)
                 }
             }
@@ -402,7 +403,7 @@ object TreeGeneration {
                     cornerNeighbour.swapType(
                         mutableMapOf(
                             firstNeighbour.coordinate - cornerNeighbour.coordinate to
-                                Piece.ConnectionType.LINK,
+                                    Piece.ConnectionType.LINK,
                         )
                     )
                     cornerNeighbour.solve(
