@@ -1,6 +1,5 @@
 package com.example.circulationmaze
 
-import android.util.Log
 import androidx.compose.ui.unit.IntOffset
 import kotlin.random.Random
 
@@ -144,7 +143,7 @@ object TreeGeneration {
                 connectOPieceToTree(nonePiece)
             }
         } else {
-            Log.d("customTag", "Couldn't find enough eligible O pieces to hijack")
+            Global.print("Couldn't find enough eligible O pieces to hijack")
         }
 
 
@@ -177,7 +176,7 @@ object TreeGeneration {
                     piece.activate()
                     piece.lock()
                 }
-                pathHead.lock()
+                pathHead.unlock()
                 if (pathHead.coordinate != Game.gridCenterCoordinate) {
                     if (pathHead.type == Piece.Type.O) {
                         pathHead.swapType()

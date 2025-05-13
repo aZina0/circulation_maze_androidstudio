@@ -19,14 +19,16 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 import kotlin.random.Random
 
 
-val UP = IntOffset(0, 1)
+val UP = IntOffset(0, -1)
 val RIGHT = IntOffset(1, 0)
-val DOWN = IntOffset(0, -1)
+val DOWN = IntOffset(0, 1)
 val LEFT = IntOffset(-1, 0)
 val SIDES = arrayOf(UP, RIGHT, DOWN, LEFT)
 
@@ -39,13 +41,18 @@ private val LOCKED_BACKGROUND_COLOR = Color(0xFF252525)
 private val DEFAULT_PIECE_COLOR = Color(0xFF515151)
 
 private const val ROTATION_DURATION = 200
-private const val INSTANT_ROTATION = false
+private const val INSTANT_ROTATION = true
 
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PieceComposable(modifier: Modifier, piece: Piece) {
-    val backgroundColor = DEFAULT_BACKGROUND_COLOR
+    var backgroundColor = DEFAULT_BACKGROUND_COLOR
+
+    if (piece.locked) {
+        backgroundColor = LOCKED_BACKGROUND_COLOR
+    }
+
     val pieceColor = DEFAULT_PIECE_COLOR
 
     Global.redrawAmount++
@@ -63,6 +70,14 @@ fun PieceComposable(modifier: Modifier, piece: Piece) {
                 onLongClick = { piece.onLongClicked() },
             )
     ) {
+        if (piece.highlighted) {
+            Image(
+                painter = painterResource(id = R.drawable.highlight),
+                contentDescription = "img",
+                modifier = Modifier
+                    .size((Piece.BASE_SIZE * Piece.scale).dp)
+            )
+        }
         Image(
             painter = Piece.images[piece.type]!!,
             contentDescription = "img",
@@ -98,8 +113,8 @@ class Piece(val coordinate: IntOffset, val position: Offset, type: Type) {
         set(value) {
             field = value
         }
-    var linked_pieces = mutableListOf<Piece>()
-    var source_pieces = mutableListOf<Piece>()
+    var linkedPieces = mutableListOf<Piece>()
+    var sourcePieces = mutableListOf<Piece>()
 
     var triggerRedraw by mutableStateOf(false)
 
@@ -212,7 +227,7 @@ class Piece(val coordinate: IntOffset, val position: Offset, type: Type) {
 //    }
 
 
-//    fun update_source_arrows() {
+    fun updateSourceArrows() {
 //        for node : Polygon2D in [$up, $right, $down, $left]:
 //        node.visible = false
 //
@@ -226,10 +241,18 @@ class Piece(val coordinate: IntOffset, val position: Offset, type: Type) {
 ////            }
 //        }
 //
-//    }
+    }
 
 
+    fun highlight() {
+        highlighted = true
+        triggerRedraw()
+    }
 
+    fun unhighlight() {
+        highlighted = false
+        triggerRedraw()
+    }
 //    fun setHighlight(value: Boolean) {
 //        highlighted = value
 ////        $highlight.visible = value
@@ -262,6 +285,10 @@ class Piece(val coordinate: IntOffset, val position: Offset, type: Type) {
 
     fun activate() {
         active = true
+    }
+
+    fun deactivate() {
+        active = false
     }
 
 //    fun setActive(value: Boolean) {
@@ -299,22 +326,19 @@ class Piece(val coordinate: IntOffset, val position: Offset, type: Type) {
 //    }
 
 
-//    fun flash(custom_color:= Color.HOT_PINK, count:= 1) {
-//        if (flashing) return
-//        flashing = true
-//        var highlight_visible: = highlighted
-//        var highlight_color: Color = $highlight.color
-//
-//        for i in range(count):
-//        $highlight.visible = true
-//        $highlight.color = custom_color
-//        await Global . create_timer (0.25)
-//        $highlight.visible = highlight_visible
-//        $highlight.color = highlight_color
-//        await Global . create_timer (0.25)
-//
-//        flashing = false
-//    }
+    suspend fun flash(customColor: Color = Color.Magenta, count: Int = 1) {
+        if (flashing) return
+        flashing = true
+
+        for (i in 0 until count) {
+            highlight()
+            delay(250)
+            unhighlight()
+            delay(250)
+        }
+
+        flashing = false
+    }
 
 
 
@@ -894,6 +918,8 @@ class Piece(val coordinate: IntOffset, val position: Offset, type: Type) {
                 rotation = animation.animatedValue as Int
             }
             animator.start()
+        } else {
+            rotation += 90
         }
 
         direction += 90
@@ -921,6 +947,8 @@ class Piece(val coordinate: IntOffset, val position: Offset, type: Type) {
                 rotation = animation.animatedValue as Int
             }
             animator.start()
+        } else {
+            rotation -= 90
         }
 
         direction -= 90
@@ -949,6 +977,8 @@ class Piece(val coordinate: IntOffset, val position: Offset, type: Type) {
                 rotation = animation.animatedValue as Int
             }
             animator.start()
+        } else {
+            rotation += 180
         }
 
         direction += 180
@@ -1047,17 +1077,18 @@ class Piece(val coordinate: IntOffset, val position: Offset, type: Type) {
         }
     }
 
-//    fun printInfo():
-//    print("TYPE: ", Type.find_key(type))
-//    print("COORDINATE: ", coordinate)
-//    print("DIRECTION: ", direction)
-//    print("ACTIVE: ", active)
-//    print("SOURCE pieces:")
-//    for piece in source_pieces:
-//    print("--- ", piece.coordinate)
-//    print("LINKED pieces:")
-//    for piece in linked_pieces:
-//    print("--- ", piece.coordinate)
+    fun printInfo() {
+        Global.print("========")
+        Global.print("%s".format(this))
+        Global.print("TYPE: %s".format(type))
+        Global.print("DIRECTION: %s".format(direction))
+        Global.print("ACTIVE: %s".format(active))
+//        Global.print("SOURCE pieces:")
+//        for piece in source_pieces:
+//            Global.print("--- ", piece.coordinate)
+//        Global.print("LINKED pieces:")
+//            for piece in linked_pieces:
+    }
 
 
 }

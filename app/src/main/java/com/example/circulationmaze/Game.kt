@@ -28,6 +28,7 @@ fun GameComposable(modifier: Modifier = Modifier) {
             Piece.Type.L to painterResource(id = R.drawable.l_piece),
             Piece.Type.O to painterResource(id = R.drawable.o_piece),
             Piece.Type.T to painterResource(id = R.drawable.t_piece),
+            Piece.Type.NONE to painterResource(id = R.drawable.nothing),
         )
 
         Game.screenWidthDp = LocalConfiguration.current.screenWidthDp
@@ -60,7 +61,8 @@ fun ControlsComposable(modifier: Modifier = Modifier) {
         .padding(top = 100.dp)) {
         Button(
             onClick = {
-                Game.pieces[IntOffset(0, 0)]!!.rotateByCW90()
+                var generationSuccess = TreeGeneration.generate()
+//                GlobalScope.launch {TreeGeneration.generate()}
             }
         ) {
             Text(text = "1")
@@ -115,7 +117,7 @@ object Game {
         spawnPieces()
 //        print("Spawned O piece count: ", countOPieces())
 
-        var generationSuccess = TreeGeneration.generate()
+//        var generationSuccess = TreeGeneration.generate()
 
 //        print("Final O piece count: ", countOPieces())
 //        if generationSuccess:
@@ -139,7 +141,7 @@ object Game {
 
 
 //        var centerPiece: Piece = pieces[gridCenterCoordinate]
-//        connectSubgraph(centerPiece)
+//        connectSubgraph(rootPiece!!)
 //        disconnectSubgraph(centerPiece)
 
         playerPlaying = true
@@ -273,45 +275,49 @@ object Game {
 
 
 
-//    fun connectSubgraph(firstPiece: Piece) : Int {
-//        var pieceQueue: MutableList<Piece> = mutableListOf(firstPiece)
-//        var oPiecesActivatedCount: Int = 0
-//
-//        while (pieceQueue.size > 0) {
-//            var piece: Piece = pieceQueue.removeAt(-1)
-//            piece.active = true
-//
-//            if (piece.type == Piece.Type.O):
-//            oPiecesActivatedCount += 1
-//
-//            for (neighbourPiece: Piece in piece.getNeighbours())
-//            if piece.connected(neighbourPiece) and not neighbourPiece in piece . sourcePieces :
-//            pieceQueue.append(neighbourPiece)
-//            piece.linkedPieces.append(neighbourPiece)
-//            neighbourPiece.sourcePieces.append(piece)
-//
-//            piece.updateSourceArrows()
-//        }
-//
-//        return oPiecesActivatedCount
-//    }
+    fun connectSubgraph(firstPiece: Piece): Int {
+        val pieceQueue = mutableListOf(firstPiece)
+        var oPiecesActivatedCount = 0
+
+        while (pieceQueue.size > 0) {
+            val piece: Piece = pieceQueue.removeAt(pieceQueue.size - 1)
+            piece.activate()
+
+            if (piece.type == Piece.Type.O) {
+                oPiecesActivatedCount += 1
+            }
+
+            for (neighbourPiece: Piece in piece.getNeighbours()) {
+                if (piece.connected(neighbourPiece) && !piece.sourcePieces.contains(neighbourPiece)) {
+                    pieceQueue.add(neighbourPiece)
+                    piece.linkedPieces.add(neighbourPiece)
+                    neighbourPiece.sourcePieces.add(piece)
+                }
+            }
+
+            piece.updateSourceArrows()
+        }
+
+        return oPiecesActivatedCount
+    }
 
 
-//    fun disconnectSubgraph(firstPiece: Piece) {
-//        var pieceQueue:= [firstPiece]
-//
-//        while len(pieceQueue) > 0:
-//            var piece: Piece = pieceQueue.pop_back()
-//
-//            piece.active = false
-//
-//            for linkedPiece in piece.linkedPieces:
-//                pieceQueue.append(linkedPiece)
-//
-//            piece.sourcePieces.clear()
-//            piece.linkedPieces.clear()
-//            piece.updateSourceArrows()
-//    }
+    fun disconnectSubgraph(firstPiece: Piece) {
+        val pieceQueue = mutableListOf(firstPiece)
+
+        while (pieceQueue.size > 0) {
+            val piece: Piece = pieceQueue.removeAt(pieceQueue.size - 1)
+            piece.deactivate()
+
+            for (linkedPiece in piece.linkedPieces) {
+                pieceQueue.add(linkedPiece)
+            }
+
+            piece.sourcePieces.clear()
+            piece.linkedPieces.clear()
+            piece.updateSourceArrows()
+        }
+    }
 
 
 
@@ -366,11 +372,11 @@ object Game {
 //                else:
 //                    sourcePieceIndex += 1
 //
-//            if piece.sourcePieces.is_empty() and not piece.has_meta("root_piece"):
+//            if piece.sourcePieces.is_empty() && not piece.has_meta("root_piece"):
 //                disconnectSubgraph(piece)
 //            else:
 //                for neighbourPiece in connectedNeighbourPieces:
-//                    if neighbourPiece not in piece.linkedPieces and neighbourPiece not in piece.sourcePieces:
+//                    if neighbourPiece not in piece.linkedPieces && neighbourPiece not in piece.sourcePieces:
 //                        piece.linkedPieces.append(neighbourPiece)
 //                        neighbourPiece.sourcePieces.append(piece)
 //                        connectSubgraph(neighbourPiece)
@@ -398,7 +404,7 @@ object Game {
 //    fun checkForBoardComplete() {
 //        var activePieceCount:= 0
 //        for piece: Piece in pieces.values():
-//            if piece.type == Piece.Type.O and piece.active:
+//            if piece.type == Piece.Type.O && piece.active:
 //                activePieceCount += 1
 //
 //        if activePieceCount == countOPieces():
