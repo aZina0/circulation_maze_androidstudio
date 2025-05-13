@@ -39,6 +39,7 @@ private val LINK = Piece.ConnectionType.LINK
 private val DEFAULT_BACKGROUND_COLOR = Color(0xFF000000)
 private val LOCKED_BACKGROUND_COLOR = Color(0xFF252525)
 private val DEFAULT_PIECE_COLOR = Color(0xFF515151)
+private val ACTIVE_PIECE_COLOR = Color(0xFF008700)
 
 private const val ROTATION_DURATION = 200
 private const val INSTANT_ROTATION = true
@@ -48,12 +49,14 @@ private const val INSTANT_ROTATION = true
 @Composable
 fun PieceComposable(modifier: Modifier, piece: Piece) {
     var backgroundColor = DEFAULT_BACKGROUND_COLOR
-
     if (piece.locked) {
         backgroundColor = LOCKED_BACKGROUND_COLOR
     }
 
-    val pieceColor = DEFAULT_PIECE_COLOR
+    var pieceColor = DEFAULT_PIECE_COLOR
+    if (piece.active) {
+        pieceColor = ACTIVE_PIECE_COLOR
+    }
 
     Global.redrawAmount++
     Global.print("%s redrawn. (%s total)".format(piece, Global.redrawAmount))

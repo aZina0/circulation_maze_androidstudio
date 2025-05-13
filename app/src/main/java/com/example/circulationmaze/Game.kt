@@ -61,7 +61,7 @@ fun ControlsComposable(modifier: Modifier = Modifier) {
         .padding(top = 100.dp)) {
         Button(
             onClick = {
-                var generationSuccess = TreeGeneration.generate()
+//                var generationSuccess = TreeGeneration.generate()
 //                GlobalScope.launch {TreeGeneration.generate()}
             }
         ) {
@@ -117,7 +117,7 @@ object Game {
         spawnPieces()
 //        print("Spawned O piece count: ", countOPieces())
 
-//        var generationSuccess = TreeGeneration.generate()
+        var generationSuccess = TreeGeneration.generate()
 
 //        print("Final O piece count: ", countOPieces())
 //        if generationSuccess:
@@ -141,7 +141,7 @@ object Game {
 
 
 //        var centerPiece: Piece = pieces[gridCenterCoordinate]
-//        connectSubgraph(rootPiece!!)
+        connectSubgraph(rootPiece!!)
 //        disconnectSubgraph(centerPiece)
 
         playerPlaying = true
@@ -150,7 +150,7 @@ object Game {
 
     fun spawnPieces() {
         val totalUnscaledPiecesSize = Piece.BASE_SIZE * gridColumns
-        val spacing = 2f
+        val spacing = 1f
         val spaceAvailableForEachPiece = screenWidthDp!!.toFloat() / gridColumns - spacing
         Piece.scale = spaceAvailableForEachPiece * gridColumns / totalUnscaledPiecesSize
 
