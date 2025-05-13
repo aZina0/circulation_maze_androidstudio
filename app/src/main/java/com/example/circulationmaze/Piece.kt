@@ -1,15 +1,26 @@
 package com.example.circulationmaze
 
+import android.animation.ValueAnimator
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
 import kotlin.random.Random
 
 
@@ -23,11 +34,48 @@ private val FREE = Piece.ConnectionType.FREE
 private val BARRIER = Piece.ConnectionType.BARRIER
 private val LINK = Piece.ConnectionType.LINK
 
-private const val INSTANT_ROTATION = true
+private val DEFAULT_BACKGROUND_COLOR = Color(0xFF000000)
+private val LOCKED_BACKGROUND_COLOR = Color(0xFF252525)
+private val DEFAULT_PIECE_COLOR = Color(0xFF515151)
 
-//private val BACKGROUND_COLOR = Color()
+private const val ROTATION_DURATION = 200
+private const val INSTANT_ROTATION = false
 
-class Piece(val coordinate: IntOffset, private val position: Offset, type: Type) {
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun PieceComposable(modifier: Modifier, piece: Piece) {
+    val backgroundColor = DEFAULT_BACKGROUND_COLOR
+    val pieceColor = DEFAULT_PIECE_COLOR
+
+    Global.redrawAmount++
+    Global.print("%s redrawn. (%s total)".format(piece, Global.redrawAmount))
+    piece.triggerRedraw
+
+    Box (
+        modifier = modifier
+            .size((Piece.BASE_SIZE * Piece.scale).dp)
+            .background(backgroundColor)
+            .combinedClickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() },
+                onClick = { piece.onClicked() },
+                onLongClick = { piece.onLongClicked() },
+            )
+    ) {
+        Image(
+            painter = Piece.images[piece.type]!!,
+            contentDescription = "img",
+            colorFilter = ColorFilter.tint(pieceColor),
+            modifier = Modifier
+                .size((Piece.BASE_SIZE * Piece.scale).dp)
+                .rotate(piece.rotation.toFloat())
+        )
+    }
+}
+
+
+class Piece(val coordinate: IntOffset, val position: Offset, type: Type) {
 
     enum class Type {O, I, L, T, NONE}
     enum class ConnectionType {FREE, BARRIER, LINK}
@@ -49,12 +97,11 @@ class Piece(val coordinate: IntOffset, private val position: Offset, type: Type)
     var rotation = 0
         set(value) {
             field = value
-            triggerRedraw()
         }
     var linked_pieces = mutableListOf<Piece>()
     var source_pieces = mutableListOf<Piece>()
 
-    private var redrawTrigger by mutableStateOf(false)
+    var triggerRedraw by mutableStateOf(false)
 
 
     companion object {
@@ -66,10 +113,7 @@ class Piece(val coordinate: IntOffset, private val position: Offset, type: Type)
         @JvmField
         var shuffledSides = arrayOf(UP, RIGHT, DOWN, LEFT)
 
-        lateinit var oPieceImage: ImageBitmap
-        lateinit var iPieceImage: ImageBitmap
-        lateinit var lPieceImage: ImageBitmap
-        lateinit var tPieceImage: ImageBitmap
+        var images = emptyMap<Type, Painter>()
 
         fun sameConnectionType(
             connectionTypes: Map<IntOffset, ConnectionType>,
@@ -137,46 +181,14 @@ class Piece(val coordinate: IntOffset, private val position: Offset, type: Type)
         }
     }
 
-
-    fun draw(drawScope: DrawScope) {
-        with(drawScope) {
-            redrawTrigger
-            rotate(
-                degrees = rotation.toFloat(),
-                pivot = position + Offset(BASE_SIZE * scale, BASE_SIZE * scale) / 2f
-            ) {
-                drawRect(
-                    Color.Blue,
-                    topLeft = position,
-                    size = Size(BASE_SIZE * scale, BASE_SIZE * scale)
-                )
-                when (type) {
-                    Type.O -> {
-                        drawImage(image = oPieceImage, topLeft = position)
-                    }
-                    Type.I -> {
-                        drawImage(image = iPieceImage, topLeft = position)
-                    }
-                    Type.L -> {
-                        drawImage(image = lPieceImage, topLeft = position)
-                    }
-                    Type.T -> {
-                        drawImage(image = tPieceImage, topLeft = position)
-                    }
-                    Type.NONE -> {}
-                }
-            }
-        }
-    }
-
     private fun triggerRedraw() {
-        redrawTrigger = !redrawTrigger
+        triggerRedraw = !triggerRedraw
     }
 
 
-//    fun _to_string(): String {
-//        return "pieceAT({0},{1})".format([coordinate.x, coordinate.y])
-//    }
+    override fun toString(): String {
+        return "pieceAT(%d,%d)".format(coordinate.x, coordinate.y)
+    }
 
 
     fun changeType(pieceType: Type) {
@@ -287,21 +299,22 @@ class Piece(val coordinate: IntOffset, private val position: Offset, type: Type)
 //    }
 
 
-//    fun flash(custom_color:= Color.HOT_PINK, count:= 1):
-//    if flashing: return
-//    flashing = true
-//    var highlight_visible:= highlighted
-//    var highlight_color: Color = $highlight.color
+//    fun flash(custom_color:= Color.HOT_PINK, count:= 1) {
+//        if (flashing) return
+//        flashing = true
+//        var highlight_visible: = highlighted
+//        var highlight_color: Color = $highlight.color
 //
-//    for i in range(count):
-//    $highlight.visible = true
-//    $highlight.color = custom_color
-//    await Global.create_timer(0.25)
-//    $highlight.visible = highlight_visible
-//    $highlight.color = highlight_color
-//    await Global.create_timer(0.25)
+//        for i in range(count):
+//        $highlight.visible = true
+//        $highlight.color = custom_color
+//        await Global . create_timer (0.25)
+//        $highlight.visible = highlight_visible
+//        $highlight.color = highlight_color
+//        await Global . create_timer (0.25)
 //
-//    flashing = false
+//        flashing = false
+//    }
 
 
 
@@ -870,93 +883,84 @@ class Piece(val coordinate: IntOffset, private val position: Offset, type: Type)
 
 
     fun rotateByCW90(instant: Boolean = INSTANT_ROTATION) {
+        if (!instant) {
+//            if (direction == 0) {
+//                rotation = -90
+//            }
+            val animator = ValueAnimator.ofInt(direction, direction + 90)
+            animator.duration = ROTATION_DURATION.toLong()
+            animator.addUpdateListener { animation ->
+                triggerRedraw()
+                rotation = animation.animatedValue as Int
+            }
+            animator.start()
+        }
+
         direction += 90
         if (direction == 360) {
             direction = 0
         }
-        rotation += 90
-        if (rotation == 360) {
-            rotation = 0
+
+        if (Game.playerPlaying) {
+//            History.add_action(self, History.ActionType.rotateCW90)
         }
-
-//        if (!instant) {
-//            if (direction == 0) {
-//                rotation = -90
-//            }
-//            get_tree().create_tween().tween_property(
-//                $symbol,
-//                "rotation_degrees",
-//                direction,
-//                ANIMATION_SPEED
-//            )
-//        }
-
-//        if Game.playerPlaying:
-//        History.add_action(self, History.ActionType.rotateCW90)
 //        rotated.emit()
         triggerRedraw()
     }
 
+
     fun rotateByCCW90(instant: Boolean = INSTANT_ROTATION) {
+        if (!instant) {
+//            if (direction == 270) {
+//                rotation = 360
+//            }
+            val animator = ValueAnimator.ofInt(direction, direction - 90)
+            animator.duration = ROTATION_DURATION.toLong()
+            animator.addUpdateListener { animation ->
+                triggerRedraw()
+                rotation = animation.animatedValue as Int
+            }
+            animator.start()
+        }
+
         direction -= 90
         if (direction == -90) {
             direction = 270
         }
-        rotation -= 90
-        if (rotation == -90) {
-            rotation = 270
+
+        if (Game.playerPlaying) {
+//            History.add_action(self, History.ActionType.rotateCCW90)
         }
-
-
-
-//        if (!instant) {
-//            if (direction == 270) {
-//                rotation = 360
-//            }
-//            get_tree().create_tween().tween_property(
-//                $symbol,
-//                "rotation_degrees",
-//                direction,
-//                ANIMATION_SPEED
-//            )
-//        }
-
-//        if Game.playerPlaying:
-//        History.add_action(self, History.ActionType.rotateCCW90)
 //        rotated.emit()
         triggerRedraw()
     }
 
     fun rotateBy180(instant: Boolean = INSTANT_ROTATION) {
+        if (!instant) {
+//            if (direction == 0) {
+//                rotation = -180
+//            } else if (direction == 90) {
+//                rotation = -90
+//            }
+            val animator = ValueAnimator.ofInt(direction, direction + 180)
+            animator.duration = ROTATION_DURATION.toLong()
+            animator.addUpdateListener { animation ->
+                triggerRedraw()
+                rotation = animation.animatedValue as Int
+            }
+            animator.start()
+        }
+
         direction += 180
         if (direction == 360) {
             direction = 0
         } else if (direction == 450) {
             direction = 90
         }
-        rotation += 180
-        if (rotation == 360) {
-            rotation = 0
-        } else if (rotation == 450) {
-            rotation = 90
+
+        if (Game.playerPlaying) {
+//            History.add_action(self, History.ActionType.rotate180)
         }
-
-//        if (!instant) {
-//            if (direction == 0) {
-//                rotation = -180
-//            } else if (direction == 90) {
-//                rotation = -90
-//            }
-//            get_tree().create_tween().tween_property(
-//                $symbol,
-//                "rotation_degrees",
-//                direction,
-//                ANIMATION_SPEED
-//            )
-//        }
-
-//        if Game.playerPlaying:
-//        History.add_action(self, History.ActionType.rotate180)
 //        rotated.emit()
         triggerRedraw()
     }
@@ -1031,6 +1035,17 @@ class Piece(val coordinate: IntOffset, private val position: Offset, type: Type)
     }
 
 
+    fun onClicked() {
+        rotateByCW90()
+    }
+
+    fun onLongClicked() {
+        if (!locked) {
+            lock()
+        } else {
+            unlock()
+        }
+    }
 
 //    fun printInfo():
 //    print("TYPE: ", Type.find_key(type))

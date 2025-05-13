@@ -1,38 +1,56 @@
 package com.example.circulationmaze
 
-import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.example.circulationmaze.Game.createNewGame
 import kotlin.math.roundToInt
 import kotlin.random.Random
 
 
 @Composable
 fun GameComposable(modifier: Modifier = Modifier) {
-    Piece.iPieceImage = ImageBitmap.imageResource(id = R.drawable.i_piece)
-    Piece.lPieceImage = ImageBitmap.imageResource(id = R.drawable.l_piece)
-    Piece.oPieceImage = ImageBitmap.imageResource(id = R.drawable.o_piece)
-    Piece.tPieceImage = ImageBitmap.imageResource(id = R.drawable.t_piece)
+    if (!Game.initialized) {
+        Piece.images = mapOf(
+            Piece.Type.I to painterResource(id = R.drawable.i_piece),
+            Piece.Type.L to painterResource(id = R.drawable.l_piece),
+            Piece.Type.O to painterResource(id = R.drawable.o_piece),
+            Piece.Type.T to painterResource(id = R.drawable.t_piece),
+        )
 
-    Canvas(
-        modifier = modifier.fillMaxSize()
+        Game.screenWidthDp = LocalConfiguration.current.screenWidthDp
+        createNewGame(3095248787, 13, 13)
+
+        Game.initialized = true
+    }
+
+
+    Box (
+        modifier = Modifier
+            .size(Game.screenWidthDp!!.dp)
     ) {
         for (piece in Game.pieces.values) {
-            piece.draw(this)
+            PieceComposable(
+                modifier = Modifier
+                    .offset(x = piece.position.x.dp, y = piece.position.y.dp),
+                piece
+            )
         }
-
     }
     ControlsComposable(modifier)
+
 }
 
 @Composable
@@ -42,7 +60,7 @@ fun ControlsComposable(modifier: Modifier = Modifier) {
         .padding(top = 100.dp)) {
         Button(
             onClick = {
-                Game.pieces[IntOffset(0, 0)]!!.rotation += 15
+                Game.pieces[IntOffset(0, 0)]!!.rotateByCW90()
             }
         ) {
             Text(text = "1")
@@ -71,6 +89,8 @@ object Game {
     var playerPlaying = false
     var loopPathingEnabled = false
 
+    var screenWidthDp: Int? = null
+    var initialized = false
 
 
     fun createNewGame(customSeed: Long, gridRows: Int, gridColumns: Int) {
@@ -129,7 +149,7 @@ object Game {
     fun spawnPieces() {
         val totalUnscaledPiecesSize = Piece.BASE_SIZE * gridColumns
         val spacing = 2f
-        val spaceAvailableForEachPiece = 1080f / gridColumns - spacing
+        val spaceAvailableForEachPiece = screenWidthDp!!.toFloat() / gridColumns - spacing
         Piece.scale = spaceAvailableForEachPiece * gridColumns / totalUnscaledPiecesSize
 
 

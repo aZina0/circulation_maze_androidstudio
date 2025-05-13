@@ -36,6 +36,5 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-        Game.createNewGame(3095248787, 13, 13)
     }
 }
