@@ -42,9 +42,10 @@ private val DEFAULT_BACKGROUND_COLOR = Color(0xFF000000)
 private val LOCKED_BACKGROUND_COLOR = Color(0xFF252525)
 private val DEFAULT_PIECE_COLOR = Color(0xFF515151)
 private val ACTIVE_PIECE_COLOR = Color(0xFF008700)
+private val ROOT_PIECE_COLOR = Color(0xFFFFD700)
 
 private const val ROTATION_DURATION = 200
-private const val INSTANT_ROTATION = true
+private const val INSTANT_ROTATION = false
 
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -58,6 +59,9 @@ fun PieceComposable(modifier: Modifier, piece: Piece) {
     var pieceColor = DEFAULT_PIECE_COLOR
     if (piece.active) {
         pieceColor = ACTIVE_PIECE_COLOR
+    }
+    if (piece == Game.rootPiece) {
+        pieceColor = ROOT_PIECE_COLOR
     }
 
     Global.redrawAmount++
@@ -270,10 +274,12 @@ class Piece(val coordinate: IntOffset, val position: Offset, type: Type) {
 
     fun lock() {
         locked = true
+        triggerRedraw()
     }
 
     fun unlock() {
         locked = false
+        triggerRedraw()
     }
 
 //    fun setLock(value: Boolean) {
@@ -290,10 +296,13 @@ class Piece(val coordinate: IntOffset, val position: Offset, type: Type) {
 
     fun activate() {
         active = true
+        triggerRedraw()
     }
 
     fun deactivate() {
+        if (this == Game.rootPiece) return
         active = false
+        triggerRedraw()
     }
 
 //    fun setActive(value: Boolean) {
@@ -912,6 +921,8 @@ class Piece(val coordinate: IntOffset, val position: Offset, type: Type) {
 
 
     fun rotateByCW90(instant: Boolean = INSTANT_ROTATION) {
+        if (locked) return
+
         if (!instant) {
 //            if (direction == 0) {
 //                rotation = -90
@@ -936,11 +947,14 @@ class Piece(val coordinate: IntOffset, val position: Offset, type: Type) {
 //            History.add_action(self, History.ActionType.rotateCW90)
         }
 //        rotated.emit()
+        onRotated()
         triggerRedraw()
     }
 
 
     fun rotateByCCW90(instant: Boolean = INSTANT_ROTATION) {
+        if (locked) return
+
         if (!instant) {
 //            if (direction == 270) {
 //                rotation = 360
@@ -965,10 +979,13 @@ class Piece(val coordinate: IntOffset, val position: Offset, type: Type) {
 //            History.add_action(self, History.ActionType.rotateCCW90)
         }
 //        rotated.emit()
+        onRotated()
         triggerRedraw()
     }
 
     fun rotateBy180(instant: Boolean = INSTANT_ROTATION) {
+        if (locked) return
+
         if (!instant) {
 //            if (direction == 0) {
 //                rotation = -180
@@ -997,6 +1014,7 @@ class Piece(val coordinate: IntOffset, val position: Offset, type: Type) {
 //            History.add_action(self, History.ActionType.rotate180)
         }
 //        rotated.emit()
+        onRotated()
         triggerRedraw()
     }
 
@@ -1082,17 +1100,85 @@ class Piece(val coordinate: IntOffset, val position: Offset, type: Type) {
         }
     }
 
+    fun onRotated() {
+        if (!Game.playerPlaying) {
+            return
+        }
+
+//        connectSubgraph(piece)
+
+        val connectedNeighbourPieces = getConnectedNeighbours()
+        if (!active) {
+            for (neighbourPiece in connectedNeighbourPieces) {
+                if (neighbourPiece.active) {
+                    sourcePieces.add(neighbourPiece)
+                    neighbourPiece.linkedPieces.add(this)
+                }
+            }
+            if (sourcePieces.isNotEmpty()) {
+                activate()
+                Game.connectSubgraph(this)
+            }
+        }
+        else {
+            var sourcePieceIndex = 0
+            while (sourcePieceIndex < sourcePieces.size) {
+                val sourcePiece = sourcePieces[sourcePieceIndex]
+                if (!connected(sourcePiece)) {
+                    sourcePiece.linkedPieces.remove(this)
+                    sourcePieces.removeAt(sourcePieceIndex)
+                } else {
+                    sourcePieceIndex += 1
+                }
+            }
+
+            if (sourcePieces.isEmpty() && this != Game.rootPiece) {
+                Game.disconnectSubgraph(this)
+            } else {
+                for (neighbourPiece in connectedNeighbourPieces) {
+                    if (!linkedPieces.contains(neighbourPiece) && !sourcePieces.contains(neighbourPiece)) {
+                        linkedPieces.add(neighbourPiece)
+                        neighbourPiece.sourcePieces.add(this)
+                        Game.connectSubgraph(neighbourPiece)
+                    }
+                }
+
+                var linkedPieceIndex = 0
+                while (linkedPieceIndex < linkedPieces.size) {
+                    val linkedPiece = linkedPieces[linkedPieceIndex]
+                    if (!connectedNeighbourPieces.contains(linkedPiece)) {
+                        linkedPieces.removeAt(linkedPieceIndex)
+                        linkedPiece.sourcePieces.remove(this)
+                        Game.disconnectSubgraph(linkedPiece)
+                    } else {
+                        linkedPieceIndex += 1
+                    }
+                }
+            }
+        }
+
+        updateSourceArrows()
+
+//        if loopPathingEnabled:
+//        	await Loops.traverse(piece)
+
+        Game.checkForBoardComplete()
+    }
+
     fun printInfo() {
         Global.print("========")
         Global.print("%s".format(this))
         Global.print("TYPE: %s".format(type))
         Global.print("DIRECTION: %s".format(direction))
         Global.print("ACTIVE: %s".format(active))
-//        Global.print("SOURCE pieces:")
-//        for piece in source_pieces:
-//            Global.print("--- ", piece.coordinate)
-//        Global.print("LINKED pieces:")
-//            for piece in linked_pieces:
+        Global.print("SOURCE pieces:")
+        for (piece in sourcePieces) {
+            Global.print("---%s".format(piece.coordinate))
+        }
+        Global.print("LINKED pieces:")
+            for (piece in linkedPieces) {
+            Global.print("---%s".format(piece.coordinate))
+        }
     }
 
 

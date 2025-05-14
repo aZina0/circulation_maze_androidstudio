@@ -293,7 +293,7 @@ object TreeGeneration {
 
 
 
-    private fun fillEmptyPiece(emptyPiece : Piece): Boolean {
+    private fun fillEmptyPiece(emptyPiece: Piece): Boolean {
         val neighbours = emptyPiece.getSidesWithNeighbours()
 
         for (sideWithNeighbour in neighbours.keys) {
@@ -312,6 +312,7 @@ object TreeGeneration {
 
                 val sideWithO = pieceBecomingO.coordinate - pieceBecomingConnect.coordinate
                 val sideWithOrigin = pieceBecomingConnect.getSidesWithConnectedNeighbours().keys.first()
+                pieceBecomingConnect.unlock()
                 pieceBecomingConnect.swapType(
                     mutableMapOf(
                         sideWithO to Piece.ConnectionType.LINK,
@@ -324,6 +325,7 @@ object TreeGeneration {
                         sideWithOrigin to Piece.ConnectionType.LINK,
                     )
                 )
+                pieceBecomingConnect.lock()
                 return true
             }
         }

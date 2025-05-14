@@ -35,6 +35,7 @@ class GameActivity : ComponentActivity()  {
                     Column (
                         modifier = Modifier.padding(innerPadding)
                     ) {
+                        TopBarComposable()
                         GameComposable()
                         ControlsComposable()
                     }

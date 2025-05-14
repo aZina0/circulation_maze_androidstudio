@@ -6,11 +6,7 @@ import kotlin.math.roundToInt
 import kotlin.random.Random
 
 
-
-
 object Game {
-
-
     val DELAY = 0.01F
     val ATTEMPT_AMOUNT = 10
     val TARGET_O_PIECE_RATIO = 0.25F
@@ -70,15 +66,18 @@ object Game {
 //        seed(customSeed)
 
 
-//        for piece: Piece in pieces.values():
-//            piece.locked = true
 
 //        await AutoSolve . solve_board ()
 
 
 //        var centerPiece: Piece = pieces[gridCenterCoordinate]
         connectSubgraph(rootPiece!!)
-//        disconnectSubgraph(centerPiece)
+        disconnectSubgraph(rootPiece!!)
+
+        for (piece in pieces.values) {
+            piece.unlock()
+        }
+        shufflePieces()
 
         playerPlaying = true
     }
@@ -216,15 +215,15 @@ object Game {
         var oPiecesActivatedCount = 0
 
         while (pieceQueue.size > 0) {
-            val piece: Piece = pieceQueue.removeAt(pieceQueue.size - 1)
+            val piece = pieceQueue.removeAt(pieceQueue.size - 1)
             piece.activate()
 
             if (piece.type == Piece.Type.O) {
                 oPiecesActivatedCount += 1
             }
 
-            for (neighbourPiece: Piece in piece.getNeighbours()) {
-                if (piece.connected(neighbourPiece) && !piece.sourcePieces.contains(neighbourPiece)) {
+            for (neighbourPiece in piece.getConnectedNeighbours()) {
+                if (!piece.sourcePieces.contains(neighbourPiece)) {
                     pieceQueue.add(neighbourPiece)
                     piece.linkedPieces.add(neighbourPiece)
                     neighbourPiece.sourcePieces.add(piece)
@@ -242,7 +241,7 @@ object Game {
         val pieceQueue = mutableListOf(firstPiece)
 
         while (pieceQueue.size > 0) {
-            val piece: Piece = pieceQueue.removeAt(pieceQueue.size - 1)
+            val piece = pieceQueue.removeAt(pieceQueue.size - 1)
             piece.deactivate()
 
             for (linkedPiece in piece.linkedPieces) {
@@ -257,95 +256,37 @@ object Game {
 
 
 
-//    fun shufflePieces() {
-//        var methods:= ["CW90", "180", "CCW90"]
-//        for coordinate in pieces:
-//            var piece: Piece = pieces[coordinate]
-//            piece.locked = false
-//            methods.shuffle()
-//            piece.call("rotate_by_" + methods[0])
-//
-//            piece.get_node("symbol").rotation_degrees = piece.direction
-//    }
+    fun shufflePieces() {
+        val randomVal = Random.nextFloat()
+        for (coordinate in pieces.keys) {
+            val piece: Piece = pieces[coordinate]!!
+            piece.unlock()
+            if (0 <= randomVal && randomVal < 0.25) {
+
+            } else if (0.25 <= randomVal && randomVal < 0.5) {
+                piece.rotateByCW90()
+            } else if (0.5 <= randomVal && randomVal < 0.75) {
+                piece.rotateBy180()
+            } else if (0.75 <= randomVal && randomVal < 1f) {
+                piece.rotateByCCW90()
+            }
+        }
+    }
 
 
 
-//    fun _on_piece_rotated(piece: Piece) {
-//        if not playerPlaying:
-//            return
-//
-//        print("ROTATED")
-//
-//        var coordinate:= piece.coordinate
-//        # connectSubgraph(piece)
-//
-//        var connectedNeighbourPieces: Array[Piece] = []
-//        for side: IntOffset in [IntOffset.UP, IntOffset.RIGHT, IntOffset.DOWN, IntOffset.LEFT]:
-//            var neighbourPiece_coordinate:= coordinate + side
-//            if not validCoordinate(neighbourPiece_coordinate):
-//                continue
-//            var neighbourPiece: Piece = pieces[neighbourPiece_coordinate]
-//            if piece.connected(neighbourPiece):
-//                connectedNeighbourPieces.append(neighbourPiece)
-//
-//        if not piece.active:
-//            for neighbourPiece in connectedNeighbourPieces:
-//                if neighbourPiece.active:
-//                    piece.sourcePieces.append(neighbourPiece)
-//                    neighbourPiece.linkedPieces.append(piece)
-//
-//            if not piece.sourcePieces.is_empty():
-//                piece.active = true
-//                connectSubgraph(piece)
-//
-//        else:
-//            var sourcePieceIndex:= 0
-//            while sourcePieceIndex < len(piece.sourcePieces):
-//                var sourcePiece: Piece = piece.sourcePieces[sourcePieceIndex]
-//                if not piece.connected(sourcePiece):
-//                    sourcePiece.linkedPieces.erase(piece)
-//                    piece.sourcePieces.remove_at(sourcePieceIndex)
-//                else:
-//                    sourcePieceIndex += 1
-//
-//            if piece.sourcePieces.is_empty() && not piece.has_meta("root_piece"):
-//                disconnectSubgraph(piece)
-//            else:
-//                for neighbourPiece in connectedNeighbourPieces:
-//                    if neighbourPiece not in piece.linkedPieces && neighbourPiece not in piece.sourcePieces:
-//                        piece.linkedPieces.append(neighbourPiece)
-//                        neighbourPiece.sourcePieces.append(piece)
-//                        connectSubgraph(neighbourPiece)
-//
-//                var linkedPiece_index:= 0
-//                while linkedPiece_index < len(piece.linkedPieces):
-//                    var linkedPiece:= piece.linkedPieces[linkedPiece_index] as Piece
-//                    if linkedPiece not in connectedNeighbourPieces:
-//                        piece.linkedPieces.remove_at(linkedPiece_index)
-//                        linkedPiece.sourcePieces.erase(piece)
-//                        disconnectSubgraph(linkedPiece)
-//                    else:
-//                        linkedPiece_index += 1
-//
-//        piece.updateSourceArrows()
-//
-//        # if loopPathingEnabled:
-//        # 	await Loops.traverse(piece)
-//
-//        checkForBoardComplete()
-//    }
 
 
 
-//    fun checkForBoardComplete() {
-//        var activePieceCount:= 0
-//        for piece: Piece in pieces.values():
-//            if piece.type == Piece.Type.O && piece.active:
-//                activePieceCount += 1
-//
-//        if activePieceCount == countOPieces():
-//            print("WIN")
-//    }
+
+    fun checkForBoardComplete(): Boolean {
+        for (piece in pieces.values) {
+            if (!piece.active) {
+                return false
+            }
+        }
+        return true
+    }
 
 
 //    fun updateHighlight(direction: IntOffset) {
