@@ -2,11 +2,14 @@ package com.example.circulationmaze.game
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
@@ -88,6 +91,83 @@ fun ControlsComposable() {
                         contentDescription = "rotateCW90"
                     )
                 }
+            }
+        }
+        Column {
+            Row {
+                Box (modifier = Modifier.size(70.dp))
+                Button (
+                    onClick = {},
+                    shape = RectangleShape,
+                    modifier = Modifier.size(70.dp),
+                    contentPadding = PaddingValues(0.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.background,
+                        contentColor = MaterialTheme.colorScheme.onBackground,
+                    )
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.arrow_up),
+                        contentDescription = "goUp",
+                        modifier = Modifier.size(50.dp),
+                    )
+                }
+                Box (modifier = Modifier.size(70.dp))
+            }
+            Row {
+                Button (
+                    onClick = {},
+                    shape = RectangleShape,
+                    modifier = Modifier.size(70.dp),
+                    contentPadding = PaddingValues(0.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.background,
+                        contentColor = MaterialTheme.colorScheme.onBackground,
+                    )
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.arrow_left),
+                        contentDescription = "goLeft",
+                        modifier = Modifier.size(50.dp),
+                    )
+                }
+                Box (modifier = Modifier.size(70.dp))
+                Button (
+                    onClick = {},
+                    shape = RectangleShape,
+                    modifier = Modifier.size(70.dp),
+                    contentPadding = PaddingValues(0.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.background,
+                        contentColor = MaterialTheme.colorScheme.onBackground,
+                )
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.arrow_right),
+                        contentDescription = "goRight",
+                        modifier = Modifier.size(50.dp),
+                    )
+                }
+            }
+            Row {
+                Box (modifier = Modifier.size(70.dp))
+                Button (
+                    onClick = {},
+                    shape = RectangleShape,
+                    modifier = Modifier.size(70.dp),
+                    contentPadding = PaddingValues(0.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.background,
+                        contentColor = MaterialTheme.colorScheme.onBackground,
+                    )
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.arrow_down),
+                        contentDescription = "goDown",
+                        modifier = Modifier.size(50.dp),
+                    )
+                }
+                Box (modifier = Modifier.size(70.dp))
             }
         }
     }
