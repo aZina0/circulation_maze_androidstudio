@@ -55,6 +55,8 @@ fun GameComposable() {
                 piece
             )
         }
+
+        HighlightComposable()
     }
 }
 
@@ -65,7 +67,7 @@ fun ControlsComposable() {
         Column {
             Row {
                 Button (
-                    onClick = {},
+                    onClick = { Game.pieces[Highlight.coordinate]!!.rotateByCCW90() },
                     shape = RectangleShape
                 ) {
                     Icon(
@@ -74,7 +76,7 @@ fun ControlsComposable() {
                     )
                 }
                 Button (
-                    onClick = {},
+                    onClick = { Game.pieces[Highlight.coordinate]!!.rotateBy180() },
                     shape = RectangleShape
                 ) {
                     Icon(
@@ -83,7 +85,7 @@ fun ControlsComposable() {
                     )
                 }
                 Button (
-                    onClick = {},
+                    onClick = { Game.pieces[Highlight.coordinate]!!.rotateByCW90() },
                     shape = RectangleShape
                 ) {
                     Icon(
@@ -97,7 +99,7 @@ fun ControlsComposable() {
             Row {
                 Box (modifier = Modifier.size(70.dp))
                 Button (
-                    onClick = {},
+                    onClick = { Highlight.moveUp() },
                     shape = RectangleShape,
                     modifier = Modifier.size(70.dp),
                     contentPadding = PaddingValues(0.dp),
@@ -116,7 +118,7 @@ fun ControlsComposable() {
             }
             Row {
                 Button (
-                    onClick = {},
+                    onClick = { Highlight.moveLeft() },
                     shape = RectangleShape,
                     modifier = Modifier.size(70.dp),
                     contentPadding = PaddingValues(0.dp),
@@ -133,7 +135,7 @@ fun ControlsComposable() {
                 }
                 Box (modifier = Modifier.size(70.dp))
                 Button (
-                    onClick = {},
+                    onClick = { Highlight.moveRight() },
                     shape = RectangleShape,
                     modifier = Modifier.size(70.dp),
                     contentPadding = PaddingValues(0.dp),
@@ -152,7 +154,7 @@ fun ControlsComposable() {
             Row {
                 Box (modifier = Modifier.size(70.dp))
                 Button (
-                    onClick = {},
+                    onClick = { Highlight.moveDown() },
                     shape = RectangleShape,
                     modifier = Modifier.size(70.dp),
                     contentPadding = PaddingValues(0.dp),

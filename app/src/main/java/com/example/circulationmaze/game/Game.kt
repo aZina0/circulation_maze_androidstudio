@@ -7,8 +7,6 @@ import kotlin.random.Random
 
 
 object Game {
-    val DELAY = 0.01F
-    val ATTEMPT_AMOUNT = 10
     val TARGET_O_PIECE_RATIO = 0.25F
 
     var highlight = IntOffset(-1, -1)
@@ -24,6 +22,8 @@ object Game {
     var loopPathingEnabled = false
 
     var screenWidthDp: Int? = null
+    var spacing = 1f
+
     var initialized = false
 
 
@@ -36,8 +36,8 @@ object Game {
 //        seed(customSeed)
         Piece.resetShuffledSides()
 
-        Game.gridRows = gridRows
-        Game.gridColumns = gridColumns
+        this.gridRows = gridRows
+        this.gridColumns = gridColumns
         pieceCount = gridRows * gridColumns
         gridCenterCoordinate = (IntOffset(gridColumns, gridRows) - IntOffset(1, 1)) / 2F
 
@@ -85,7 +85,6 @@ object Game {
 
     fun spawnPieces() {
         val totalUnscaledPiecesSize = Piece.BASE_SIZE * gridColumns
-        val spacing = 1f
         val spaceAvailableForEachPiece = screenWidthDp!!.toFloat() / gridColumns - spacing
         Piece.scale = spaceAvailableForEachPiece * gridColumns / totalUnscaledPiecesSize
 
