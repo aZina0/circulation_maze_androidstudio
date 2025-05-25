@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.circulationmaze"
+    namespace = "com.aZina0.circulationmaze"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.circulationmaze"
+        applicationId = "com.aZina0.circulationmaze"
         minSdk = 26
         targetSdk = 34
         versionCode = 1

@@ -1,4 +1,4 @@
-package com.example.circulationmaze
+package com.aZina0.circulationmaze
 
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height

@@ -1,4 +1,4 @@
-package com.example.circulationmaze
+package com.aZina0.circulationmaze
 
 import android.util.Log
 

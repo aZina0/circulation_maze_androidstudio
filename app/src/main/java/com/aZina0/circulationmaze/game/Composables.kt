@@ -1,4 +1,4 @@
-package com.example.circulationmaze.game
+package com.aZina0.circulationmaze.game
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,8 +16,8 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.example.circulationmaze.R
-import com.example.circulationmaze.game.Game.createNewGame
+import com.aZina0.circulationmaze.R
+import com.aZina0.circulationmaze.game.Game.createNewGame
 
 
 @Composable

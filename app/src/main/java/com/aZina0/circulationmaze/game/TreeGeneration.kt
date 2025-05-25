@@ -1,7 +1,7 @@
-package com.example.circulationmaze.game
+package com.aZina0.circulationmaze.game
 
 import androidx.compose.ui.unit.IntOffset
-import com.example.circulationmaze.Global
+import com.aZina0.circulationmaze.Global
 import kotlin.random.Random
 
 

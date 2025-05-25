@@ -1,4 +1,4 @@
-package com.example.circulationmaze.game
+package com.aZina0.circulationmaze.game
 
 import android.animation.ValueAnimator
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -22,8 +22,8 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.example.circulationmaze.Global
-import com.example.circulationmaze.R
+import com.aZina0.circulationmaze.Global
+import com.aZina0.circulationmaze.R
 import kotlinx.coroutines.delay
 import kotlin.random.Random
 

@@ -1,4 +1,4 @@
-package com.example.circulationmaze
+package com.aZina0.circulationmaze
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

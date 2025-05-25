@@ -1,4 +1,4 @@
-package com.example.circulationmaze.game
+package com.aZina0.circulationmaze.game
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.offset
@@ -14,7 +14,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.example.circulationmaze.R
+import com.aZina0.circulationmaze.R
 
 
 @Composable

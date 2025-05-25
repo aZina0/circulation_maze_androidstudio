@@ -1,4 +1,4 @@
-package com.example.circulationmaze.registerLogin
+package com.aZina0.circulationmaze.registerLogin
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue

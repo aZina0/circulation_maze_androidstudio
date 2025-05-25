@@ -1,4 +1,4 @@
-package com.example.circulationmaze.game
+package com.aZina0.circulationmaze.game
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
-import com.example.circulationmaze.ui.theme.AppTheme
+import com.aZina0.circulationmaze.ui.theme.AppTheme
 
 class GameActivity : ComponentActivity()  {
     override fun onCreate(savedInstanceState: Bundle?) {

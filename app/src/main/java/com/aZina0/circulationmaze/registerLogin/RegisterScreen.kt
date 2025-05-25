@@ -1,4 +1,4 @@
-package com.example.circulationmaze.registerLogin
+package com.aZina0.circulationmaze.registerLogin
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,7 +22,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.circulationmaze.RelativeVerticalSpacer
+import com.aZina0.circulationmaze.RelativeVerticalSpacer
 
 @Composable
 fun RegisterScreen(modifier: Modifier, onSwapToLogin: () -> Unit) {
