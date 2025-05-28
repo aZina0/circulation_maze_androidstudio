@@ -19,13 +19,14 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.aZina0.circulationmaze.RelativeVerticalSpacer
 
 @Composable
 fun RegisterScreen(
     modifier: Modifier,
     onSwapToLoginClick: () -> Unit,
-    viewModel: RegisterViewModel = RegisterViewModel()
+    viewModel: RegisterViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState
 

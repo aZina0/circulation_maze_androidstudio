@@ -10,11 +10,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun NewGameScreen(
     onStartClicked: (gridSize: Int) -> Unit,
-    viewModel: NewGameViewModel = NewGameViewModel()
+    viewModel: NewGameViewModel = hiltViewModel()
 ) {
     Column {
         OutlinedTextField(

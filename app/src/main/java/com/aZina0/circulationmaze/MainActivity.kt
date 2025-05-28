@@ -22,8 +22,10 @@ import com.aZina0.circulationmaze.newGame.NewGameScreen
 import com.aZina0.circulationmaze.registerLogin.LoginScreen
 import com.aZina0.circulationmaze.registerLogin.RegisterScreen
 import com.aZina0.circulationmaze.ui.theme.AppTheme
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.serialization.Serializable
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun MainMenuScreen(
@@ -16,7 +17,7 @@ fun MainMenuScreen(
     onNewGameClick: () -> Unit,
     onLoginClick: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: MainMenuViewModel = MainMenuViewModel()
+    viewModel: MainMenuViewModel = hiltViewModel()
 ) {
     Column {
 

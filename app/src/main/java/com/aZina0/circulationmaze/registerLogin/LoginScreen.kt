@@ -19,6 +19,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.aZina0.circulationmaze.RelativeVerticalSpacer
 
 
@@ -26,7 +27,7 @@ import com.aZina0.circulationmaze.RelativeVerticalSpacer
 fun LoginScreen(
     onSwapToRegisterClick: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: LoginViewModel = LoginViewModel()
+    viewModel: LoginViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState
 
