@@ -21,13 +21,7 @@ import com.aZina0.circulationmaze.game.Game.createNewGame
 
 
 @Composable
-fun TopBarComposable() {
-
-}
-
-
-@Composable
-fun GameComposable() {
+fun GameScreen(gridSize: Int) {
     if (!Game.initialized) {
         Piece.images = mapOf(
             Piece.Type.I to painterResource(id = R.drawable.i_piece),
@@ -38,12 +32,23 @@ fun GameComposable() {
         )
 
         Game.screenWidthDp = LocalConfiguration.current.screenWidthDp
-        createNewGame(3095248787, 13, 13)
+        createNewGame(3095248787, gridSize, gridSize)
 
         Game.initialized = true
     }
 
+    TopBarComposable()
+    ActualGameComposable()
+    ControlsComposable()
+}
 
+@Composable
+fun TopBarComposable() {
+
+}
+
+@Composable
+fun ActualGameComposable() {
     Box (
         modifier = Modifier
             .size(Game.screenWidthDp!!.dp)

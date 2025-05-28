@@ -25,12 +25,6 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".game.GameActivity"
-            android:exported="false"
-            android:theme="@style/Theme.CirculationMaze">
-        </activity>
-
     </application>
 
 </manifest>

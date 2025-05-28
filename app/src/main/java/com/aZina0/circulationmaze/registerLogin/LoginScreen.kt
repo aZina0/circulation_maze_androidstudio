@@ -24,8 +24,8 @@ import com.aZina0.circulationmaze.RelativeVerticalSpacer
 
 @Composable
 fun LoginScreen(
-    modifier: Modifier,
-    onRegisterClick: () -> Unit,
+    onSwapToRegisterClick: () -> Unit,
+    modifier: Modifier = Modifier,
     viewModel: LoginViewModel = LoginViewModel()
 ) {
     val uiState by viewModel.uiState
@@ -65,7 +65,7 @@ fun LoginScreen(
             Text(
                 text = "Register.",
                 modifier = Modifier
-                    .clickable { viewModel.onRegisterClick() },
+                    .clickable { onSwapToRegisterClick() },
                 style = MaterialTheme.typography.bodyLarge.copy(
                     textDecoration = TextDecoration.Underline,
                 ),

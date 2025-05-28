@@ -13,9 +13,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -25,15 +22,12 @@ import androidx.compose.ui.unit.sp
 import com.aZina0.circulationmaze.RelativeVerticalSpacer
 
 @Composable
-fun RegisterScreen(modifier: Modifier, onSwapToLogin: () -> Unit) {
-    var username by rememberSaveable { mutableStateOf("") }
-    var email by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
-    var passwordAgain by rememberSaveable { mutableStateOf("") }
-
-    fun onRegisterClick() {
-
-    }
+fun RegisterScreen(
+    modifier: Modifier,
+    onSwapToLoginClick: () -> Unit,
+    viewModel: RegisterViewModel = RegisterViewModel()
+) {
+    val uiState by viewModel.uiState
 
     Box (
         modifier = Modifier
@@ -46,8 +40,8 @@ fun RegisterScreen(modifier: Modifier, onSwapToLogin: () -> Unit) {
                 percent = 0.1f,
             )
             OutlinedTextField(
-                value = username,
-                onValueChange = { username = it },
+                value = uiState.username,
+                onValueChange = { viewModel.onUsernameChange(it) },
                 label = { Text(text = "Username") },
                 singleLine = true,
             )
@@ -55,8 +49,8 @@ fun RegisterScreen(modifier: Modifier, onSwapToLogin: () -> Unit) {
                 percent = 0.01f,
             )
             OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
+                value = uiState.email,
+                onValueChange = { viewModel.onEmailChange(it) },
                 label = { Text(text = "Email") },
                 singleLine = true,
             )
@@ -64,15 +58,15 @@ fun RegisterScreen(modifier: Modifier, onSwapToLogin: () -> Unit) {
                 percent = 0.01f,
             )
             OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
+                value = uiState.password,
+                onValueChange = { viewModel.onPasswordChange(it) },
                 label = { Text(text = "Password") },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
             )
             OutlinedTextField(
-                value = passwordAgain,
-                onValueChange = { passwordAgain = it },
+                value = uiState.passwordAgain,
+                onValueChange = { viewModel.onPasswordAgainChange(it) },
                 label = { Text(text = "Confirm password") },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
@@ -86,7 +80,7 @@ fun RegisterScreen(modifier: Modifier, onSwapToLogin: () -> Unit) {
             Text(
                 text = "Log in.",
                 modifier = Modifier
-                    .clickable { onSwapToLogin() },
+                    .clickable { onSwapToLoginClick() },
                 style = MaterialTheme.typography.bodyLarge.copy(
                     textDecoration = TextDecoration.Underline,
                 ),
@@ -95,7 +89,7 @@ fun RegisterScreen(modifier: Modifier, onSwapToLogin: () -> Unit) {
                 percent = 0.075f,
             )
             Button(
-                onClick = { onRegisterClick() },
+                onClick = { viewModel.onRegisterClick() },
                 modifier = Modifier
                     .size(width = 150.dp, height = 60.dp)
                     .align(alignment = Alignment.End),
