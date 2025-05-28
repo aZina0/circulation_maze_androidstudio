@@ -50,12 +50,12 @@ dependencies {
 
     implementation("androidx.navigation:navigation-compose:2.9.0")
 
-    // Hilt core
     implementation("com.google.dagger:hilt-android:2.50")
+    implementation(libs.firebase.firestore.ktx)
     kapt("com.google.dagger:hilt-android-compiler:2.50")
-
-    // Hilt for ViewModel
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

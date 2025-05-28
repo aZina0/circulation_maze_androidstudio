@@ -4,12 +4,13 @@ import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -33,17 +34,22 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        Firebase.auth.signInAnonymously()
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    // Sign in success, update UI with the signed-in user's information
-                    Global.print("signInAnonymously:success")
-                } else {
-                    // If sign in fails, display a message to the user.
-                    Global.print("signInAnonymously:failure")
-                    Global.print(task.exception.toString())
+        val user = Firebase.auth.currentUser
+        if (user == null) {
+            Firebase.auth.signInAnonymously()
+                .addOnCompleteListener(this) { task ->
+                    if (task.isSuccessful) {
+                        // Sign in success, update UI with the signed-in user's information
+                        Global.print("signInAnonymously:success")
+                    } else {
+                        // If sign in fails, display a message to the user.
+                        Global.print("signInAnonymously:failure")
+                        Global.print(task.exception.toString())
+                    }
                 }
-            }
+        } else {
+            Global.print("USER EXISTS")
+        }
 
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.auto(
@@ -65,16 +71,22 @@ class MainActivity : ComponentActivity() {
 object MainMenu
 
 @Serializable
+object LoadGame
+
+@Serializable
 object NewGame
+
+@Serializable
+object Leaderboards
+
+@Serializable
+object Settings
 
 @Serializable
 object Register
 
 @Serializable
 object Login
-
-@Serializable
-object Settings
 
 @Serializable
 object Profile
@@ -89,11 +101,14 @@ fun CirculationMazeApp() {
     ) {
 
         Scaffold(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize()
         ) { innerPadding ->
 
             Box(
-                modifier = Modifier.padding(innerPadding)
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.surfaceContainerLowest)
+                    .padding(innerPadding)
+                    .fillMaxSize()
             ) {
                 val navController = rememberNavController()
 
@@ -104,9 +119,15 @@ fun CirculationMazeApp() {
                             onNewGameClick = {
                                 navController.navigate(route = NewGame)
                             },
+                            onLeaderboardsClick = {
+                                navController.navigate(route = Leaderboards)
+                            },
+                            onSettingsClick = {
+                                navController.navigate(route = Settings)
+                            },
                             onLoginClick = {
                                 navController.navigate(route = Login)
-                            }
+                            },
                         )
                     }
 
@@ -145,10 +166,6 @@ fun CirculationMazeApp() {
                             },
                         )
                     }
-
-                }
-
-                BackHandler(enabled = true) {
 
                 }
             }

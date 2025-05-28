@@ -20,6 +20,9 @@ import androidx.compose.ui.unit.dp
 import com.aZina0.circulationmaze.Global
 import com.aZina0.circulationmaze.R
 import com.aZina0.circulationmaze.game.Game.createNewGame
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import com.google.firebase.firestore.FirebaseFirestore
 
 
 @Composable
@@ -53,6 +56,24 @@ fun GameScreen(
 
     BackHandler(enabled = true) {
         Game.initialized = false
+
+        val user = Firebase.auth.currentUser
+
+        if (user != null) {
+            val db = FirebaseFirestore.getInstance()
+            db.collection("users")
+                .document(user.uid)
+                .collection("saves")
+                .document("save1")
+                .set(Game.exportCurrentGame())
+                .addOnSuccessListener {
+                    Global.print("Document successfully written!")
+                }
+                .addOnFailureListener { e ->
+                    Global.print("Error writing document")
+                    Global.print(e.toString())
+                }
+        }
 
         onReturnClicked()
     }

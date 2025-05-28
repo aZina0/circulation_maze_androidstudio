@@ -2,6 +2,7 @@ package com.aZina0.circulationmaze.game
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntOffset
+import kotlinx.serialization.json.JsonPrimitive
 import kotlin.math.roundToInt
 import kotlin.random.Random
 
@@ -154,7 +155,17 @@ object Game {
         }
     }
 
-
+    fun exportCurrentGame(): MutableMap<String, MutableMap<String, Any>> {
+        val export = mutableMapOf<String, MutableMap<String, Any>>()
+        for ((pieceCoordinate, piece) in pieces) {
+            val pieceVals = mutableMapOf<String, Any>()
+            pieceVals["direction"] = JsonPrimitive(piece.direction)
+            pieceVals["locked"] = JsonPrimitive(piece.locked)
+            pieceVals["type"] = JsonPrimitive(piece.type.toString())
+            export[pieceCoordinate.toString()] = pieceVals
+        }
+        return export
+    }
 
     fun getLoopyPieceList(reverse: Boolean = false): MutableList<Piece> {
         var leftBorder = 0

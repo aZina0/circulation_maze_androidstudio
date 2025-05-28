@@ -1,5 +1,6 @@
 package com.aZina0.circulationmaze.mainMenu
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,6 +16,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 fun MainMenuScreen(
     onContinueClick: () -> Unit,
     onNewGameClick: () -> Unit,
+    onLeaderboardsClick: () -> Unit,
+    onSettingsClick: () -> Unit,
     onLoginClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: MainMenuViewModel = hiltViewModel()
@@ -24,7 +27,7 @@ fun MainMenuScreen(
         Button(
             onClick = { onContinueClick() },
             modifier = Modifier
-                .size(width = 150.dp, height = 60.dp),
+                .size(width = 215.dp, height = 60.dp),
             shape = RoundedCornerShape(percent = 30),
             enabled = viewModel.userLoggedIn
         ) {
@@ -37,7 +40,7 @@ fun MainMenuScreen(
         Button(
             onClick = { onNewGameClick() },
             modifier = Modifier
-                .size(width = 150.dp, height = 60.dp),
+                .size(width = 215.dp, height = 60.dp),
             shape = RoundedCornerShape(percent = 30)
         ) {
             Text (
@@ -47,9 +50,33 @@ fun MainMenuScreen(
         }
 
         Button(
+            onClick = { onLeaderboardsClick() },
+            modifier = Modifier
+                .size(width = 215.dp, height = 60.dp),
+            shape = RoundedCornerShape(percent = 30)
+        ) {
+            Text (
+                text = "Leaderboards",
+                fontSize = 24.sp,
+            )
+        }
+
+        Button(
+            onClick = { onSettingsClick() },
+            modifier = Modifier
+                .size(width = 215.dp, height = 60.dp),
+            shape = RoundedCornerShape(percent = 30)
+        ) {
+            Text (
+                text = "Settings",
+                fontSize = 24.sp,
+            )
+        }
+
+        Button(
             onClick = { onLoginClick() },
             modifier = Modifier
-                .size(width = 150.dp, height = 60.dp),
+                .size(width = 215.dp, height = 60.dp),
             shape = RoundedCornerShape(percent = 30)
         ) {
             Text (
@@ -58,4 +85,5 @@ fun MainMenuScreen(
             )
         }
     }
+    BackHandler(enabled = true) {}
 }
