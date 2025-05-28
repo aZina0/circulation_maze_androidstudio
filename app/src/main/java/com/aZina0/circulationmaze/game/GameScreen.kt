@@ -1,5 +1,6 @@
 package com.aZina0.circulationmaze.game
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,12 +17,18 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.aZina0.circulationmaze.Global
 import com.aZina0.circulationmaze.R
 import com.aZina0.circulationmaze.game.Game.createNewGame
 
 
 @Composable
-fun GameScreen(gridSize: Int) {
+fun GameScreen(
+    gridSize: Int,
+    seed: Long,
+    onReturnClicked: () -> Unit,
+) {
+    Global.print(gridSize.toString())
     if (!Game.initialized) {
         Piece.images = mapOf(
             Piece.Type.I to painterResource(id = R.drawable.i_piece),
@@ -32,14 +39,23 @@ fun GameScreen(gridSize: Int) {
         )
 
         Game.screenWidthDp = LocalConfiguration.current.screenWidthDp
-        createNewGame(3095248787, gridSize, gridSize)
+        createNewGame(seed, gridSize, gridSize)
 
         Game.initialized = true
     }
 
-    TopBarComposable()
-    ActualGameComposable()
-    ControlsComposable()
+
+    Column {
+        TopBarComposable()
+        ActualGameComposable()
+        ControlsComposable()
+    }
+
+    BackHandler(enabled = true) {
+        Game.initialized = false
+
+        onReturnClicked()
+    }
 }
 
 @Composable

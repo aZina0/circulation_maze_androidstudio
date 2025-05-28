@@ -5,7 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.aZina0.circulationmaze.Global
-import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 
 class MainMenuViewModel : ViewModel() {
     var userLoggedIn by mutableStateOf(false)
@@ -13,7 +14,8 @@ class MainMenuViewModel : ViewModel() {
 
     init {
         Global.print("MAIN MENU VIEWMODEL INIT")
-        val user = FirebaseAuth.getInstance().currentUser
+        val user = Firebase.auth.currentUser
         userLoggedIn = user != null
+
     }
 }

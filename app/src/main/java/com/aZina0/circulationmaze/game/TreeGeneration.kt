@@ -2,7 +2,6 @@ package com.aZina0.circulationmaze.game
 
 import androidx.compose.ui.unit.IntOffset
 import com.aZina0.circulationmaze.Global
-import kotlin.random.Random
 
 
 object TreeGeneration {
@@ -552,7 +551,7 @@ object TreeGeneration {
 
             val neighbours = piece.getSidesWithNeighbours()
 
-            val randomIndexShift = Random.nextInt(0, 4)
+            val randomIndexShift = Game.deterministicRandom.nextInt(0, 4)
             for (index in 0 until 4) {
                 val firstSide = SIDES[(index + randomIndexShift) % 4]
                 val secondSide = SIDES[(index + randomIndexShift + 1) % 4]

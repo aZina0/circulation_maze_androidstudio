@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
@@ -22,6 +23,8 @@ import com.aZina0.circulationmaze.newGame.NewGameScreen
 import com.aZina0.circulationmaze.registerLogin.LoginScreen
 import com.aZina0.circulationmaze.registerLogin.RegisterScreen
 import com.aZina0.circulationmaze.ui.theme.AppTheme
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.serialization.Serializable
 
@@ -29,6 +32,18 @@ import kotlinx.serialization.Serializable
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        Firebase.auth.signInAnonymously()
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    // Sign in success, update UI with the signed-in user's information
+                    Global.print("signInAnonymously:success")
+                } else {
+                    // If sign in fails, display a message to the user.
+                    Global.print("signInAnonymously:failure")
+                    Global.print(task.exception.toString())
+                }
+            }
 
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.auto(
@@ -65,7 +80,7 @@ object Settings
 object Profile
 
 @Serializable
-data class Game(val gridSize: Int)
+data class Game(val gridSize: Int, val seed: Long)
 
 @Composable
 fun CirculationMazeApp() {
@@ -97,15 +112,21 @@ fun CirculationMazeApp() {
 
                     composable<NewGame> {
                         NewGameScreen(
-                            onStartClicked = {
-                                navController.navigate(route = Game(it))
+                            onStartClicked = { gridSize, seed ->
+                                navController.navigate(route = Game(gridSize, seed))
                             },
                         )
                     }
 
                     composable<Game> { backStackEntry ->
                         val game: Game = backStackEntry.toRoute()
-                        GameScreen(game.gridSize)
+                        GameScreen(
+                            gridSize = game.gridSize,
+                            seed = game.seed,
+                            onReturnClicked = {
+                                navController.navigate(route = MainMenu)
+                            }
+                        )
                     }
 
                     composable<Login> {
@@ -124,6 +145,10 @@ fun CirculationMazeApp() {
                             },
                         )
                     }
+
+                }
+
+                BackHandler(enabled = true) {
 
                 }
             }

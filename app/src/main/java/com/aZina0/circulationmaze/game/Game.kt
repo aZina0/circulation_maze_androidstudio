@@ -8,6 +8,9 @@ import kotlin.random.Random
 
 object Game {
     val TARGET_O_PIECE_RATIO = 0.25F
+    val SEED_MAX = 999999999L
+    val GRID_SIZE_MIN = 5
+    val GRID_SIZE_MAX = 51
 
     var highlight = IntOffset(-1, -1)
     var pieces = mutableMapOf<IntOffset, Piece>()
@@ -25,6 +28,8 @@ object Game {
     var spacing = 1f
 
     var initialized = false
+
+    var deterministicRandom = Random(0)
 
 
     fun createNewGame(customSeed: Long, gridRows: Int, gridColumns: Int) {
@@ -46,6 +51,7 @@ object Game {
 
 //        print("GENERATING: ", customSeed)
 //        print("Target O piece count: ", round(gridRows * gridColumns * TARGET_O_PIECE_RATIO))
+        deterministicRandom = Random(customSeed)
         spawnPieces()
 //        print("Spawned O piece count: ", countOPieces())
 
