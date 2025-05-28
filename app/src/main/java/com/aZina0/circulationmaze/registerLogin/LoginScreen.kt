@@ -13,9 +13,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -24,15 +21,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.aZina0.circulationmaze.RelativeVerticalSpacer
 
+
 @Composable
-fun LoginScreen(modifier: Modifier, onRegisterClick: () -> Unit) {
-    var usernameOrEmail by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
-
-    fun onLoginClick() {
-
-    }
-
+fun LoginScreen(
+    modifier: Modifier,
+    onRegisterClick: () -> Unit,
+    viewModel: LoginViewModel = LoginViewModel()
+) {
+    val uiState by viewModel.uiState
 
     Box (
         modifier = Modifier
@@ -45,8 +41,8 @@ fun LoginScreen(modifier: Modifier, onRegisterClick: () -> Unit) {
                 percent = 0.2f,
             )
             OutlinedTextField(
-                value = usernameOrEmail,
-                onValueChange = { usernameOrEmail = it },
+                value = uiState.usernameOrEmail,
+                onValueChange = { viewModel.onUsernameOrEmailChange(it) },
                 label = { Text(text = "Username or email") },
                 singleLine = true,
             )
@@ -54,8 +50,8 @@ fun LoginScreen(modifier: Modifier, onRegisterClick: () -> Unit) {
                 percent = 0.01f,
             )
             OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
+                value = uiState.password,
+                onValueChange = { viewModel.onPasswordChange(it) },
                 label = { Text(text = "Password") },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
@@ -69,7 +65,7 @@ fun LoginScreen(modifier: Modifier, onRegisterClick: () -> Unit) {
             Text(
                 text = "Register.",
                 modifier = Modifier
-                    .clickable { onRegisterClick() },
+                    .clickable { viewModel.onRegisterClick() },
                 style = MaterialTheme.typography.bodyLarge.copy(
                     textDecoration = TextDecoration.Underline,
                 ),
@@ -78,7 +74,7 @@ fun LoginScreen(modifier: Modifier, onRegisterClick: () -> Unit) {
                 percent = 0.1f,
             )
             Button(
-                onClick = { onLoginClick() },
+                onClick = { viewModel.onLoginClick() },
                 modifier = Modifier
                     .size(width = 150.dp, height = 60.dp)
                     .align(alignment = Alignment.End),

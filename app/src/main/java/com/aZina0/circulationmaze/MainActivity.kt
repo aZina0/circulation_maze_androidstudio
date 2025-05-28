@@ -1,17 +1,17 @@
 package com.aZina0.circulationmaze
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.aZina0.circulationmaze.game.GameActivity
-import com.aZina0.circulationmaze.registerLogin.RegisterLogin
+import androidx.navigation.compose.rememberNavController
 import com.aZina0.circulationmaze.ui.theme.AppTheme
 
 class MainActivity : ComponentActivity() {
@@ -29,17 +29,27 @@ class MainActivity : ComponentActivity() {
             )
         )
 
-        setContent {
-            AppTheme (
-                dynamicColor = false,
+        setContent { CirculationMazeApp() }
+    }
+}
+
+
+
+@Composable
+fun CirculationMazeApp() {
+    AppTheme (
+        dynamicColor = false,
+    ) {
+
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+
+        ) { innerPadding ->
+            Box(
+                modifier = Modifier.padding(innerPadding)
             ) {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    RegisterLogin(modifier = Modifier.padding(innerPadding))
-                }
+                val navController = rememberNavController()
             }
         }
-        val intent = Intent(this, GameActivity::class.java)
-        startActivity(intent)
-        finish()
     }
 }
