@@ -17,7 +17,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.aZina0.circulationmaze.game.Game.createNewGame
 import com.aZina0.circulationmaze.game.GameScreen
 import com.aZina0.circulationmaze.mainMenu.MainMenuScreen
 import com.aZina0.circulationmaze.newGame.NewGameScreen
@@ -130,7 +129,7 @@ fun CirculationMazeApp() {
                         NewGameScreen(
                             onStartClicked = { gridSize, seed ->
                                 navController.navigate(route = Game)
-                                createNewGame(seed, gridSize, gridSize)
+//                                createNewGame(seed, gridSize, gridSize)
                             },
                         )
                     }

@@ -1,5 +1,8 @@
 package com.aZina0.circulationmaze.game
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntOffset
 import com.aZina0.circulationmaze.Global
@@ -32,6 +35,8 @@ object Game {
 
     var deterministicRandom = Random(0)
 
+    var triggerRedraw by mutableStateOf(false)
+
 
     fun generationCheck() {
 
@@ -58,8 +63,8 @@ object Game {
 //        print("Target O piece count: ", round(gridRows * gridColumns * TARGET_O_PIECE_RATIO))
         deterministicRandom = Random(customSeed)
         spawnPieces()
-        Global.print(customSeed.toString())
-        Global.print(deterministicRandom.nextInt().toString())
+//        Global.print(customSeed.toString())
+//        Global.print(deterministicRandom.nextInt().toString())
 //        print("Spawned O piece count: ", countOPieces())
 
         var generationSuccess = TreeGeneration.generate()

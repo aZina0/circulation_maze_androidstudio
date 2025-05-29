@@ -59,6 +59,7 @@ fun ActualGameComposable() {
         modifier = Modifier
             .size(Global.screenWidthDp!!.dp)
     ) {
+        Game.triggerRedraw
         for (piece in Game.pieces.values) {
             PieceComposable(
                 modifier = Modifier
