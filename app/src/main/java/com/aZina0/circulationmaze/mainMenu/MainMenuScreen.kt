@@ -24,6 +24,8 @@ fun MainMenuScreen(
 ) {
     Column {
 
+        TitleComposable()
+
         Button(
             onClick = { onContinueClick() },
             modifier = Modifier
