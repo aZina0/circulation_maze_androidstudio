@@ -46,7 +46,7 @@ object TreeGeneration {
                 }
             }
 
-            nonePieces.shuffle()
+            nonePieces.shuffle(Game.deterministicRandom)
 
             val neededOPieceCount = Game.targetOPieceCount - Game.countOPieces()
             for (index in 0 until neededOPieceCount) {
@@ -341,7 +341,7 @@ object TreeGeneration {
         if (noneNeighbourPieceCount == 0) {
 //            emptyPiece.flash(Color.PURPLE)
             val sideIndices = arrayOf(0, 1, 2, 3)
-            sideIndices.shuffle()
+            sideIndices.shuffle(Game.deterministicRandom)
 
             for (index in 0 until 4) {
                 val firstSide = SIDES[sideIndices[index]]
@@ -543,7 +543,7 @@ object TreeGeneration {
         }
 
         var piecesHijacked = 0
-        val pieces = Game.pieces.values.shuffled()
+        val pieces = Game.pieces.values.shuffled(Game.deterministicRandom)
         for (piece in pieces) {
             if (!(piece.type == Piece.Type.O && piece.locked)) {
                 continue

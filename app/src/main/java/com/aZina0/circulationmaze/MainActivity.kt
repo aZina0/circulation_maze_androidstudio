@@ -13,10 +13,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
+import com.aZina0.circulationmaze.game.Game.createNewGame
 import com.aZina0.circulationmaze.game.GameScreen
 import com.aZina0.circulationmaze.mainMenu.MainMenuScreen
 import com.aZina0.circulationmaze.newGame.NewGameScreen
@@ -85,7 +86,7 @@ object Login
 object Profile
 
 @Serializable
-data class Game(val gridSize: Int, val seed: Long)
+object Game
 
 @Composable
 fun CirculationMazeApp() {
@@ -103,6 +104,7 @@ fun CirculationMazeApp() {
                     .padding(innerPadding)
                     .fillMaxSize()
             ) {
+                Global.screenWidthDp = LocalConfiguration.current.screenWidthDp
                 val navController = rememberNavController()
 
                 NavHost(navController = navController, startDestination = MainMenu) {
@@ -127,16 +129,14 @@ fun CirculationMazeApp() {
                     composable<NewGame> {
                         NewGameScreen(
                             onStartClicked = { gridSize, seed ->
-                                navController.navigate(route = Game(gridSize, seed))
+                                navController.navigate(route = Game)
+                                createNewGame(seed, gridSize, gridSize)
                             },
                         )
                     }
 
-                    composable<Game> { backStackEntry ->
-                        val game: Game = backStackEntry.toRoute()
+                    composable<Game> {
                         GameScreen(
-                            gridSize = game.gridSize,
-                            seed = game.seed,
                             onReturnClicked = {
                                 navController.navigate(route = MainMenu)
                             }

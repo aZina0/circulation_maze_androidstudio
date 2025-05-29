@@ -2,6 +2,7 @@ package com.aZina0.circulationmaze.game
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntOffset
+import com.aZina0.circulationmaze.Global
 import kotlinx.serialization.json.JsonPrimitive
 import kotlin.math.roundToInt
 import kotlin.random.Random
@@ -25,13 +26,16 @@ object Game {
     var playerPlaying = false
     var loopPathingEnabled = false
 
-    var screenWidthDp: Int? = null
     var spacing = 1f
 
     var initialized = false
 
     var deterministicRandom = Random(0)
 
+
+    fun generationCheck() {
+
+    }
 
     fun createNewGame(customSeed: Long, gridRows: Int, gridColumns: Int) {
         playerPlaying = false
@@ -54,6 +58,8 @@ object Game {
 //        print("Target O piece count: ", round(gridRows * gridColumns * TARGET_O_PIECE_RATIO))
         deterministicRandom = Random(customSeed)
         spawnPieces()
+        Global.print(customSeed.toString())
+        Global.print(deterministicRandom.nextInt().toString())
 //        print("Spawned O piece count: ", countOPieces())
 
         var generationSuccess = TreeGeneration.generate()
@@ -76,15 +82,19 @@ object Game {
 
 //        await AutoSolve . solve_board ()
 
+        for (piece in pieces.values) {
+            piece.deactivate()
+        }
 
 //        var centerPiece: Piece = pieces[gridCenterCoordinate]
+//        connectSubgraph(rootPiece!!)
+//        disconnectSubgraph(rootPiece!!)
         connectSubgraph(rootPiece!!)
-        disconnectSubgraph(rootPiece!!)
 
-        for (piece in pieces.values) {
-            piece.unlock()
-        }
-        shufflePieces()
+//        for (piece in pieces.values) {
+//            piece.unlock()
+//        }
+//        shufflePieces()
 
         playerPlaying = true
     }
@@ -92,7 +102,7 @@ object Game {
 
     fun spawnPieces() {
         val totalUnscaledPiecesSize = Piece.BASE_SIZE * gridColumns
-        val spaceAvailableForEachPiece = screenWidthDp!!.toFloat() / gridColumns - spacing
+        val spaceAvailableForEachPiece = Global.screenWidthDp!!.toFloat() / gridColumns - spacing
         Piece.scale = spaceAvailableForEachPiece * gridColumns / totalUnscaledPiecesSize
 
 
@@ -107,7 +117,7 @@ object Game {
                 )
 
                 if (coordinate == gridCenterCoordinate) {
-                    val randomPieceType = Piece.Type.entries.drop(1).dropLast(1).random()
+                    val randomPieceType = Piece.Type.entries.drop(1).dropLast(1).random(deterministicRandom)
                     piece = Piece(coordinate, position, randomPieceType)
                     rootPiece = piece
                     piece.activate()
@@ -125,8 +135,8 @@ object Game {
 
         while (extraOPiecesCount > 0) {
             val randomCoordinate = IntOffset(
-                Random.nextInt(0, gridColumns),
-                Random.nextInt(0, gridRows)
+                deterministicRandom.nextInt(0, gridColumns),
+                deterministicRandom.nextInt(0, gridRows)
             )
             if (randomCoordinate == gridCenterCoordinate) {
                 continue
@@ -141,8 +151,8 @@ object Game {
 
         while (extraOPiecesCount < 0) {
             var randomCoordinate = IntOffset(
-                Random.nextInt(0, gridColumns),
-                Random.nextInt(0, gridRows)
+                deterministicRandom.nextInt(0, gridColumns),
+                deterministicRandom.nextInt(0, gridRows)
             )
             if (randomCoordinate == gridCenterCoordinate) {
                 continue

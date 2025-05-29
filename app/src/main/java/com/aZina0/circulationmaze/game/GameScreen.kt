@@ -14,24 +14,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.aZina0.circulationmaze.Global
 import com.aZina0.circulationmaze.R
-import com.aZina0.circulationmaze.game.Game.createNewGame
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
-import com.google.firebase.firestore.FirebaseFirestore
 
 
 @Composable
 fun GameScreen(
-    gridSize: Int,
-    seed: Long,
     onReturnClicked: () -> Unit,
+    viewModel: GameViewModel = hiltViewModel()
 ) {
-    Global.print(gridSize.toString())
     if (!Game.initialized) {
         Piece.images = mapOf(
             Piece.Type.I to painterResource(id = R.drawable.i_piece),
@@ -40,13 +34,8 @@ fun GameScreen(
             Piece.Type.T to painterResource(id = R.drawable.t_piece),
             Piece.Type.NONE to painterResource(id = R.drawable.nothing),
         )
-
-        Game.screenWidthDp = LocalConfiguration.current.screenWidthDp
-        createNewGame(seed, gridSize, gridSize)
-
         Game.initialized = true
     }
-
 
     Column {
         TopBarComposable()
@@ -55,26 +44,6 @@ fun GameScreen(
     }
 
     BackHandler(enabled = true) {
-        Game.initialized = false
-
-        val user = Firebase.auth.currentUser
-
-        if (user != null) {
-            val db = FirebaseFirestore.getInstance()
-            db.collection("users")
-                .document(user.uid)
-                .collection("saves")
-                .document("save1")
-                .set(Game.exportCurrentGame())
-                .addOnSuccessListener {
-                    Global.print("Document successfully written!")
-                }
-                .addOnFailureListener { e ->
-                    Global.print("Error writing document")
-                    Global.print(e.toString())
-                }
-        }
-
         onReturnClicked()
     }
 }
@@ -88,7 +57,7 @@ fun TopBarComposable() {
 fun ActualGameComposable() {
     Box (
         modifier = Modifier
-            .size(Game.screenWidthDp!!.dp)
+            .size(Global.screenWidthDp!!.dp)
     ) {
         for (piece in Game.pieces.values) {
             PieceComposable(

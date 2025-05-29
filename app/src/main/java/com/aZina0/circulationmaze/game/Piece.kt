@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.dp
 import com.aZina0.circulationmaze.Global
 import com.aZina0.circulationmaze.R
 import kotlinx.coroutines.delay
-import kotlin.random.Random
 
 
 val UP = IntOffset(0, -1)
@@ -65,7 +64,7 @@ fun PieceComposable(modifier: Modifier, piece: Piece) {
     }
 
     Global.redrawAmount++
-    Global.print("%s redrawn. (%s total)".format(piece, Global.redrawAmount))
+//    Global.print("%s redrawn. (%s total)".format(piece, Global.redrawAmount))
     piece.triggerRedraw
 
     Box (
@@ -195,7 +194,7 @@ class Piece(val coordinate: IntOffset, val position: Offset, type: Type) {
 
 
         fun getShuffledSides(): List<IntOffset> {
-            shuffledSides.shuffle()
+            shuffledSides.shuffle(Game.deterministicRandom)
             return shuffledSides.toList()
         }
 
@@ -529,7 +528,7 @@ class Piece(val coordinate: IntOffset, val position: Offset, type: Type) {
 
                 } else if (randomChoice) {
                     if (link[DOWN]!! || barrier[UP]!!) {
-                        if (Random.nextFloat() >= 0.5) {
+                        if (Game.deterministicRandom.nextFloat() >= 0.5) {
                             rotateTo0()
                             return true
                         } else {
@@ -537,7 +536,7 @@ class Piece(val coordinate: IntOffset, val position: Offset, type: Type) {
                             return true
                         }
                     } else if (link[LEFT]!! || barrier[RIGHT]!!) {
-                        if (Random.nextFloat() >= 0.5) {
+                        if (Game.deterministicRandom.nextFloat() >= 0.5) {
                             rotateTo90()
                             return true
                         } else {
@@ -545,7 +544,7 @@ class Piece(val coordinate: IntOffset, val position: Offset, type: Type) {
                             return true
                         }
                     } else if (link[UP]!! || barrier[DOWN]!!) {
-                        if (Random.nextFloat() >= 0.5) {
+                        if (Game.deterministicRandom.nextFloat() >= 0.5) {
                             rotateTo180()
                             return true
                         } else {
@@ -554,7 +553,7 @@ class Piece(val coordinate: IntOffset, val position: Offset, type: Type) {
                         }
                     }
                     else if (link[RIGHT]!! || barrier[LEFT]!!) {
-                        if (Random.nextFloat() >= 0.5) {
+                        if (Game.deterministicRandom.nextFloat() >= 0.5) {
                             rotateTo270()
                             return true
                         } else {
@@ -600,7 +599,7 @@ class Piece(val coordinate: IntOffset, val position: Offset, type: Type) {
                     return true
                 } else if (randomChoice) {
                     if (link[UP]!! && link[DOWN]!!) {
-                        if (Random.nextFloat() > 0.5) {
+                        if (Game.deterministicRandom.nextFloat() > 0.5) {
                             rotateTo0()
                             return true
                         } else {
@@ -608,7 +607,7 @@ class Piece(val coordinate: IntOffset, val position: Offset, type: Type) {
                             return true
                         }
                     } else if (link[LEFT]!! && link[RIGHT]!!) {
-                        if (Random.nextFloat() > 0.5) {
+                        if (Game.deterministicRandom.nextFloat() > 0.5) {
                             rotateTo90()
                             return true
                         } else {
@@ -616,7 +615,7 @@ class Piece(val coordinate: IntOffset, val position: Offset, type: Type) {
                             return true
                         }
                     } else if (link[RIGHT]!! && link[DOWN]!!) {
-                        if (Random.nextFloat() > 0.5) {
+                        if (Game.deterministicRandom.nextFloat() > 0.5) {
                             rotateTo0()
                             return true
                         } else {
@@ -624,7 +623,7 @@ class Piece(val coordinate: IntOffset, val position: Offset, type: Type) {
                             return true
                         }
                     } else if (link[DOWN]!! && link[LEFT]!!) {
-                        if (Random.nextFloat() > 0.5) {
+                        if (Game.deterministicRandom.nextFloat() > 0.5) {
                             rotateTo90()
                             return true
                         } else {
@@ -632,7 +631,7 @@ class Piece(val coordinate: IntOffset, val position: Offset, type: Type) {
                             return true
                         }
                     } else if (link[LEFT]!! && link[UP]!!) {
-                        if (Random.nextFloat() > 0.5) {
+                        if (Game.deterministicRandom.nextFloat() > 0.5) {
                             rotateTo180()
                             return true
                         } else {
@@ -640,7 +639,7 @@ class Piece(val coordinate: IntOffset, val position: Offset, type: Type) {
                             return true
                         }
                     } else if (link[UP]!! && link[RIGHT]!!) {
-                        if (Random.nextFloat() > 0.5) {
+                        if (Game.deterministicRandom.nextFloat() > 0.5) {
                             rotateTo270()
                             return true
                         } else {
