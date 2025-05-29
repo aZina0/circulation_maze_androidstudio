@@ -2,15 +2,20 @@ package com.aZina0.circulationmaze
 
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.unit.dp
 
 @Composable
 fun RelativeVerticalSpacer(percent: Float) {
-    val screenHeightDp = LocalConfiguration.current.screenHeightDp.dp
     Spacer(
-        modifier = Modifier.height(screenHeightDp * percent)
+        modifier = Modifier.height(Global.relativeHeight(percent))
+    )
+}
+
+@Composable
+fun RelativeHorizontalSpacer(percent: Float) {
+    Spacer(
+        modifier = Modifier.width(Global.relativeWidth(percent))
     )
 }

@@ -9,7 +9,7 @@ import kotlinx.coroutines.launch
 class GameViewModel : ViewModel() {
 
     init {
-        startGenerationTest()
+//        startGenerationTest()
     }
 
     fun startGenerationTest() {
@@ -28,5 +28,26 @@ class GameViewModel : ViewModel() {
                 delay(4000)
             }
         }
+    }
+
+    fun onLockClicked() {
+        val piece = Game.pieces[Highlight.coordinate]!!
+        if (piece.locked) {
+            piece.unlock()
+        } else {
+            piece.lock()
+        }
+    }
+
+    fun onRotateCCW90Clicked() {
+        Game.pieces[Highlight.coordinate]!!.rotateByCCW90()
+    }
+
+    fun onRotateCW90Clicked() {
+        Game.pieces[Highlight.coordinate]!!.rotateByCW90()
+    }
+
+    fun onRotate180Clicked() {
+        Game.pieces[Highlight.coordinate]!!.rotateBy180()
     }
 }

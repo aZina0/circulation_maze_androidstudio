@@ -1,24 +1,33 @@
 package com.aZina0.circulationmaze.game
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.aZina0.circulationmaze.Global
 import com.aZina0.circulationmaze.R
+import com.aZina0.circulationmaze.RelativeHorizontalSpacer
+import com.aZina0.circulationmaze.RelativeVerticalSpacer
 
 
 @Composable
@@ -38,9 +47,11 @@ fun GameScreen(
     }
 
     Column {
-        TopBarComposable()
-        ActualGameComposable()
-        ControlsComposable()
+        TopBarComposable(viewModel)
+        RelativeVerticalSpacer(0.075f)
+        ActualGameComposable(viewModel)
+        RelativeVerticalSpacer(0.05f)
+        ControlsComposable(viewModel)
     }
 
     BackHandler(enabled = true) {
@@ -49,12 +60,20 @@ fun GameScreen(
 }
 
 @Composable
-fun TopBarComposable() {
+fun TopBarComposable(viewModel: GameViewModel) {
+    Column {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .size(Global.relativeHeight(0.05f))
+                .background(MaterialTheme.colorScheme.surfaceContainerLow)
+        )
+    }
 
 }
 
 @Composable
-fun ActualGameComposable() {
+fun ActualGameComposable(viewModel: GameViewModel) {
     Box (
         modifier = Modifier
             .size(Global.screenWidthDp!!.dp)
@@ -74,114 +93,214 @@ fun ActualGameComposable() {
 
 
 @Composable
-fun ControlsComposable() {
-    Row {
-        Column {
-            Row {
-                Button (
-                    onClick = { Game.pieces[Highlight.coordinate]!!.rotateByCCW90() },
-                    shape = RectangleShape
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.l_piece),
-                        contentDescription = "rotateCCW90"
-                    )
+fun ControlsComposable(viewModel: GameViewModel) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            val buttonSize = Global.relativeWidth(1f / 6) - 7.dp
+            val iconSize = buttonSize - 20.dp
+            Column {
+                Row {
+                    Box(modifier = Modifier.size(buttonSize))
+                    Button(
+                        onClick = {
+                            viewModel.onLockClicked()
+                        },
+                        shape = RoundedCornerShape(percent = 30),
+                        modifier = Modifier.size(buttonSize),
+                        contentPadding = PaddingValues(0.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                            contentColor = MaterialTheme.colorScheme.onSurface,
+                        )
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.lock),
+                            contentDescription = "ccw90",
+                            modifier = Modifier.size(iconSize),
+                        )
+                    }
+                    Box(modifier = Modifier.size(buttonSize))
                 }
-                Button (
-                    onClick = { Game.pieces[Highlight.coordinate]!!.rotateBy180() },
-                    shape = RectangleShape
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.l_piece),
-                        contentDescription = "rotate180"
-                    )
+                Row {
+                    Button(
+                        onClick = { viewModel.onRotateCCW90Clicked() },
+                        shape = RoundedCornerShape(percent = 30),
+                        modifier = Modifier.size(buttonSize),
+                        contentPadding = PaddingValues(0.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                            contentColor = MaterialTheme.colorScheme.onSurface,
+                        )
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ccw90),
+                            contentDescription = "ccw90",
+                            modifier = Modifier.size(iconSize),
+                        )
+                    }
+                    Box(modifier = Modifier.size(buttonSize))
+                    Button(
+                        onClick = { viewModel.onRotateCW90Clicked() },
+                        shape = RoundedCornerShape(percent = 30),
+                        modifier = Modifier.size(buttonSize),
+                        contentPadding = PaddingValues(0.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                            contentColor = MaterialTheme.colorScheme.onSurface,
+                        )
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.cw90),
+                            contentDescription = "cw90",
+                            modifier = Modifier.size(iconSize),
+                        )
+                    }
                 }
-                Button (
-                    onClick = { Game.pieces[Highlight.coordinate]!!.rotateByCW90() },
-                    shape = RectangleShape
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.l_piece),
-                        contentDescription = "rotateCW90"
-                    )
+                Row {
+                    Box(modifier = Modifier.size(buttonSize))
+                    Button(
+                        onClick = { viewModel.onRotate180Clicked() },
+                        shape = RoundedCornerShape(percent = 30),
+                        modifier = Modifier.size(buttonSize),
+                        contentPadding = PaddingValues(0.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                            contentColor = MaterialTheme.colorScheme.onSurface,
+                        )
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.r180),
+                            contentDescription = "180",
+                            modifier = Modifier.size(iconSize),
+                        )
+                    }
+                    Box(modifier = Modifier.size(buttonSize))
+                }
+            }
+            Column {
+                Row {
+                    Box(modifier = Modifier.size(buttonSize))
+                    Button(
+                        onClick = { Highlight.moveUp() },
+                        shape = RoundedCornerShape(percent = 30),
+                        modifier = Modifier.size(buttonSize),
+                        contentPadding = PaddingValues(0.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                            contentColor = MaterialTheme.colorScheme.onSurface,
+                        )
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.arrow_up),
+                            contentDescription = "goUp",
+                            modifier = Modifier.size(iconSize),
+                        )
+                    }
+                    Box(modifier = Modifier.size(buttonSize))
+                }
+                Row {
+                    Button(
+                        onClick = { Highlight.moveLeft() },
+                        shape = RoundedCornerShape(percent = 30),
+                        modifier = Modifier.size(buttonSize),
+                        contentPadding = PaddingValues(0.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                            contentColor = MaterialTheme.colorScheme.onSurface,
+                        )
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.arrow_left),
+                            contentDescription = "goLeft",
+                            modifier = Modifier.size(iconSize),
+                        )
+                    }
+                    Box(modifier = Modifier.size(buttonSize))
+                    Button(
+                        onClick = { Highlight.moveRight() },
+                        shape = RoundedCornerShape(percent = 30),
+                        modifier = Modifier.size(buttonSize),
+                        contentPadding = PaddingValues(0.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                            contentColor = MaterialTheme.colorScheme.onSurface,
+                        )
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.arrow_right),
+                            contentDescription = "goRight",
+                            modifier = Modifier.size(iconSize),
+                        )
+                    }
+                }
+                Row {
+                    Box(modifier = Modifier.size(buttonSize))
+                    Button(
+                        onClick = { Highlight.moveDown() },
+                        shape = RoundedCornerShape(percent = 30),
+                        modifier = Modifier.size(buttonSize),
+                        contentPadding = PaddingValues(0.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                            contentColor = MaterialTheme.colorScheme.onSurface,
+                        )
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.arrow_down),
+                            contentDescription = "goDown",
+                            modifier = Modifier.size(iconSize),
+                        )
+                    }
+                    Box(modifier = Modifier.size(buttonSize))
                 }
             }
         }
-        Column {
-            Row {
-                Box (modifier = Modifier.size(70.dp))
-                Button (
-                    onClick = { Highlight.moveUp() },
-                    shape = RectangleShape,
-                    modifier = Modifier.size(70.dp),
-                    contentPadding = PaddingValues(0.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.background,
-                        contentColor = MaterialTheme.colorScheme.onBackground,
-                    )
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.arrow_up),
-                        contentDescription = "goUp",
-                        modifier = Modifier.size(50.dp),
-                    )
-                }
-                Box (modifier = Modifier.size(70.dp))
-            }
-            Row {
-                Button (
-                    onClick = { Highlight.moveLeft() },
-                    shape = RectangleShape,
-                    modifier = Modifier.size(70.dp),
-                    contentPadding = PaddingValues(0.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.background,
-                        contentColor = MaterialTheme.colorScheme.onBackground,
-                    )
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.arrow_left),
-                        contentDescription = "goLeft",
-                        modifier = Modifier.size(50.dp),
-                    )
-                }
-                Box (modifier = Modifier.size(70.dp))
-                Button (
-                    onClick = { Highlight.moveRight() },
-                    shape = RectangleShape,
-                    modifier = Modifier.size(70.dp),
-                    contentPadding = PaddingValues(0.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.background,
-                        contentColor = MaterialTheme.colorScheme.onBackground,
+        RelativeVerticalSpacer(0.03f)
+        Row {
+            val buttonWidth = Global.relativeWidth(0.3f)
+            val buttonHeight = Global.relativeHeight(0.075f)
+            Button(
+                onClick = {  },
+                modifier = Modifier
+                    .size(width = buttonWidth, height = buttonHeight),
+                shape = RoundedCornerShape(percent = 30),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                    contentColor = MaterialTheme.colorScheme.onSurface,
                 )
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.arrow_right),
-                        contentDescription = "goRight",
-                        modifier = Modifier.size(50.dp),
-                    )
-                }
+            ) {
+                Text (
+                    text = "undo",
+                    fontSize = 24.sp,
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        textDecoration = TextDecoration.Underline,
+                    ),
+                )
             }
-            Row {
-                Box (modifier = Modifier.size(70.dp))
-                Button (
-                    onClick = { Highlight.moveDown() },
-                    shape = RectangleShape,
-                    modifier = Modifier.size(70.dp),
-                    contentPadding = PaddingValues(0.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.background,
-                        contentColor = MaterialTheme.colorScheme.onBackground,
-                    )
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.arrow_down),
-                        contentDescription = "goDown",
-                        modifier = Modifier.size(50.dp),
-                    )
-                }
-                Box (modifier = Modifier.size(70.dp))
+            RelativeHorizontalSpacer(0.05f)
+            Button(
+                onClick = {  },
+                modifier = Modifier
+                    .size(width = buttonWidth, height = buttonHeight),
+                shape = RoundedCornerShape(percent = 30),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                    contentColor = MaterialTheme.colorScheme.onSurface,
+                )
+            ) {
+                Text (
+                    text = "redo",
+                    fontSize = 24.sp,
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        textDecoration = TextDecoration.Underline,
+                    ),
+                )
             }
         }
     }
