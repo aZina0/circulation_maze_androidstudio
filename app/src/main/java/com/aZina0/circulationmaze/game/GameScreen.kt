@@ -55,6 +55,7 @@ fun GameScreen(
     }
 
     BackHandler(enabled = true) {
+        viewModel.exitGameScreen()
         onReturnClicked()
     }
 }

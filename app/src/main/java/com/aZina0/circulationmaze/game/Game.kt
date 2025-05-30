@@ -6,7 +6,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntOffset
 import com.aZina0.circulationmaze.Global
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.boolean
+import kotlinx.serialization.json.int
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.long
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import kotlin.math.roundToInt
 import kotlin.random.Random
 
@@ -37,31 +47,29 @@ object Game {
 
     var triggerRedraw by mutableStateOf(false)
 
+    var seed: Long = 0
+    var uid: String = ""
 
-    fun generationCheck() {
-
-    }
-
-    fun createNewGame(customSeed: Long, gridRows: Int, gridColumns: Int) {
+    fun createNewGame(uid: String, seed: Long, gridSize: Int) {
         playerPlaying = false
 
-//        Delete old pieces
         pieces.clear()
 
-//        seed(customSeed)
         Piece.resetShuffledSides()
 
-        this.gridRows = gridRows
-        this.gridColumns = gridColumns
-        pieceCount = gridRows * gridColumns
-        gridCenterCoordinate = (IntOffset(gridColumns, gridRows) - IntOffset(1, 1)) / 2F
+        this.seed = seed
+        this.uid = uid
+        gridRows = gridSize
+        gridColumns = gridSize
+        pieceCount = gridSize * gridSize
+        gridCenterCoordinate = (IntOffset(gridSize, gridSize) - IntOffset(1, 1)) / 2F
 
 //        Reset highlight coordinate
         highlight = gridCenterCoordinate
 
 //        print("GENERATING: ", customSeed)
 //        print("Target O piece count: ", round(gridRows * gridColumns * TARGET_O_PIECE_RATIO))
-        deterministicRandom = Random(customSeed)
+        deterministicRandom = Random(seed)
         spawnPieces()
 //        Global.print(customSeed.toString())
 //        Global.print(deterministicRandom.nextInt().toString())
@@ -132,7 +140,6 @@ object Game {
 
                 pieces[coordinate] = piece
             }
-
         }
 
         targetOPieceCount = (pieceCount * TARGET_O_PIECE_RATIO).roundToInt()
@@ -170,16 +177,99 @@ object Game {
         }
     }
 
-    fun exportCurrentGame(): MutableMap<String, MutableMap<String, Any>> {
-        val export = mutableMapOf<String, MutableMap<String, Any>>()
-        for ((pieceCoordinate, piece) in pieces) {
-            val pieceVals = mutableMapOf<String, Any>()
-            pieceVals["direction"] = JsonPrimitive(piece.direction)
-            pieceVals["locked"] = JsonPrimitive(piece.locked)
-            pieceVals["type"] = JsonPrimitive(piece.type.toString())
-            export[pieceCoordinate.toString()] = pieceVals
+
+    fun importGameFromJson(jsonString: String) {
+        playerPlaying = false
+        pieces.clear()
+        Piece.resetShuffledSides()
+
+
+        val jsonObject = Json.parseToJsonElement(jsonString).jsonObject
+        uid = jsonObject["uid"].toString()
+        seed = jsonObject["seed"]!!.jsonPrimitive.long
+        val gridSize = jsonObject["gridSize"]!!.jsonPrimitive.int
+        gridRows = gridSize
+        gridColumns = gridSize
+        pieceCount = gridSize * gridSize
+        gridCenterCoordinate = (IntOffset(gridSize, gridSize) - IntOffset(1, 1)) / 2F
+        deterministicRandom = Random(seed)
+
+
+        val piecesMap = Json.parseToJsonElement(jsonObject["pieces"].toString()).jsonObject
+        val totalUnscaledPiecesSize = Piece.BASE_SIZE * gridColumns
+        val spaceAvailableForEachPiece = Global.screenWidthDp!!.toFloat() / gridColumns - spacing
+        Piece.scale = spaceAvailableForEachPiece * gridColumns / totalUnscaledPiecesSize
+
+
+        for ((coordinateString, pieceDataJsonElement) in piecesMap) {
+            var trimmedCoordinateString = coordinateString.replace("(", "")
+            trimmedCoordinateString = trimmedCoordinateString.replace(")", "")
+            trimmedCoordinateString = trimmedCoordinateString.replace(" ", "")
+            val coordinateX = trimmedCoordinateString.split(",")[0].toInt()
+            val coordinateY = trimmedCoordinateString.split(",")[1].toInt()
+            val coordinate = IntOffset(coordinateX, coordinateY)
+
+            val position = Offset(
+                spacing / 2 + coordinate.x * Piece.scale * Piece.BASE_SIZE + spacing * coordinate.x,
+                spacing / 2 + coordinate.y * Piece.scale * Piece.BASE_SIZE + spacing * coordinate.y,
+            )
+
+            val pieceData = pieceDataJsonElement.jsonObject
+
+            var pieceType = Piece.Type.NONE
+            when (pieceData["type"]!!.jsonPrimitive.content) {
+                "O" -> pieceType = Piece.Type.O
+                "I" -> pieceType = Piece.Type.I
+                "L" -> pieceType = Piece.Type.L
+                "T" -> pieceType = Piece.Type.T
+            }
+
+            val piece = Piece(coordinate, position, pieceType)
+
+            when (pieceData["direction"]!!.jsonPrimitive.int) {
+                0 -> piece.rotateTo0()
+                90 -> piece.rotateTo90()
+                180 -> piece.rotateTo180()
+                270 -> piece.rotateTo270()
+            }
+
+            if (pieceData["locked"]!!.jsonPrimitive.boolean) {
+                piece.lock()
+            }
+
+            if (coordinate == gridCenterCoordinate) {
+                rootPiece = piece
+            }
+
+            pieces[coordinate] = piece
         }
-        return export
+    }
+
+    fun currentGameToJson(): Pair<String, String> {
+        val piecesMap = mutableMapOf<String, JsonElement>()
+        for ((pieceCoordinate, piece) in pieces) {
+            piecesMap[pieceCoordinate.toString()] = JsonObject(
+                mapOf(
+                    "type" to JsonPrimitive(piece.type.toString()),
+                    "direction" to JsonPrimitive(piece.direction),
+                    "locked" to JsonPrimitive(piece.locked),
+                )
+            )
+        }
+
+        val jsonObject = JsonObject(
+            mapOf(
+                "uid" to JsonPrimitive(uid),
+                "seed" to JsonPrimitive(seed),
+                "gridSize" to JsonPrimitive(gridRows),
+                "lastModifiedDate" to JsonPrimitive(
+                    LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)
+                ),
+                "pieces" to JsonObject(piecesMap),
+            )
+        )
+
+        return Pair(uid, jsonObject.toString())
     }
 
     fun getLoopyPieceList(reverse: Boolean = false): MutableList<Piece> {

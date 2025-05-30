@@ -17,8 +17,8 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.aZina0.circulationmaze.game.Game.createNewGame
 import com.aZina0.circulationmaze.game.GameScreen
+import com.aZina0.circulationmaze.loadGame.LoadGameScreen
 import com.aZina0.circulationmaze.mainMenu.MainMenuScreen
 import com.aZina0.circulationmaze.newGame.NewGameScreen
 import com.aZina0.circulationmaze.registerLogin.LoginScreen
@@ -62,31 +62,36 @@ class MainActivity : ComponentActivity() {
 
 
 @Serializable
-object MainMenu
+object MainMenuRoute
 
 @Serializable
-object LoadGame
+object LoadGameRoute
 
 @Serializable
-object NewGame
+object NewGameRoute
 
 @Serializable
-object Leaderboards
+object LeaderboardsRoute
 
 @Serializable
-object Settings
+object SettingsRoute
 
 @Serializable
-object Register
+object RegisterRoute
 
 @Serializable
-object Login
+object LoginRoute
 
 @Serializable
-object Profile
+object ProfileRoute
 
 @Serializable
-object Game
+data class GameRoute(
+    val startType: String,
+    val uid: String,
+    val seed: Long = 0L,
+    val gridSize: Int = 0,
+)
 
 @Composable
 fun CirculationMazeApp() {
@@ -108,55 +113,72 @@ fun CirculationMazeApp() {
                 Global.screenHeightDp = LocalConfiguration.current.screenHeightDp
                 val navController = rememberNavController()
 
-                NavHost(navController = navController, startDestination = MainMenu) {
-                    composable<MainMenu> {
+                NavHost(navController = navController, startDestination = MainMenuRoute) {
+                    composable<MainMenuRoute> {
                         MainMenuScreen(
-                            onContinueClick = {},
+                            onContinueClick = {
+                                navController.navigate(route = LoadGameRoute)
+                            },
                             onNewGameClick = {
-                                navController.navigate(route = NewGame)
+                                navController.navigate(route = NewGameRoute)
                             },
                             onLeaderboardsClick = {
-                                navController.navigate(route = Leaderboards)
+                                navController.navigate(route = LeaderboardsRoute)
                             },
                             onSettingsClick = {
-                                navController.navigate(route = Settings)
+                                navController.navigate(route = SettingsRoute)
                             },
                             onLoginClick = {
-                                navController.navigate(route = Login)
+                                navController.navigate(route = LoginRoute)
                             },
                         )
                     }
 
-                    composable<NewGame> {
-                        NewGameScreen(
-                            onStartClicked = { gridSize, seed ->
-                                navController.navigate(route = Game)
-                                createNewGame(seed, gridSize, gridSize)
-                            },
-                        )
-                    }
-
-                    composable<Game> {
-                        GameScreen(
-                            onReturnClicked = {
-                                navController.navigate(route = MainMenu)
+                    composable<LoadGameRoute> {
+                        LoadGameScreen(
+                            onSaveClicked = { uid ->
+                                navController.navigate(route = GameRoute(
+                                    startType = "loadGame",
+                                    uid = uid,
+                                ))
                             }
                         )
                     }
 
-                    composable<Login> {
-                        LoginScreen(
-                            onSwapToRegisterClick = {
-                                navController.navigate(route = Register)
+                    composable<NewGameRoute> {
+                        NewGameScreen(
+                            onStartClicked = { uid, seed, gridSize ->
+                                navController.navigate(route = GameRoute(
+                                    startType = "newGame",
+                                    uid = uid,
+                                    seed = seed,
+                                    gridSize = gridSize,
+                                ))
                             },
                         )
                     }
 
-                    composable<Register> {
+                    composable<GameRoute> {
+                        GameScreen(
+                            onReturnClicked = {
+                                navController.navigate(route = MainMenuRoute)
+                            }
+                        )
+                    }
+
+                    composable<LoginRoute> {
+                        LoginScreen(
+                            onSwapToRegisterClick = {
+                                navController.navigate(route = RegisterRoute)
+                            },
+                        )
+                    }
+
+                    composable<RegisterRoute> {
                         RegisterScreen (
                             Modifier,
                             onSwapToLoginClick = {
-                                navController.navigate(route = Login)
+                                navController.navigate(route = LoginRoute)
                             },
                         )
                     }

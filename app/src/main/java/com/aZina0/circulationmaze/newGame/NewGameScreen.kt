@@ -13,10 +13,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import java.util.UUID
 
 @Composable
 fun NewGameScreen(
-    onStartClicked: (gridSize: Int, seed: Long) -> Unit,
+    onStartClicked: (uid:String, seed: Long, gridSize: Int) -> Unit,
     viewModel: NewGameViewModel = hiltViewModel()
 ) {
     Column {
@@ -40,7 +41,13 @@ fun NewGameScreen(
         )
 
         Button(
-            onClick = { onStartClicked(viewModel.gridSizeInteger, viewModel.seedLong) },
+            onClick = {
+                onStartClicked(
+                    UUID.randomUUID().toString(),
+                    viewModel.seedLong,
+                    viewModel.gridSizeInteger,
+                )
+            },
             modifier = Modifier
                 .size(width = 150.dp, height = 60.dp),
             shape = RoundedCornerShape(percent = 30),
