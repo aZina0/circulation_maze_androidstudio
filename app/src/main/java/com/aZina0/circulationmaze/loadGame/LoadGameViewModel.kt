@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import com.aZina0.circulationmaze.GameBasicInfo
 import com.aZina0.circulationmaze.SaveManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @HiltViewModel
@@ -22,6 +24,8 @@ class LoadGameViewModel @Inject constructor(
             saves.add(basicInfo)
         }
 
-        saves.sortBy { it.lastModifiedDate }
+        saves.sortByDescending {
+            LocalDateTime.parse(it.lastModifiedDate, DateTimeFormatter.ISO_DATE_TIME)
+        }
     }
 }

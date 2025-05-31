@@ -27,19 +27,6 @@ fun MainMenuScreen(
         TitleComposable()
 
         Button(
-            onClick = { onContinueClick() },
-            modifier = Modifier
-                .size(width = 215.dp, height = 60.dp),
-            shape = RoundedCornerShape(percent = 30),
-            enabled = viewModel.userLoggedIn
-        ) {
-            Text (
-                text = "Continue",
-                fontSize = 24.sp,
-            )
-        }
-
-        Button(
             onClick = { onNewGameClick() },
             modifier = Modifier
                 .size(width = 215.dp, height = 60.dp),
@@ -47,6 +34,19 @@ fun MainMenuScreen(
         ) {
             Text (
                 text = "New Game",
+                fontSize = 24.sp,
+            )
+        }
+
+        Button(
+            onClick = { onContinueClick() },
+            modifier = Modifier
+                .size(width = 215.dp, height = 60.dp),
+            shape = RoundedCornerShape(percent = 30),
+            enabled = viewModel.userLoggedIn
+        ) {
+            Text (
+                text = "Load game",
                 fontSize = 24.sp,
             )
         }
