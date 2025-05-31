@@ -3,7 +3,6 @@ package com.aZina0.circulationmaze.game
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.aZina0.circulationmaze.FileManager
 import com.aZina0.circulationmaze.Global
 import com.aZina0.circulationmaze.SaveManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,7 +14,6 @@ import javax.inject.Inject
 @HiltViewModel
 class GameViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val fileManager: FileManager,
     private val saveManager: SaveManager,
 ) : ViewModel() {
 
@@ -32,7 +30,7 @@ class GameViewModel @Inject constructor(
                 gridSize,
             )
         } else if (startType == "loadGame") {
-            val jsonObject = fileManager.readJsonObjectFromFile(uid)
+            val jsonObject = saveManager.readJsonObjectFromFile(uid)
             val basicInfo = saveManager.getBasicInfo(jsonObject!!)
             Game.importGame(basicInfo, jsonObject)
         }
@@ -64,7 +62,7 @@ class GameViewModel @Inject constructor(
         val result = Game.exportGame()
         val basicInfo = result.first
         val jsonObject = result.second
-        fileManager.saveGameToFile(basicInfo.uid, jsonObject.toString())
+        saveManager.saveGameToFile(basicInfo.uid, jsonObject.toString())
     }
 
     fun onLockClicked() {
