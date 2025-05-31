@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntOffset
+import com.aZina0.circulationmaze.GameBasicInfo
 import com.aZina0.circulationmaze.Global
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
@@ -14,7 +15,6 @@ import kotlinx.serialization.json.boolean
 import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import kotlinx.serialization.json.long
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.math.roundToInt
@@ -178,16 +178,15 @@ object Game {
     }
 
 
-    fun importGameFromJson(jsonString: String) {
+    fun importGame(basicInfo: GameBasicInfo, jsonObject: JsonObject) {
         playerPlaying = false
         pieces.clear()
         Piece.resetShuffledSides()
 
 
-        val jsonObject = Json.parseToJsonElement(jsonString).jsonObject
-        uid = jsonObject["uid"].toString()
-        seed = jsonObject["seed"]!!.jsonPrimitive.long
-        val gridSize = jsonObject["gridSize"]!!.jsonPrimitive.int
+        uid = basicInfo.uid
+        seed = basicInfo.seed
+        val gridSize = basicInfo.gridSize
         gridRows = gridSize
         gridColumns = gridSize
         pieceCount = gridSize * gridSize
@@ -245,7 +244,14 @@ object Game {
         }
     }
 
-    fun currentGameToJson(): Pair<String, String> {
+    fun exportGame(): Pair<GameBasicInfo, JsonObject> {
+        val basicInfo = GameBasicInfo(
+            uid,
+            seed,
+            gridRows,
+            LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)
+        )
+
         val piecesMap = mutableMapOf<String, JsonElement>()
         for ((pieceCoordinate, piece) in pieces) {
             piecesMap[pieceCoordinate.toString()] = JsonObject(
@@ -259,17 +265,15 @@ object Game {
 
         val jsonObject = JsonObject(
             mapOf(
-                "uid" to JsonPrimitive(uid),
-                "seed" to JsonPrimitive(seed),
-                "gridSize" to JsonPrimitive(gridRows),
-                "lastModifiedDate" to JsonPrimitive(
-                    LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)
-                ),
+                "uid" to JsonPrimitive(basicInfo.uid),
+                "seed" to JsonPrimitive(basicInfo.seed),
+                "gridSize" to JsonPrimitive(basicInfo.gridSize),
+                "lastModifiedDate" to JsonPrimitive(basicInfo.lastModifiedDate),
                 "pieces" to JsonObject(piecesMap),
             )
         )
 
-        return Pair(uid, jsonObject.toString())
+        return Pair(basicInfo, jsonObject)
     }
 
     fun getLoopyPieceList(reverse: Boolean = false): MutableList<Piece> {

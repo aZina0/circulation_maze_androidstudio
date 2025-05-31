@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aZina0.circulationmaze.FileManager
 import com.aZina0.circulationmaze.Global
+import com.aZina0.circulationmaze.SaveManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -14,7 +15,8 @@ import javax.inject.Inject
 @HiltViewModel
 class GameViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val fileManager: FileManager
+    private val fileManager: FileManager,
+    private val saveManager: SaveManager,
 ) : ViewModel() {
 
     init {
@@ -30,8 +32,9 @@ class GameViewModel @Inject constructor(
                 gridSize,
             )
         } else if (startType == "loadGame") {
-            val jsonString = fileManager.readGameFromFile(uid)
-            Game.importGameFromJson(jsonString)
+            val jsonObject = fileManager.readJsonObjectFromFile(uid)
+            val basicInfo = saveManager.getBasicInfo(jsonObject!!)
+            Game.importGame(basicInfo, jsonObject)
         }
 
         Game.triggerRedraw = !Game.triggerRedraw
@@ -57,16 +60,11 @@ class GameViewModel @Inject constructor(
         }
     }
 
-    fun loadGameFromFile(uid: String) {
-        val jsonString = fileManager.readGameFromFile(uid)
-        Game.importGameFromJson(jsonString)
-    }
-
     fun exitGameScreen() {
-        val result = Game.currentGameToJson()
-        val uid = result.first
-        val jsonString = result.second
-        fileManager.saveGameToFile(uid, jsonString)
+        val result = Game.exportGame()
+        val basicInfo = result.first
+        val jsonObject = result.second
+        fileManager.saveGameToFile(basicInfo.uid, jsonObject.toString())
     }
 
     fun onLockClicked() {

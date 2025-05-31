@@ -17,18 +17,25 @@ fun LoadGameScreen(
     viewModel: LoadGameViewModel = hiltViewModel()
 ) {
     Column {
-        for (fileName in viewModel.filesList) {
+        for (basicInfo in viewModel.saves) {
 
             Button(
-                onClick = { onSaveClicked(fileName) },
+                onClick = { onSaveClicked(basicInfo.uid) },
                 modifier = Modifier
-                    .size(width = 150.dp, height = 60.dp),
+                    .size(width = 250.dp, height = 100.dp),
                 shape = RoundedCornerShape(percent = 30),
             ) {
-                Text (
-                    text = fileName,
-                    fontSize = 24.sp,
-                )
+                Column {
+                    Text (
+                        text = basicInfo.seed.toString(),
+                        fontSize = 15.sp,
+                    )
+                    Text (
+                        text = basicInfo.lastModifiedDate,
+                        fontSize = 15.sp,
+                    )
+                }
+
             }
         }
     }
