@@ -27,8 +27,6 @@ import com.aZina0.circulationmaze.newGame.NewGameScreen
 import com.aZina0.circulationmaze.registerLogin.LoginScreen
 import com.aZina0.circulationmaze.registerLogin.RegisterScreen
 import com.aZina0.circulationmaze.ui.theme.AppTheme
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.serialization.Serializable
 
@@ -36,23 +34,6 @@ import kotlinx.serialization.Serializable
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val user = Firebase.auth.currentUser
-        if (user == null) {
-            Firebase.auth.signInAnonymously()
-                .addOnCompleteListener(this) { task ->
-                    if (task.isSuccessful) {
-                        // Sign in success, update UI with the signed-in user's information
-                        Global.print("signInAnonymously:success")
-                    } else {
-                        // If sign in fails, display a message to the user.
-                        Global.print("signInAnonymously:failure")
-                        Global.print(task.exception.toString())
-                    }
-                }
-        } else {
-            Global.print("USER EXISTS")
-        }
 
         enableEdgeToEdge()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -187,10 +168,12 @@ fun CirculationMazeApp() {
                     }
 
                     composable<RegisterRoute> {
-                        RegisterScreen (
-                            Modifier,
+                        RegisterScreen(
                             onSwapToLoginClick = {
                                 navController.navigate(route = LoginRoute)
+                            },
+                            onSuccessfulRegister = {
+                                navController.navigate(route = MainMenuRoute)
                             },
                         )
                     }

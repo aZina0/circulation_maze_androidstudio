@@ -1,12 +1,14 @@
 package com.aZina0.circulationmaze.mainMenu
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -24,67 +26,93 @@ fun MainMenuScreen(
 ) {
     Column {
 
-        TitleComposable()
-
-        Button(
-            onClick = { onNewGameClick() },
+        Box (
             modifier = Modifier
-                .size(width = 215.dp, height = 60.dp),
-            shape = RoundedCornerShape(percent = 30)
+                .weight(.3f)
         ) {
-            Text (
-                text = "New Game",
-                fontSize = 24.sp,
-            )
+            TitleComposable()
         }
 
-        Button(
-            onClick = { onContinueClick() },
+        Column (
             modifier = Modifier
-                .size(width = 215.dp, height = 60.dp),
-            shape = RoundedCornerShape(percent = 30),
-            enabled = viewModel.userLoggedIn
+                .weight(.5f)
         ) {
-            Text (
-                text = "Load game",
-                fontSize = 24.sp,
-            )
+            Button(
+                onClick = { onNewGameClick() },
+                modifier = Modifier
+                    .size(width = 215.dp, height = 60.dp),
+                shape = RoundedCornerShape(percent = 30)
+            ) {
+                Text (
+                    text = "New Game",
+                    fontSize = 24.sp,
+                )
+            }
+
+            Button(
+                onClick = { onContinueClick() },
+                modifier = Modifier
+                    .size(width = 215.dp, height = 60.dp),
+                shape = RoundedCornerShape(percent = 30),
+                enabled = viewModel.userLoggedIn
+            ) {
+                Text (
+                    text = "Load game",
+                    fontSize = 24.sp,
+                )
+            }
+
+            Button(
+                onClick = { onLeaderboardsClick() },
+                modifier = Modifier
+                    .size(width = 215.dp, height = 60.dp),
+                shape = RoundedCornerShape(percent = 30)
+            ) {
+                Text (
+                    text = "Leaderboards",
+                    fontSize = 24.sp,
+                )
+            }
+
+            Button(
+                onClick = { onSettingsClick() },
+                modifier = Modifier
+                    .size(width = 215.dp, height = 60.dp),
+                shape = RoundedCornerShape(percent = 30)
+            ) {
+                Text (
+                    text = "Settings",
+                    fontSize = 24.sp,
+                )
+            }
+
+            Button(
+                onClick = { onLoginClick() },
+                modifier = Modifier
+                    .size(width = 215.dp, height = 60.dp),
+                shape = RoundedCornerShape(percent = 30)
+            ) {
+                Text (
+                    text = "login",
+                    fontSize = 24.sp,
+                )
+            }
         }
 
-        Button(
-            onClick = { onLeaderboardsClick() },
+        Box (
             modifier = Modifier
-                .size(width = 215.dp, height = 60.dp),
-            shape = RoundedCornerShape(percent = 30)
+                .weight(.2f),
+            contentAlignment = Alignment.BottomStart
         ) {
-            Text (
-                text = "Leaderboards",
-                fontSize = 24.sp,
-            )
-        }
-
-        Button(
-            onClick = { onSettingsClick() },
-            modifier = Modifier
-                .size(width = 215.dp, height = 60.dp),
-            shape = RoundedCornerShape(percent = 30)
-        ) {
-            Text (
-                text = "Settings",
-                fontSize = 24.sp,
-            )
-        }
-
-        Button(
-            onClick = { onLoginClick() },
-            modifier = Modifier
-                .size(width = 215.dp, height = 60.dp),
-            shape = RoundedCornerShape(percent = 30)
-        ) {
-            Text (
-                text = "login",
-                fontSize = 24.sp,
-            )
+            if (viewModel.userLoggedIn) {
+                Text (
+                    text = viewModel.username
+                )
+            } else {
+                Text (
+                    text = "not logged in"
+                )
+            }
         }
     }
     BackHandler(enabled = true) {}
