@@ -2,7 +2,9 @@ package com.aZina0.circulationmaze
 
 import android.util.Log
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 object Global {
     var redrawAmount = 0
@@ -19,5 +21,9 @@ object Global {
 
     fun relativeWidth(percent: Float): Dp {
         return (screenWidthDp!! * percent).dp
+    }
+
+    fun relativeFont(percent: Float): TextUnit {
+        return (screenHeightDp!! * percent).sp
     }
 }
