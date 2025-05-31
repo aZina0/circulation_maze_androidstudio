@@ -17,7 +17,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -79,7 +78,6 @@ fun TopBarComposable(viewModel: GameViewModel) {
 
 @Composable
 fun ActualGameComposable(viewModel: GameViewModel) {
-    val coroutineScope = rememberCoroutineScope()
     val graphicsLayer = rememberGraphicsLayer()
     viewModel.graphicsLayer = graphicsLayer
 
@@ -105,12 +103,7 @@ fun ActualGameComposable(viewModel: GameViewModel) {
         HighlightComposable()
     }
 
-//    if (viewModel.getScreenShot) {
-//        viewModel.graphicsLayer = graphicsLayer
-//        viewModel.getScreenShot = false
-////        viewModel.createScreenshot(graphicsLayer)
-////        viewModel.screenShotBitmap = graphicsLayer.toImageBitmap()
-//    }
+    if (viewModel.triggerScreenshot && High)
 }
 
 

@@ -33,7 +33,7 @@ fun HighlightComposable() {
 
 object Highlight {
     var coordinate = IntOffset(0, 0)
-    var active by mutableStateOf(true)
+    var active by mutableStateOf(false)
 
     var position_x by mutableFloatStateOf(0f)
     var position_y by mutableFloatStateOf(0f)
@@ -41,6 +41,14 @@ object Highlight {
     private fun calculatePosition() {
         position_x = Game.spacing / 2 + coordinate.x * Piece.scale * Piece.BASE_SIZE + Game.spacing * coordinate.x
         position_y = Game.spacing / 2 + coordinate.y * Piece.scale * Piece.BASE_SIZE + Game.spacing * coordinate.y
+    }
+
+    fun show() {
+        active = true
+    }
+
+    fun hide() {
+        active = false
     }
 
     fun moveUp() {
@@ -58,6 +66,7 @@ object Highlight {
             )
         }
         calculatePosition()
+        show()
     }
 
     fun moveDown() {
@@ -68,6 +77,7 @@ object Highlight {
             newLocation.y % Game.gridRows,
         )
         calculatePosition()
+        show()
     }
 
     fun moveLeft() {
@@ -85,6 +95,7 @@ object Highlight {
             )
         }
         calculatePosition()
+        show()
     }
 
     fun moveRight() {
@@ -95,5 +106,6 @@ object Highlight {
             newLocation.y % Game.gridRows,
         )
         calculatePosition()
+        show()
     }
 }

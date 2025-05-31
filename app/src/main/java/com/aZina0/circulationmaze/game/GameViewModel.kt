@@ -1,8 +1,5 @@
 package com.aZina0.circulationmaze.game
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -21,9 +18,6 @@ class GameViewModel @Inject constructor(
     private val saveManager: SaveManager,
 ) : ViewModel() {
     var graphicsLayer: GraphicsLayer? = null
-    var getScreenShot by mutableStateOf(false)
-//    var graphicsLayer by mutableStateOf(GraphicsLayer())
-//        private set
 
     init {
         val startType = savedStateHandle["startType"] ?: ""
@@ -71,17 +65,15 @@ class GameViewModel @Inject constructor(
         val basicInfo = result.first
         val jsonObject = result.second
 
-//        getScreenShot = true
+        saveManager.saveGame(basicInfo, jsonObject.toString())
+
+        Highlight.hide()
+        Game.triggerRedraw = !Game.triggerRedraw
         viewModelScope.launch {
             val imageBitmap = graphicsLayer!!.toImageBitmap()
             saveManager.saveGameImage(basicInfo, imageBitmap)
         }
-
-        saveManager.saveGame(basicInfo, jsonObject.toString())
     }
-
-//    fun saveScreenshot() {
-//    }
 
     fun onLockClicked() {
         val piece = Game.pieces[Highlight.coordinate]!!
