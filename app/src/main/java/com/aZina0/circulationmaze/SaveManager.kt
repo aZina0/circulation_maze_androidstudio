@@ -75,6 +75,9 @@ class SaveManager @Inject constructor(
         file.writeBytes(bytes)
     }
 
+
+
+
     fun loadGameImageFromFile(basicInfo: GameBasicInfo): ImageBitmap? {
         val saveImagesDir = File(context.filesDir, "save_images")
         val imageFile = File(saveImagesDir, basicInfo.uid)
@@ -114,9 +117,33 @@ class SaveManager @Inject constructor(
     fun deleteAllSaves() {
         val dir = File(context.filesDir, "saves")
         if (dir.exists() && dir.isDirectory) {
-            for (file in dir.listFiles()!!) {
-                if (file.isFile) {
-                    file.delete()
+            for (fileName in dir.list()!!) {
+                deleteSaveGame(fileName)
+            }
+        }
+    }
+
+    fun deleteSaveGame(uid: String) {
+        val savesDir = File(context.filesDir, "saves")
+        if (savesDir.exists() && savesDir.isDirectory) {
+            for (fileName in savesDir.list()!!) {
+                if (fileName == uid) {
+                    val saveFile = File(savesDir, uid)
+                    if (saveFile.isFile) {
+                        saveFile.delete()
+                    }
+                }
+            }
+        }
+
+        val saveImagesDir = File(context.filesDir, "save_images")
+        if (saveImagesDir.exists() && saveImagesDir.isDirectory) {
+            for (fileName in saveImagesDir.list()!!) {
+                if (fileName == uid) {
+                    val imageFile = File(saveImagesDir, uid)
+                    if (imageFile.isFile) {
+                        imageFile.delete()
+                    }
                 }
             }
         }

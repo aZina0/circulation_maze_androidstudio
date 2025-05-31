@@ -103,7 +103,6 @@ fun ActualGameComposable(viewModel: GameViewModel) {
         HighlightComposable()
     }
 
-    if (viewModel.triggerScreenshot && High)
 }
 
 
