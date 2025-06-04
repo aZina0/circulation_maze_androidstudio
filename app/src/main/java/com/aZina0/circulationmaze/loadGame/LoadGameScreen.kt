@@ -19,6 +19,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,6 +37,7 @@ import com.aZina0.circulationmaze.Global.relativeHeight
 import com.aZina0.circulationmaze.Global.relativeWidth
 import com.aZina0.circulationmaze.R
 import com.aZina0.circulationmaze.RelativeVerticalSpacer
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun LoadGameScreen(
@@ -56,6 +58,9 @@ fun LoadGameScreen(
                 text = "Load game",
                 fontSize = 30.sp,
             )
+            if (viewModel.loadingBar) {
+                LinearProgressIndicator()
+            }
         }
 
 
@@ -70,7 +75,7 @@ fun LoadGameScreen(
             for (saveInfo in viewModel.saves) {
 
                 Button(
-                    onClick = { onSaveClicked(saveInfo.basic.uid) },
+                    onClick = { onSaveClicked(saveInfo.gameData.uid) },
                     modifier = Modifier
                         .size(
                             width = relativeWidth(0.75f),
@@ -97,7 +102,7 @@ fun LoadGameScreen(
                             }
                             Column {
                                 Button(
-                                    onClick = { viewModel.deleteSaveClicked(saveInfo.basic.uid) },
+                                    onClick = { viewModel.deleteSaveClicked(saveInfo.gameData.uid) },
                                     shape = RoundedCornerShape(percent = 30),
                                     modifier = Modifier.size(40.dp),
                                     contentPadding = PaddingValues(0.dp),
@@ -115,22 +120,30 @@ fun LoadGameScreen(
                                 RelativeVerticalSpacer(0.1f)
                                 Text (
                                     text = "%dx%d".format(
-                                        saveInfo.basic.gridSize,
-                                        saveInfo.basic.gridSize,
+                                        saveInfo.gameData.gridSize,
+                                        saveInfo.gameData.gridSize,
                                     ),
                                     fontSize = relativeFont(.018f),
                                 )
+                                if (saveInfo.gameData.savedOnCloud) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.cloud),
+                                        contentDescription = "delete",
+                                        modifier = Modifier.size(35.dp),
+                                    )
+                                }
                             }
                         }
                         Text (
-                            text = relativeFont(.013f).toString(),
+                            text = "last played:",
                             color = MaterialTheme.colorScheme.onTertiaryContainer,
                             fontSize = relativeFont(.013f),
                             lineHeight = relativeFont(.007f),
                             modifier = Modifier.padding(top = relativeHeight(.009f))
                         )
                         Text (
-                            text = saveInfo.basic.lastModifiedDate,
+                            text = saveInfo.gameData.lastModifiedDate
+                                .format(DateTimeFormatter.ofPattern("dd.MM.yyyy. HH:mm")),
                             fontSize = relativeFont(.018f),
                         )
                         Text (
@@ -141,7 +154,7 @@ fun LoadGameScreen(
                             modifier = Modifier.padding(top = relativeHeight(.009f))
                         )
                         Text (
-                            text = saveInfo.basic.seed.toString(),
+                            text = saveInfo.gameData.seed.toString(),
                             fontSize = relativeFont(.018f),
                         )
                     }

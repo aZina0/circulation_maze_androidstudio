@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntOffset
-import com.aZina0.circulationmaze.GameBasicInfo
+import com.aZina0.circulationmaze.GameData
 import com.aZina0.circulationmaze.Global
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
@@ -16,7 +16,6 @@ import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import kotlin.math.roundToInt
 import kotlin.random.Random
 
@@ -178,15 +177,14 @@ object Game {
     }
 
 
-    fun importGame(basicInfo: GameBasicInfo, jsonObject: JsonObject) {
+    fun importGameData(gameData: GameData) {
         playerPlaying = false
         pieces.clear()
         Piece.resetShuffledSides()
 
-
-        uid = basicInfo.uid
-        seed = basicInfo.seed
-        val gridSize = basicInfo.gridSize
+        uid = gameData.uid
+        seed = gameData.seed
+        val gridSize = gameData.gridSize
         gridRows = gridSize
         gridColumns = gridSize
         pieceCount = gridSize * gridSize
@@ -194,7 +192,7 @@ object Game {
         deterministicRandom = Random(seed)
 
 
-        val piecesMap = Json.parseToJsonElement(jsonObject["pieces"].toString()).jsonObject
+        val piecesMap = Json.parseToJsonElement(gameData.pieces.toString()).jsonObject
         val totalUnscaledPiecesSize = Piece.BASE_SIZE * gridColumns
         val spaceAvailableForEachPiece = Global.screenWidthDp!!.toFloat() / gridColumns - spacing
         Piece.scale = spaceAvailableForEachPiece * gridColumns / totalUnscaledPiecesSize
@@ -244,14 +242,7 @@ object Game {
         }
     }
 
-    fun exportGame(): Pair<GameBasicInfo, JsonObject> {
-        val basicInfo = GameBasicInfo(
-            uid,
-            seed,
-            gridRows,
-            LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)
-        )
-
+    fun getGameData(): GameData {
         val piecesMap = mutableMapOf<String, JsonElement>()
         for ((pieceCoordinate, piece) in pieces) {
             piecesMap[pieceCoordinate.toString()] = JsonObject(
@@ -263,17 +254,14 @@ object Game {
             )
         }
 
-        val jsonObject = JsonObject(
-            mapOf(
-                "uid" to JsonPrimitive(basicInfo.uid),
-                "seed" to JsonPrimitive(basicInfo.seed),
-                "gridSize" to JsonPrimitive(basicInfo.gridSize),
-                "lastModifiedDate" to JsonPrimitive(basicInfo.lastModifiedDate),
-                "pieces" to JsonObject(piecesMap),
-            )
+        return GameData(
+            uid = uid,
+            seed = seed,
+            gridSize = gridRows,
+            lastModifiedDate = LocalDateTime.now(),
+            savedOnCloud = false,
+            pieces = JsonObject(piecesMap),
         )
-
-        return Pair(basicInfo, jsonObject)
     }
 
     fun getLoopyPieceList(reverse: Boolean = false): MutableList<Piece> {

@@ -32,9 +32,8 @@ class GameViewModel @Inject constructor(
                 gridSize,
             )
         } else if (startType == "loadGame") {
-            val jsonObject = saveManager.readJsonObjectFromFile(uid)
-            val basicInfo = saveManager.getBasicInfo(jsonObject!!)
-            Game.importGame(basicInfo, jsonObject)
+            val gameData = saveManager.loadGameFromFile(uid)!!
+            Game.importGameData(gameData)
         }
 
         Game.triggerRedraw = !Game.triggerRedraw
@@ -61,17 +60,14 @@ class GameViewModel @Inject constructor(
     }
 
     fun exitGameScreen() {
-        val result = Game.exportGame()
-        val basicInfo = result.first
-        val jsonObject = result.second
-
-        saveManager.saveGame(basicInfo, jsonObject.toString())
+        val gameData = Game.getGameData()
+        saveManager.saveGame(gameData)
 
         Highlight.hide()
         Game.triggerRedraw = !Game.triggerRedraw
         viewModelScope.launch {
             val imageBitmap = graphicsLayer!!.toImageBitmap()
-            saveManager.saveGameImage(basicInfo, imageBitmap)
+            saveManager.saveGameImage(gameData, imageBitmap)
         }
     }
 

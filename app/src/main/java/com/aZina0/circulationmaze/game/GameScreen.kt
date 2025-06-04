@@ -50,7 +50,7 @@ fun GameScreen(
     }
 
     Column {
-        TopBarComposable(viewModel)
+        TopBarComposable()
         RelativeVerticalSpacer(0.075f)
         ActualGameComposable(viewModel)
         RelativeVerticalSpacer(0.05f)
@@ -64,7 +64,7 @@ fun GameScreen(
 }
 
 @Composable
-fun TopBarComposable(viewModel: GameViewModel) {
+fun TopBarComposable() {
     Column {
         Box(
             modifier = Modifier
