@@ -171,6 +171,9 @@ fun CirculationMazeApp() {
                             onSuccessfulLogin = {
                                 navController.navigate(route = MainMenuRoute)
                             },
+                            onReturnClicked = {
+                                navController.navigate(route = MainMenuRoute)
+                            },
                         )
                     }
 
@@ -180,6 +183,9 @@ fun CirculationMazeApp() {
                                 navController.navigate(route = LoginRoute)
                             },
                             onSuccessfulRegister = {
+                                navController.navigate(route = MainMenuRoute)
+                            },
+                            onReturnClicked =  {
                                 navController.navigate(route = MainMenuRoute)
                             },
                         )

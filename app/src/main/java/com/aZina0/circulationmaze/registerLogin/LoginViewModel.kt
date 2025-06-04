@@ -28,8 +28,19 @@ class LoginViewModel @Inject constructor(
         private set
 
     var generalErrorText by mutableStateOf("")
-
+        private set
     var loadingBarActive by mutableStateOf(false)
+        private set
+    var loginEnabled by mutableStateOf(false)
+        private set
+
+    init {
+        if (accountManager.isOnline()) {
+            loginEnabled = true
+        } else {
+            generalErrorText = "No internet connection."
+        }
+    }
 
     fun onUsernameOrEmailChange(newValue: String) {
         usernameOrEmail = newValue
@@ -48,6 +59,13 @@ class LoginViewModel @Inject constructor(
     fun onLoginClick(
         onSuccessfulLogin: () -> Unit,
     ) {
+        generalErrorText = ""
+        if (password.isEmpty()) {
+            passwordError = true
+            passwordErrorText = "You must enter a password."
+            return
+        }
+
         loadingBarActive = true
 
         accountManager.attemptLogin(

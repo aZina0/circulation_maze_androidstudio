@@ -37,7 +37,20 @@ class RegisterViewModel @Inject constructor(
     var passwordErrorText by mutableStateOf("")
         private set
 
+    var generalErrorText by mutableStateOf("")
+        private set
     var progressBarActive by mutableStateOf(false)
+        private set
+    var registerEnabled by mutableStateOf(false)
+        private set
+
+    init {
+        if (accountManager.isOnline()) {
+            registerEnabled = true
+        } else {
+            generalErrorText = "No internet connection."
+        }
+    }
 
     fun onUsernameChange(newValue: String) {
         username = newValue
