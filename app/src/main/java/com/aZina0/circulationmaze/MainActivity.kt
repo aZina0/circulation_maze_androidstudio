@@ -164,6 +164,9 @@ fun CirculationMazeApp() {
                             onSwapToRegisterClick = {
                                 navController.navigate(route = RegisterRoute)
                             },
+                            onSuccessfulLogin = {
+                                navController.navigate(route = MainMenuRoute)
+                            },
                         )
                     }
 

@@ -1,6 +1,8 @@
 package com.aZina0.circulationmaze
 
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.auth
@@ -13,6 +15,26 @@ import javax.inject.Singleton
 class AccountManager @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
+    fun isOnline(): Boolean {
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val capabilities =
+            connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+        if (capabilities != null) {
+            if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                return true
+            } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                return true
+            } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
+                return true
+            }
+        }
+        return false
+    }
+
+    fun isLoggedIn(): Boolean {
+        return Firebase.auth.currentUser != null
+    }
 
     fun checkIfUsernameExists(username: String): Boolean {
         return true
@@ -56,7 +78,8 @@ class AccountManager @Inject constructor(
                         deleteAccount()
                     } else {
                         val initialData = mapOf(
-                            "username" to username
+                            "username" to username,
+                            "email" to email
                         )
 
                         val db = FirebaseFirestore.getInstance()
@@ -79,6 +102,52 @@ class AccountManager @Inject constructor(
                     }
                 }
             }
+    }
+
+    fun attemptLogin(
+        usernameOrEmail: String,
+        password: String,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit,
+        onUsernameFailure: (message: String) -> Unit,
+    ) {
+        if (usernameOrEmail.contains("@")) {
+            Firebase.auth.signInWithEmailAndPassword(usernameOrEmail, password)
+                .addOnSuccessListener {
+                    onSuccess()
+                }
+                .addOnFailureListener {
+                    onFailure()
+                }
+        } else {
+            val db = FirebaseFirestore.getInstance()
+            db.collection("users")
+                .whereEqualTo("username", usernameOrEmail)
+                .limit(1)
+                .get()
+                .addOnSuccessListener { documents ->
+                    if (!documents.isEmpty) {
+                        val document = documents.documents[0]
+                        val email = document.getString("email")
+                        if (email.isNullOrEmpty()) {
+                            onUsernameFailure("Username does not exist.")
+                        } else {
+                            Firebase.auth.signInWithEmailAndPassword(email, password)
+                                .addOnSuccessListener {
+                                    onSuccess()
+                                }
+                                .addOnFailureListener {
+                                    onFailure()
+                                }
+                        }
+                    } else {
+                        onUsernameFailure("Username does not exist.")
+                    }
+                }
+                .addOnFailureListener {
+                    onUsernameFailure("Username does not exist.")
+                }
+        }
     }
 
     private fun deleteAccount() {

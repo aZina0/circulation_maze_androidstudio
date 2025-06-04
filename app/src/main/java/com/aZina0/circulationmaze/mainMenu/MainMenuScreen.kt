@@ -54,7 +54,6 @@ fun MainMenuScreen(
                 modifier = Modifier
                     .size(width = 215.dp, height = 60.dp),
                 shape = RoundedCornerShape(percent = 30),
-                enabled = viewModel.userLoggedIn
             ) {
                 Text (
                     text = "Load game",

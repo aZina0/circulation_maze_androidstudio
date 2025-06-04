@@ -2,7 +2,6 @@ package com.aZina0.circulationmaze.loadGame
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -19,7 +18,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.aZina0.circulationmaze.CustomHeader
 import com.aZina0.circulationmaze.Global.relativeFont
 import com.aZina0.circulationmaze.Global.relativeHeight
 import com.aZina0.circulationmaze.Global.relativeWidth
@@ -48,21 +47,7 @@ fun LoadGameScreen(
 
 
     Column {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .size(relativeHeight(0.075f)),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text (
-                text = "Load game",
-                fontSize = 30.sp,
-            )
-            if (viewModel.loadingBar) {
-                LinearProgressIndicator()
-            }
-        }
-
+        CustomHeader("Load game", viewModel.loadingBar)
 
         Column (
             modifier = Modifier

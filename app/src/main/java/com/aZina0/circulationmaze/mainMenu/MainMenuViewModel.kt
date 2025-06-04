@@ -5,8 +5,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.aZina0.circulationmaze.AccountManager
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -21,14 +19,15 @@ class MainMenuViewModel @Inject constructor(
         private set
 
     init {
-        val user = Firebase.auth.currentUser
-        userLoggedIn = user != null
-
-        accountManager.getUsername(
-            onSuccess = {
-                username = it
-            },
-            onFailure = {}
-        )
+//        Firebase.auth.signOut()
+        if (accountManager.isLoggedIn()) {
+            userLoggedIn = true
+            accountManager.getUsername(
+                onSuccess = {
+                    username = it
+                },
+                onFailure = {}
+            )
+        }
     }
 }

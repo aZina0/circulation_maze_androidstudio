@@ -1,12 +1,10 @@
 package com.aZina0.circulationmaze.registerLogin
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,8 +21,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.aZina0.circulationmaze.Global.relativeFont
-import com.aZina0.circulationmaze.Global.relativeHeight
+import com.aZina0.circulationmaze.CustomHeader
 import com.aZina0.circulationmaze.Global.relativeWidth
 import com.aZina0.circulationmaze.RelativeVerticalSpacer
 
@@ -35,9 +32,7 @@ fun RegisterScreen(
     viewModel: RegisterViewModel = hiltViewModel()
 ) {
     Box (
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surfaceContainerLowest),
+        modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
     ) {
         Column (
@@ -45,17 +40,7 @@ fun RegisterScreen(
                 .width(relativeWidth(.7f))
                 .fillMaxHeight(),
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .size(relativeHeight(0.075f)),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text (
-                    text = "Register",
-                    fontSize = relativeFont(.04f),
-                )
-            }
+            CustomHeader("Register", viewModel.progressBarActive)
             RelativeVerticalSpacer(
                 percent = 0.175f,
             )
@@ -138,11 +123,6 @@ fun RegisterScreen(
                 percent = 0.04f,
             )
 
-            if (viewModel.progressBarActive) {
-                LinearProgressIndicator(
-                    modifier = Modifier.width(relativeWidth(.7f)),
-                )
-            }
         }
     }
 }
