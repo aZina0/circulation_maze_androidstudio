@@ -15,6 +15,8 @@ class MainMenuViewModel @Inject constructor(
 
     var userLoggedIn by mutableStateOf(false)
         private set
+    var profileEnable by mutableStateOf(false)
+        private set
     var username by mutableStateOf("")
         private set
 
@@ -29,5 +31,7 @@ class MainMenuViewModel @Inject constructor(
                 onFailure = {}
             )
         }
+
+        profileEnable = accountManager.isLoggedIn() && accountManager.isOnline()
     }
 }

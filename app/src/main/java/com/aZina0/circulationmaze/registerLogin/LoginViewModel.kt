@@ -61,7 +61,11 @@ class LoginViewModel @Inject constructor(
                 generalErrorText = "Could not authenticate."
                 loadingBarActive = false
             },
-            onUsernameFailure = {},
+            onUsernameFailure = { message ->
+                usernameOrEmailError = true
+                usernameOrEmailErrorText = message
+                loadingBarActive = false
+            },
         )
     }
 }

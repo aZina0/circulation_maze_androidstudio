@@ -24,6 +24,7 @@ import com.aZina0.circulationmaze.game.GameScreen
 import com.aZina0.circulationmaze.loadGame.LoadGameScreen
 import com.aZina0.circulationmaze.mainMenu.MainMenuScreen
 import com.aZina0.circulationmaze.newGame.NewGameScreen
+import com.aZina0.circulationmaze.profile.ProfileScreen
 import com.aZina0.circulationmaze.registerLogin.LoginScreen
 import com.aZina0.circulationmaze.registerLogin.RegisterScreen
 import com.aZina0.circulationmaze.ui.theme.AppTheme
@@ -124,6 +125,9 @@ fun CirculationMazeApp() {
                             onLoginClick = {
                                 navController.navigate(route = LoginRoute)
                             },
+                            onProfileClicked = {
+                                navController.navigate(route = ProfileRoute)
+                            },
                         )
                     }
 
@@ -176,6 +180,14 @@ fun CirculationMazeApp() {
                                 navController.navigate(route = LoginRoute)
                             },
                             onSuccessfulRegister = {
+                                navController.navigate(route = MainMenuRoute)
+                            },
+                        )
+                    }
+
+                    composable<ProfileRoute> {
+                        ProfileScreen(
+                            onSignOut = {
                                 navController.navigate(route = MainMenuRoute)
                             },
                         )

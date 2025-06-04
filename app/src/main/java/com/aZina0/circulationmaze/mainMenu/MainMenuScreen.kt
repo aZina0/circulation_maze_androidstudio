@@ -21,6 +21,7 @@ fun MainMenuScreen(
     onLeaderboardsClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onLoginClick: () -> Unit,
+    onProfileClicked: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: MainMenuViewModel = hiltViewModel()
 ) {
@@ -93,6 +94,19 @@ fun MainMenuScreen(
             ) {
                 Text (
                     text = "login",
+                    fontSize = 24.sp,
+                )
+            }
+
+            Button(
+                onClick = { onProfileClicked() },
+                modifier = Modifier
+                    .size(width = 215.dp, height = 60.dp),
+                shape = RoundedCornerShape(percent = 30),
+                enabled = viewModel.profileEnable
+            ) {
+                Text (
+                    text = "Profile",
                     fontSize = 24.sp,
                 )
             }

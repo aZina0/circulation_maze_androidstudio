@@ -60,6 +60,32 @@ class AccountManager @Inject constructor(
         }
     }
 
+    fun getXp(
+        onSuccess: (xp: Int) -> Unit,
+        onFailure: () -> Unit,
+    ) {
+        val user = Firebase.auth.currentUser
+        if (user != null) {
+
+            val db = FirebaseFirestore.getInstance()
+            db.collection("users")
+                .document(user.uid)
+                .get()
+                .addOnSuccessListener { document ->
+                    onSuccess(document.data?.get("xp").toString().toInt())
+                }
+                .addOnFailureListener {
+                    onFailure()
+                }
+        }
+    }
+
+    fun getLevelAndRemainder(xp: Int): Pair<Int, Float> {
+        val level = xp.floorDiv(100)
+        val xpRemainder = (xp - level * 100) / 100f
+        return Pair(level, xpRemainder)
+    }
+
     fun attemptRegister(
         username: String,
         email: String,
@@ -79,7 +105,8 @@ class AccountManager @Inject constructor(
                     } else {
                         val initialData = mapOf(
                             "username" to username,
-                            "email" to email
+                            "email" to email,
+                            "xp" to 0,
                         )
 
                         val db = FirebaseFirestore.getInstance()
