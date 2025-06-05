@@ -1,8 +1,11 @@
 package com.aZina0.circulationmaze
 
 import android.content.Context
+import android.graphics.BitmapFactory
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.auth
@@ -15,6 +18,10 @@ import javax.inject.Singleton
 class AccountManager @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
+    val defaultProfileImage = BitmapFactory.decodeResource(
+        context.resources, R.drawable.default_picture
+    ).asImageBitmap()
+
     fun isOnline(): Boolean {
         val connectivityManager =
             context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -38,6 +45,30 @@ class AccountManager @Inject constructor(
 
     fun checkIfUsernameExists(username: String): Boolean {
         return true
+    }
+
+    fun getImage(
+        onSuccess: (imageBitmap: ImageBitmap) -> Unit,
+        onFailure: () -> Unit,
+    ) {
+        if (!isOnline() || !isLoggedIn()) {
+            return
+        }
+
+        val user = Firebase.auth.currentUser!!
+        val db = FirebaseFirestore.getInstance()
+        db.collection("users")
+            .document(user.uid)
+            .get()
+            .addOnSuccessListener { document ->
+                onSuccess(
+                    Global.byteStringToImageBitmap(
+                        document.data?.get("image").toString())
+                    )
+            }
+            .addOnFailureListener {
+                onFailure()
+            }
     }
 
     fun getUsername(
@@ -107,6 +138,9 @@ class AccountManager @Inject constructor(
                             "username" to username,
                             "email" to email,
                             "xp" to 0,
+                            "image" to Global.imageBitmapToByteString(
+                                defaultProfileImage
+                            )
                         )
 
                         val db = FirebaseFirestore.getInstance()

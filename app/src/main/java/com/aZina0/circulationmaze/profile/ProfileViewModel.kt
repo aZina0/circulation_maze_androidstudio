@@ -23,7 +23,7 @@ class ProfileViewModel @Inject constructor(
     private val accountManager: AccountManager,
     private val saveManager: SaveManager,
 ): ViewModel() {
-    var picture: ImageBitmap? = null
+    var picture: ImageBitmap = accountManager.defaultProfileImage
         private set
     var username by mutableStateOf("")
         private set
@@ -38,6 +38,13 @@ class ProfileViewModel @Inject constructor(
 
     init {
         loadingBarActive = true
+
+        accountManager.getImage(
+            onSuccess = {
+                picture = it
+            },
+            onFailure = {}
+        )
 
         accountManager.getUsername(
             onSuccess = {
