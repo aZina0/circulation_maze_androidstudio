@@ -1,44 +1,36 @@
-package com.aZina0.circulationmaze.profile
+package com.aZina0.circulationmaze.editProfile
 
+import android.app.Application
+import android.graphics.BitmapFactory
+import android.net.Uri
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.aZina0.circulationmaze.AccountManager
-import com.aZina0.circulationmaze.SaveManager
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
+import com.aZina0.circulationmaze.Global
 import dagger.hilt.android.lifecycle.HiltViewModel
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneId
 import javax.inject.Inject
 
-
 @HiltViewModel
-class ProfileViewModel @Inject constructor(
+class EditProfileViewModel @Inject constructor(
     private val accountManager: AccountManager,
-    private val saveManager: SaveManager,
     savedStateHandle: SavedStateHandle,
+    private val application: Application
 ): ViewModel() {
-    var picture: ImageBitmap by mutableStateOf(accountManager.defaultProfileImage)
+    var image by mutableStateOf(accountManager.defaultProfileImage)
+        private set
+    var loadedImage by mutableStateOf<ImageBitmap?>(null)
         private set
     var username by mutableStateOf("")
         private set
     var userUid by mutableStateOf("")
         private set
-    var level by mutableIntStateOf(0)
-        private set
-    var xpRemainder by mutableFloatStateOf(0f)
-        private set
-    var dateJoined: LocalDateTime by mutableStateOf(LocalDateTime.MIN)
-        private set
     var loadingBarActive by mutableStateOf(false)
         private set
+
 
     init {
         userUid = savedStateHandle["userUid"] ?: ""
@@ -56,7 +48,7 @@ class ProfileViewModel @Inject constructor(
         requestsSent++
         accountManager.getImage(
             onSuccess = {
-                picture = it
+                image = it
                 responsesReceived++
                 checkForAllResponses()
             },
@@ -78,28 +70,37 @@ class ProfileViewModel @Inject constructor(
                 checkForAllResponses()
             },
         )
+    }
 
-        dateJoined = Instant.ofEpochMilli(Firebase.auth.currentUser!!.metadata!!.creationTimestamp)
-            .atZone(ZoneId.systemDefault())
-            .toLocalDateTime()
+    fun onOpenFiles() {
 
-        requestsSent++
-        accountManager.getXp(
-            onSuccess = {
-                val levelAndRemainder = accountManager.getLevelAndRemainder(it)
-                level = levelAndRemainder.first
-                xpRemainder = levelAndRemainder.second
-                responsesReceived++
-                checkForAllResponses()
-            },
-            onFailure = {
-                responsesReceived++
-                checkForAllResponses()
-            },
+    }
+
+    fun imageLoaded(imageUri: Uri) {
+        val inputStream = application.applicationContext.contentResolver.openInputStream(imageUri)
+        val bitmap = BitmapFactory.decodeStream(inputStream)
+        loadedImage = Global.getCroppedScaledImageBitmap(
+            bitmap = bitmap,
+            targetSize = 300,
         )
     }
 
-    fun onLogoutClick() {
-        accountManager.signOut(saveManager)
+    fun onChangeImageClicked() {
+        accountManager.updateImage(
+            loadedImage!!,
+            onSuccess = {
+                accountManager.getImage(
+                    onSuccess = {
+                        image = it
+                    },
+                    onFailure = {
+
+                    }
+                )
+            },
+            onFailure = {
+
+            }
+        )
     }
 }

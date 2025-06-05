@@ -117,6 +117,24 @@ class AccountManager @Inject constructor(
         return Pair(level, xpRemainder)
     }
 
+    fun updateImage(
+        newImageBitmap: ImageBitmap,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
+    ) {
+        val user = Firebase.auth.currentUser!!
+        val db = FirebaseFirestore.getInstance()
+        db.collection("users")
+            .document(user.uid)
+            .update("image", Global.imageBitmapToByteString(newImageBitmap))
+            .addOnSuccessListener {
+                onSuccess()
+            }
+            .addOnFailureListener {
+                onFailure()
+            }
+    }
+
     fun attemptRegister(
         username: String,
         email: String,

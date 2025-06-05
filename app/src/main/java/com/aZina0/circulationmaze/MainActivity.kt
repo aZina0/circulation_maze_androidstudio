@@ -20,6 +20,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.aZina0.circulationmaze.editProfile.EditProfileScreen
 import com.aZina0.circulationmaze.game.GameScreen
 import com.aZina0.circulationmaze.loadGame.LoadGameScreen
 import com.aZina0.circulationmaze.mainMenu.MainMenuScreen
@@ -70,7 +71,14 @@ object RegisterRoute
 object LoginRoute
 
 @Serializable
-object ProfileRoute
+data class ProfileRoute(
+    val userUid: String,
+)
+
+@Serializable
+data class EditProfileRoute(
+    val userUid: String,
+)
 
 @Serializable
 data class GameRoute(
@@ -128,7 +136,9 @@ fun CirculationMazeApp() {
                                 navController.navigate(route = LoginRoute)
                             },
                             onProfileClicked = {
-                                navController.navigate(route = ProfileRoute)
+                                navController.navigate(route = ProfileRoute(
+                                    Firebase.auth.currentUser?.uid ?: ""
+                                ))
                             },
                         )
                     }
@@ -205,12 +215,26 @@ fun CirculationMazeApp() {
 
                     composable<ProfileRoute> {
                         ProfileScreen(
-                            userUid = Firebase.auth.currentUser?.uid ?: "",
+                            onEditProfileClicked = {
+                                navController.navigate(route = EditProfileRoute(
+                                    userUid = it
+                                ))
+                            },
                             onSignOut = {
                                 navController.navigate(route = MainMenuRoute)
                             },
                             onReturnClicked = {
                                 navController.navigate(route = MainMenuRoute)
+                            },
+                        )
+                    }
+
+                    composable<EditProfileRoute> {
+                        EditProfileScreen(
+                            onReturnClicked = {
+                                navController.navigate(
+                                    route = ProfileRoute(it)
+                                )
                             },
                         )
                     }

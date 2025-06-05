@@ -21,7 +21,6 @@ class MainMenuViewModel @Inject constructor(
         private set
 
     init {
-//        Firebase.auth.signOut()
         if (accountManager.isLoggedIn()) {
             userLoggedIn = true
             accountManager.getUsername(
@@ -32,6 +31,6 @@ class MainMenuViewModel @Inject constructor(
             )
         }
 
-        profileEnable = accountManager.isLoggedIn() && accountManager.isOnline()
+        profileEnable = accountManager.isLoggedIn()
     }
 }

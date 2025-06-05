@@ -47,4 +47,48 @@ object Global {
         val bytes = byteStream.toByteArray()
         return Base64.encodeToString(bytes, Base64.DEFAULT)
     }
+
+    fun getCroppedScaledImageBitmap(bitmap: Bitmap, targetSize: Int): ImageBitmap {
+        val width = bitmap.width
+        val height = bitmap.height
+
+        if (width == height) {
+            return Bitmap.createScaledBitmap(
+                bitmap,
+                targetSize,
+                targetSize,
+                true
+            ).asImageBitmap()
+        } else if (width > height) {
+            val xStart = (width - height) / 2
+            val croppedImage = Bitmap.createBitmap(
+                bitmap,
+                xStart,
+                0,
+                height,
+                height
+            )
+            return Bitmap.createScaledBitmap(
+                croppedImage,
+                targetSize,
+                targetSize,
+                true
+            ).asImageBitmap()
+        } else {
+            val yStart = (height - width) / 2
+            val croppedImage = Bitmap.createBitmap(
+                bitmap,
+                0,
+                yStart,
+                width,
+                width
+            )
+            return Bitmap.createScaledBitmap(
+                croppedImage,
+                targetSize,
+                targetSize,
+                true
+            ).asImageBitmap()
+        }
+    }
 }

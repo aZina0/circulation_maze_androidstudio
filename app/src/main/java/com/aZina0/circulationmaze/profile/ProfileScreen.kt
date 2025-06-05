@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -33,7 +34,7 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun ProfileScreen(
-    userUid: String,
+    onEditProfileClicked: (userUid: String) -> Unit,
     onSignOut: () -> Unit,
     onReturnClicked: () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel(),
@@ -47,7 +48,7 @@ fun ProfileScreen(
             secondComposable = {
                 Row {
                     Button(
-                        onClick = { },
+                        onClick = { onEditProfileClicked(viewModel.userUid) },
                         modifier = Modifier
                             .width(Global.relativeWidth(0.12f)),
                         shape = RoundedCornerShape(percent = 30),
@@ -108,7 +109,7 @@ fun ProfileScreen(
                         contentDescription = "picture",
                         modifier = Modifier
                             .width(Global.relativeWidth(.4f))
-                            .height(Global.relativeWidth(.4f))
+                            .height(Global.relativeWidth(.4f)),
                     )
                     Column {
                         Text (
