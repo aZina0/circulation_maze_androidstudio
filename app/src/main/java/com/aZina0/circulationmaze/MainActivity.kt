@@ -73,6 +73,7 @@ object LoginRoute
 @Serializable
 data class ProfileRoute(
     val userUid: String,
+    val highlightAllSolvedBoards: Boolean = false,
 )
 
 @Serializable
@@ -137,7 +138,7 @@ fun CirculationMazeApp() {
                             },
                             onProfileClicked = {
                                 navController.navigate(route = ProfileRoute(
-                                    Firebase.auth.currentUser?.uid ?: ""
+                                    userUid = Firebase.auth.currentUser?.uid ?: ""
                                 ))
                             },
                         )
@@ -152,6 +153,12 @@ fun CirculationMazeApp() {
                                         uid = uid,
                                     )
                                 )
+                            },
+                            onViewSolvedBoardsClicked = {
+                                navController.navigate(route = ProfileRoute(
+                                    userUid = Firebase.auth.currentUser?.uid ?: "",
+                                    highlightAllSolvedBoards = true,
+                                ))
                             },
                             onReturnClicked = {
                                 navController.navigate(route = MainMenuRoute)

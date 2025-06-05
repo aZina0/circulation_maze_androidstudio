@@ -26,7 +26,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -44,6 +43,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun LoadGameScreen(
     onSaveClicked: (uid:String) -> Unit,
+    onViewSolvedBoardsClicked: () -> Unit,
     onReturnClicked: () -> Unit,
     viewModel: LoadGameViewModel = hiltViewModel()
 ) {
@@ -58,6 +58,25 @@ fun LoadGameScreen(
                     text = "Load game",
                     fontSize = Global.relativeFont(0.04f),
                 )
+            },
+            lastComposable = {
+                Button(
+                    onClick = { onViewSolvedBoardsClicked() },
+                    modifier = Modifier
+                        .width(Global.relativeWidth(0.12f)),
+                    shape = RoundedCornerShape(percent = 30),
+                    contentPadding = PaddingValues(0.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                        contentColor = MaterialTheme.colorScheme.onSurface,
+                    )
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.solved_history),
+                        contentDescription = "solvedHistory",
+                        tint = Color.Unspecified
+                    )
+                }
             }
         )
 

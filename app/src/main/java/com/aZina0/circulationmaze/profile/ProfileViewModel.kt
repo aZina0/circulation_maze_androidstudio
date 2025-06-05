@@ -48,6 +48,7 @@ class ProfileViewModel @Inject constructor(
 
     init {
         userUid = savedStateHandle["userUid"] ?: ""
+        val highlightAllSolvedBoards = savedStateHandle["highlightAllSolvedBoards"] ?: false
 
         loadingBarActive = true
 
