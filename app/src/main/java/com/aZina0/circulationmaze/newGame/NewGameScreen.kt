@@ -1,5 +1,6 @@
 package com.aZina0.circulationmaze.newGame
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,6 +19,7 @@ import java.util.UUID
 @Composable
 fun NewGameScreen(
     onStartClicked: (uid:String, seed: Long, gridSize: Int) -> Unit,
+    onReturnClicked: () -> Unit,
     viewModel: NewGameViewModel = hiltViewModel()
 ) {
     Column {
@@ -59,5 +61,9 @@ fun NewGameScreen(
             )
         }
 
+    }
+
+    BackHandler(enabled = true) {
+        onReturnClicked()
     }
 }

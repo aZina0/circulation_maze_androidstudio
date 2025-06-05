@@ -1,5 +1,6 @@
 package com.aZina0.circulationmaze.profile
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,6 +29,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun ProfileScreen(
     onSignOut: () -> Unit,
+    onReturnClicked: () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val padding = Global.relativeWidth(0.03f)
@@ -188,5 +190,9 @@ fun ProfileScreen(
                 )
             }
         }
+    }
+
+    BackHandler(enabled = true) {
+        onReturnClicked()
     }
 }

@@ -134,23 +134,33 @@ fun CirculationMazeApp() {
                     composable<LoadGameRoute> {
                         LoadGameScreen(
                             onSaveClicked = { uid ->
-                                navController.navigate(route = GameRoute(
-                                    startType = "loadGame",
-                                    uid = uid,
-                                ))
-                            }
+                                navController.navigate(
+                                    route = GameRoute(
+                                        startType = "loadGame",
+                                        uid = uid,
+                                    )
+                                )
+                            },
+                            onReturnClicked = {
+                                navController.navigate(route = MainMenuRoute)
+                            },
                         )
                     }
 
                     composable<NewGameRoute> {
                         NewGameScreen(
                             onStartClicked = { uid, seed, gridSize ->
-                                navController.navigate(route = GameRoute(
-                                    startType = "newGame",
-                                    uid = uid,
-                                    seed = seed,
-                                    gridSize = gridSize,
-                                ))
+                                navController.navigate(
+                                    route = GameRoute(
+                                        startType = "newGame",
+                                        uid = uid,
+                                        seed = seed,
+                                        gridSize = gridSize,
+                                    )
+                                )
+                            },
+                            onReturnClicked = {
+                                navController.navigate(route = MainMenuRoute)
                             },
                         )
                     }
@@ -194,6 +204,9 @@ fun CirculationMazeApp() {
                     composable<ProfileRoute> {
                         ProfileScreen(
                             onSignOut = {
+                                navController.navigate(route = MainMenuRoute)
+                            },
+                            onReturnClicked = {
                                 navController.navigate(route = MainMenuRoute)
                             },
                         )

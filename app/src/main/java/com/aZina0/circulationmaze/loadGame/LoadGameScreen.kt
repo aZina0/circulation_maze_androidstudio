@@ -1,5 +1,6 @@
 package com.aZina0.circulationmaze.loadGame
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -41,6 +42,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun LoadGameScreen(
     onSaveClicked: (uid:String) -> Unit,
+    onReturnClicked: () -> Unit,
     viewModel: LoadGameViewModel = hiltViewModel()
 ) {
     val scrollState = rememberScrollState()
@@ -222,5 +224,9 @@ fun LoadGameScreen(
                 }
             }
         }
+    }
+
+    BackHandler(enabled = true) {
+        onReturnClicked()
     }
 }
