@@ -26,12 +26,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.aZina0.circulationmaze.CustomHeader
+import com.aZina0.circulationmaze.Global
 import com.aZina0.circulationmaze.Global.relativeFont
 import com.aZina0.circulationmaze.Global.relativeHeight
 import com.aZina0.circulationmaze.Global.relativeWidth
@@ -49,7 +51,15 @@ fun LoadGameScreen(
 
 
     Column {
-        CustomHeader("Load game", viewModel.loadingBar)
+        CustomHeader(
+            displayProgressBar = viewModel.loadingBar,
+            middleComposable = {
+                Text (
+                    text = "Load game",
+                    fontSize = Global.relativeFont(0.04f),
+                )
+            }
+        )
 
         Column (
             modifier = Modifier

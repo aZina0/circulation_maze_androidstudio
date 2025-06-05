@@ -1161,7 +1161,7 @@ class Piece(val coordinate: IntOffset, val position: Offset, type: Type) {
 //        if loopPathingEnabled:
 //        	await Loops.traverse(piece)
 
-        Game.checkForBoardComplete()
+        Game.checkForBoardSolve()
     }
 
     fun printInfo() {

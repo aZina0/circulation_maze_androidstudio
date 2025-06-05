@@ -37,7 +37,16 @@ fun RegisterScreen(
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        CustomHeader("Register", viewModel.progressBarActive)
+        CustomHeader(
+            viewModel.progressBarActive,
+            middleComposable = {
+                Text(
+                    text = "Register",
+                    fontSize = Global.relativeFont(0.04f),
+                    textAlign = TextAlign.Center
+                )
+            },
+        )
         RelativeVerticalSpacer(
             percent = 0.15f,
         )

@@ -39,7 +39,16 @@ fun LoginScreen(
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        CustomHeader("Log in", viewModel.loadingBarActive)
+        CustomHeader(
+            viewModel.loadingBarActive,
+            middleComposable = {
+                Text(
+                    text = "Log in",
+                    fontSize = Global.relativeFont(0.04f),
+                    textAlign = TextAlign.Center
+                )
+            },
+        )
 
         RelativeVerticalSpacer(
             percent = 0.3f,

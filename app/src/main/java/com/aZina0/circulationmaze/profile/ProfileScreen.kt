@@ -2,6 +2,8 @@ package com.aZina0.circulationmaze.profile
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -21,7 +23,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -43,9 +44,14 @@ fun ProfileScreen(
 
     Column {
         CustomHeader(
-            title = "Profile",
             displayProgressBar = viewModel.loadingBarActive,
-            secondComposable = {
+            middleComposable = {
+                Text(
+                    text = "Profile",
+                    fontSize = Global.relativeFont(0.04f),
+                )
+            },
+            lastComposable = {
                 Row {
                     Button(
                         onClick = { onEditProfileClicked(viewModel.userUid) },
@@ -60,7 +66,7 @@ fun ProfileScreen(
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.edit_profile),
-                            contentDescription = "180",
+                            contentDescription = "editProfile",
                         )
                     }
                     RelativeHorizontalSpacer(.02f)
@@ -80,7 +86,7 @@ fun ProfileScreen(
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.logout),
-                            contentDescription = "180",
+                            contentDescription = "logout",
                         )
                     }
                     RelativeHorizontalSpacer(.02f)
@@ -172,23 +178,6 @@ fun ProfileScreen(
                         .padding(padding),
                 ) {
                     Text (
-                        text = "All completed games",
-                        fontSize = Global.relativeFont(.025f),
-                    )
-                }
-            }
-            RelativeVerticalSpacer(.02f)
-            Surface (
-                modifier = Modifier
-                    .width(Global.relativeWidth(.9f)),
-                color = MaterialTheme.colorScheme.surfaceContainerLow,
-                shape = RoundedCornerShape(15.dp)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .padding(padding),
-                ) {
-                    Text (
                         text = "Followers",
                         fontSize = Global.relativeFont(.025f),
                     )
@@ -230,6 +219,81 @@ fun ProfileScreen(
                         text = "Shared games",
                         fontSize = Global.relativeFont(.025f),
                     )
+                }
+            }
+            RelativeVerticalSpacer(.02f)
+            Surface (
+                modifier = Modifier
+                    .width(Global.relativeWidth(.9f)),
+                color = MaterialTheme.colorScheme.surfaceContainerLow,
+                shape = RoundedCornerShape(15.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(padding),
+                ) {
+                    Row {
+                        Text (
+                            text = "All solved boards",
+                            fontSize = Global.relativeFont(.025f),
+                        )
+                        Icon(
+                            painter = painterResource(id = R.drawable.hidden),
+                            contentDescription = "hidden",
+                        )
+                    }
+                    Row(
+                        modifier = Modifier
+                            .background(MaterialTheme.colorScheme.surfaceContainer)
+                    ) {
+                        Text(
+                            text = "Grid size",
+                            modifier = Modifier
+                                .weight(0.5f)
+                        )
+                        Text(
+                            text = "Time",
+                            modifier = Modifier
+                                .weight(0.5f)
+                        )
+                    }
+
+                    var index = 0
+                    for (boardSmallInfo in viewModel.allSolvedBoardsSmallInfo) {
+                        Row(
+                            modifier = Modifier
+                                .background(
+                                    if (isSystemInDarkTheme()) {
+                                        if (index % 2 == 0) {
+                                            MaterialTheme.colorScheme.surfaceContainerLow
+                                        } else {
+                                            Color(0xFF161616)
+                                        }
+                                    } else {
+                                        if (index % 2 == 0) {
+                                            MaterialTheme.colorScheme.surfaceContainerLow
+                                        } else {
+                                            MaterialTheme.colorScheme.surfaceContainerLowest
+                                        }
+                                    }
+                                )
+                        ) {
+                            Text(
+                                text = "%dx%d".format(
+                                    boardSmallInfo.gameData.gridSize,
+                                    boardSmallInfo.gameData.gridSize,
+                                ),
+                                modifier = Modifier
+                                    .weight(0.5f)
+                            )
+                            Text(
+                                text = boardSmallInfo.time.toString(),
+                                modifier = Modifier
+                                    .weight(0.5f)
+                            )
+                        }
+                        index++
+                    }
                 }
             }
         }

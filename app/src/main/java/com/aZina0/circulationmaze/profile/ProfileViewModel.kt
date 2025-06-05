@@ -9,6 +9,8 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.aZina0.circulationmaze.AccountManager
+import com.aZina0.circulationmaze.BoardManager
+import com.aZina0.circulationmaze.BoardSmallInfo
 import com.aZina0.circulationmaze.SaveManager
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
@@ -23,21 +25,25 @@ import javax.inject.Inject
 class ProfileViewModel @Inject constructor(
     private val accountManager: AccountManager,
     private val saveManager: SaveManager,
+    private val boardManager: BoardManager,
     savedStateHandle: SavedStateHandle,
 ): ViewModel() {
+    var loadingBarActive by mutableStateOf(false)
+        private set
+    var userUid by mutableStateOf("")
+        private set
     var picture: ImageBitmap by mutableStateOf(accountManager.defaultProfileImage)
         private set
     var username by mutableStateOf("")
         private set
-    var userUid by mutableStateOf("")
+    var dateJoined: LocalDateTime by mutableStateOf(LocalDateTime.MIN)
         private set
     var level by mutableIntStateOf(0)
         private set
     var xpRemainder by mutableFloatStateOf(0f)
         private set
-    var dateJoined: LocalDateTime by mutableStateOf(LocalDateTime.MIN)
-        private set
-    var loadingBarActive by mutableStateOf(false)
+
+    var allSolvedBoardsSmallInfo by mutableStateOf(listOf<BoardSmallInfo>())
         private set
 
     init {
@@ -68,6 +74,7 @@ class ProfileViewModel @Inject constructor(
 
         requestsSent++
         accountManager.getUsername(
+            userUid = userUid,
             onSuccess = {
                 username = it
                 responsesReceived++
@@ -96,6 +103,21 @@ class ProfileViewModel @Inject constructor(
                 responsesReceived++
                 checkForAllResponses()
             },
+        )
+
+        requestsSent++
+        boardManager.getAllSolvedBoards(
+            userUid = userUid,
+            accountManager = accountManager,
+            onSuccess = {
+                allSolvedBoardsSmallInfo = it
+                responsesReceived++
+                checkForAllResponses()
+            },
+            onFailure = {
+                responsesReceived++
+                checkForAllResponses()
+            }
         )
     }
 

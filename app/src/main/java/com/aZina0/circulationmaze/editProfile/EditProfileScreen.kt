@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.aZina0.circulationmaze.CustomHeader
@@ -38,7 +39,16 @@ fun EditProfileScreen(
     }
 
     Column {
-        CustomHeader("Edit profile", viewModel.loadingBarActive)
+        CustomHeader(
+            displayProgressBar = viewModel.loadingBarActive,
+            middleComposable = {
+                Text (
+                    text = "Edit profile",
+                    fontSize = Global.relativeFont(0.04f),
+                    textAlign = TextAlign.Center
+                )
+            }
+        )
 
         Column {
             Surface (

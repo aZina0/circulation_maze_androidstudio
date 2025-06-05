@@ -4,6 +4,8 @@ import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.aZina0.circulationmaze.AccountManager
+import com.aZina0.circulationmaze.BoardManager
 import com.aZina0.circulationmaze.Global
 import com.aZina0.circulationmaze.SaveManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,14 +18,19 @@ import javax.inject.Inject
 class GameViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val saveManager: SaveManager,
+    private val accountManager: AccountManager,
+    private val boardManager: BoardManager,
 ) : ViewModel() {
     var graphicsLayer: GraphicsLayer? = null
+    var boardSolved = false
 
     init {
         val startType = savedStateHandle["startType"] ?: ""
         val uid = savedStateHandle["uid"] ?: ""
         val seed = savedStateHandle["seed"] ?: 0L
         val gridSize = savedStateHandle["gridSize"] ?: 0
+
+        Game.solveCallback = { onBoardSolve() }
 
         if (startType == "newGame") {
             Game.createNewGame(
@@ -49,7 +56,7 @@ class GameViewModel @Inject constructor(
                 Global.print("Creating game with seed: %d, size %d".format(seed, size))
                 Game.createNewGame(UUID.randomUUID().toString(), seed.toLong(), size)
                 Game.triggerRedraw = !Game.triggerRedraw
-                if (!Game.checkForBoardComplete()) {
+                if (!Game.checkForBoardSolve()) {
                     Global.print("FAILED GENERATION")
                     break
                 }
@@ -59,16 +66,32 @@ class GameViewModel @Inject constructor(
         }
     }
 
-    fun exitGameScreen() {
+    fun onBoardSolve() {
+        boardSolved = true
         val gameData = Game.getGameData()
-        saveManager.saveGame(gameData)
 
         Highlight.hide()
         Game.triggerRedraw = !Game.triggerRedraw
         viewModelScope.launch {
             val imageBitmap = graphicsLayer!!.toImageBitmap()
-            saveManager.saveGameImage(gameData, imageBitmap)
+            boardManager.saveBoard(
+                gameData = gameData,
+                imageBitmap = imageBitmap,
+                onSuccess = {
+                    saveManager.deleteSaveGameFromFile(gameData.uid)
+                    saveManager.deleteSaveGameFromCloud(
+                        gameData.uid,
+                        onSuccess = {},
+                        onFailure = {}
+                    )
+                },
+                onFailure = {}
+            )
         }
+    }
+
+    fun onMenuClicked() {
+
     }
 
     fun onLockClicked() {
@@ -90,5 +113,21 @@ class GameViewModel @Inject constructor(
 
     fun onRotate180Clicked() {
         Game.pieces[Highlight.coordinate]!!.rotateBy180()
+    }
+
+    fun exitGameScreen() {
+        if (boardSolved) {
+            return
+        }
+
+        val gameData = Game.getGameData()
+        saveManager.saveGame(gameData)
+
+        Highlight.hide()
+        Game.triggerRedraw = !Game.triggerRedraw
+        viewModelScope.launch {
+            val imageBitmap = graphicsLayer!!.toImageBitmap()
+            saveManager.saveGameImage(gameData, imageBitmap)
+        }
     }
 }

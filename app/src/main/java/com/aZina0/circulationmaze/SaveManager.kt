@@ -11,18 +11,10 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.boolean
-import kotlinx.serialization.json.int
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
-import kotlinx.serialization.json.long
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -182,7 +174,7 @@ class SaveManager @Inject constructor(
             dir.mkdirs()
         }
         val file = File(dir, gameData.uid)
-        file.writeText(gameDataToString(gameData))
+        file.writeText(Global.gameDataToString(gameData))
     }
 
     private fun saveGameToCloud(gameData: GameData) {
@@ -196,7 +188,7 @@ class SaveManager @Inject constructor(
             .document(user.uid)
             .collection("saves")
             .document(gameData.uid)
-            .set(mapOf("data" to gameDataToString(gameData)))
+            .set(mapOf("data" to Global.gameDataToString(gameData)))
 //            .addOnSuccessListener {
 //                gameData.savedOnCloud = true
 //                saveGameToFile(gameData)
@@ -249,7 +241,7 @@ class SaveManager @Inject constructor(
     fun loadGameFromFile(uid: String): GameData? {
         val file = File(File(context.filesDir, "saves"), uid)
         if (file.exists()) {
-            return stringToGameData(file.readText())
+            return Global.stringToGameData(file.readText())
         } else {
             return null
         }
@@ -293,7 +285,7 @@ class SaveManager @Inject constructor(
             .document(uid)
             .get()
             .addOnSuccessListener { document ->
-                gameData = stringToGameData(document.getString("data")!!)
+                gameData = Global.stringToGameData(document.getString("data")!!)
 
                 if (imageBitmap != null) {
                     onSuccess(
@@ -400,35 +392,5 @@ class SaveManager @Inject constructor(
             .collection("save_images")
             .document(uid)
             .delete()
-    }
-
-    private fun gameDataToString(gameData: GameData): String {
-        return JsonObject(
-            mapOf(
-                "uid" to JsonPrimitive(gameData.uid),
-                "seed" to JsonPrimitive(gameData.seed),
-                "gridSize" to JsonPrimitive(gameData.gridSize),
-                "lastModifiedDate" to JsonPrimitive(
-                    gameData.lastModifiedDate.format(DateTimeFormatter.ISO_DATE_TIME)
-                ),
-                "savedOnCloud" to JsonPrimitive(gameData.savedOnCloud),
-                "pieces" to gameData.pieces,
-            )
-        ).toString()
-    }
-
-    private fun stringToGameData(string: String): GameData {
-        val jsonObject = Json.parseToJsonElement(string).jsonObject
-        return GameData(
-            uid = jsonObject["uid"]!!.jsonPrimitive.content,
-            seed = jsonObject["seed"]!!.jsonPrimitive.long,
-            gridSize = jsonObject["gridSize"]!!.jsonPrimitive.int,
-            lastModifiedDate = LocalDateTime.parse(
-                jsonObject["lastModifiedDate"]!!.jsonPrimitive.content,
-                DateTimeFormatter.ISO_DATE_TIME
-            ),
-            savedOnCloud = jsonObject["savedOnCloud"]!!.jsonPrimitive.boolean,
-            pieces = jsonObject["pieces"]!!.jsonObject
-        )
     }
 }

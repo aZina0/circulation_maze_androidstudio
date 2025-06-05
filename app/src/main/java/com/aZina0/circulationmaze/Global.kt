@@ -11,7 +11,17 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.boolean
+import kotlinx.serialization.json.int
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.long
 import java.io.ByteArrayOutputStream
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 object Global {
     var redrawAmount = 0
@@ -46,6 +56,36 @@ object Global {
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteStream)
         val bytes = byteStream.toByteArray()
         return Base64.encodeToString(bytes, Base64.DEFAULT)
+    }
+
+    fun gameDataToString(gameData: GameData): String {
+        return JsonObject(
+            mapOf(
+                "uid" to JsonPrimitive(gameData.uid),
+                "seed" to JsonPrimitive(gameData.seed),
+                "gridSize" to JsonPrimitive(gameData.gridSize),
+                "lastModifiedDate" to JsonPrimitive(
+                    gameData.lastModifiedDate.format(DateTimeFormatter.ISO_DATE_TIME)
+                ),
+                "savedOnCloud" to JsonPrimitive(gameData.savedOnCloud),
+                "pieces" to gameData.pieces,
+            )
+        ).toString()
+    }
+
+    fun stringToGameData(string: String): GameData {
+        val jsonObject = Json.parseToJsonElement(string).jsonObject
+        return GameData(
+            uid = jsonObject["uid"]!!.jsonPrimitive.content,
+            seed = jsonObject["seed"]!!.jsonPrimitive.long,
+            gridSize = jsonObject["gridSize"]!!.jsonPrimitive.int,
+            lastModifiedDate = LocalDateTime.parse(
+                jsonObject["lastModifiedDate"]!!.jsonPrimitive.content,
+                DateTimeFormatter.ISO_DATE_TIME
+            ),
+            savedOnCloud = jsonObject["savedOnCloud"]!!.jsonPrimitive.boolean,
+            pieces = jsonObject["pieces"]!!.jsonObject
+        )
     }
 
     fun getCroppedScaledImageBitmap(bitmap: Bitmap, targetSize: Int): ImageBitmap {

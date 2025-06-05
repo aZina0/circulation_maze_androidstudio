@@ -24,7 +24,7 @@ class LoadGameViewModel @Inject constructor(
     private var uidToDelete: String? = null
 
     init {
-//        saveManager.deleteAllSaves()
+//        saveManager.deleteAllLocalSaves()
         updateSaveList()
     }
 

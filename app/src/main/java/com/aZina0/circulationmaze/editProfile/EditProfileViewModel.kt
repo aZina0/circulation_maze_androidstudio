@@ -60,6 +60,7 @@ class EditProfileViewModel @Inject constructor(
 
         requestsSent++
         accountManager.getUsername(
+            userUid = userUid,
             onSuccess = {
                 username = it
                 responsesReceived++

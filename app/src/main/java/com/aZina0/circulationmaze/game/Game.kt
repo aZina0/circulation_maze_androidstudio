@@ -49,6 +49,8 @@ object Game {
     var seed: Long = 0
     var uid: String = ""
 
+    var solveCallback: (() -> Unit)? = null
+
     fun createNewGame(uid: String, seed: Long, gridSize: Int) {
         playerPlaying = false
 
@@ -99,14 +101,15 @@ object Game {
         }
 
 //        var centerPiece: Piece = pieces[gridCenterCoordinate]
-//        connectSubgraph(rootPiece!!)
-//        disconnectSubgraph(rootPiece!!)
         connectSubgraph(rootPiece!!)
+        disconnectSubgraph(rootPiece!!)
+//        connectSubgraph(rootPiece!!)
 
-//        for (piece in pieces.values) {
-//            piece.unlock()
-//        }
-//        shufflePieces()
+        for (piece in pieces.values) {
+//            piece.deactivate()
+            piece.unlock()
+        }
+        shufflePieces()
 
         playerPlaying = true
     }
@@ -236,10 +239,14 @@ object Game {
 
             if (coordinate == gridCenterCoordinate) {
                 rootPiece = piece
+                piece.activate()
+                Global.print("NEW ROOT PIECE")
+                Global.print(rootPiece.toString())
             }
 
             pieces[coordinate] = piece
         }
+        playerPlaying = true
     }
 
     fun getGameData(): GameData {
@@ -370,8 +377,8 @@ object Game {
 
 
     fun shufflePieces() {
-        val randomVal = Random.nextFloat()
         for (coordinate in pieces.keys) {
+            val randomVal = Random.nextFloat()
             val piece: Piece = pieces[coordinate]!!
             piece.unlock()
             if (0 <= randomVal && randomVal < 0.25) {
@@ -392,12 +399,13 @@ object Game {
 
 
 
-    fun checkForBoardComplete(): Boolean {
+    fun checkForBoardSolve(): Boolean {
         for (piece in pieces.values) {
             if (!piece.active) {
                 return false
             }
         }
+        solveCallback?.invoke()
         return true
     }
 

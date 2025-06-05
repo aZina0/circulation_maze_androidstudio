@@ -72,6 +72,7 @@ class AccountManager @Inject constructor(
     }
 
     fun getUsername(
+        userUid: String,
         onSuccess: (username: String) -> Unit,
         onFailure: () -> Unit,
     ) {
@@ -80,7 +81,7 @@ class AccountManager @Inject constructor(
 
             val db = FirebaseFirestore.getInstance()
             db.collection("users")
-                .document(user.uid)
+                .document(userUid)
                 .get()
                 .addOnSuccessListener { document ->
                     onSuccess(document.data?.get("username").toString())

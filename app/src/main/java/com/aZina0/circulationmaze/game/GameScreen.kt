@@ -1,7 +1,6 @@
 package com.aZina0.circulationmaze.game
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -23,10 +23,12 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.aZina0.circulationmaze.CustomHeader
 import com.aZina0.circulationmaze.Global
 import com.aZina0.circulationmaze.R
 import com.aZina0.circulationmaze.RelativeHorizontalSpacer
@@ -50,7 +52,33 @@ fun GameScreen(
     }
 
     Column {
-        TopBarComposable()
+        CustomHeader(
+            displayProgressBar = false,
+            firstComposable = {
+                Button(
+                    onClick = { viewModel.onMenuClicked() },
+                    modifier = Modifier
+                        .width(Global.relativeWidth(0.12f)),
+                    shape = RoundedCornerShape(percent = 30),
+                    contentPadding = PaddingValues(0.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                        contentColor = MaterialTheme.colorScheme.onSurface,
+                    )
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.menu),
+                        contentDescription = "menu",
+                    )
+                }
+            },
+            middleComposable = {
+                Text (
+                    text = "Edit profile",
+                    fontSize = Global.relativeFont(0.04f),
+                )
+            },
+        )
         RelativeVerticalSpacer(0.075f)
         ActualGameComposable(viewModel)
         RelativeVerticalSpacer(0.05f)
@@ -61,19 +89,6 @@ fun GameScreen(
         viewModel.exitGameScreen()
         onReturnClicked()
     }
-}
-
-@Composable
-fun TopBarComposable() {
-    Column {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .size(Global.relativeHeight(0.05f))
-                .background(MaterialTheme.colorScheme.surfaceContainerLow)
-        )
-    }
-
 }
 
 @Composable
