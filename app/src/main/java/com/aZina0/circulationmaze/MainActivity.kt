@@ -28,6 +28,8 @@ import com.aZina0.circulationmaze.profile.ProfileScreen
 import com.aZina0.circulationmaze.registerLogin.LoginScreen
 import com.aZina0.circulationmaze.registerLogin.RegisterScreen
 import com.aZina0.circulationmaze.ui.theme.AppTheme
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.serialization.Serializable
 
@@ -203,6 +205,7 @@ fun CirculationMazeApp() {
 
                     composable<ProfileRoute> {
                         ProfileScreen(
+                            userUid = Firebase.auth.currentUser?.uid ?: "",
                             onSignOut = {
                                 navController.navigate(route = MainMenuRoute)
                             },
@@ -211,7 +214,6 @@ fun CirculationMazeApp() {
                             },
                         )
                     }
-
                 }
             }
         }

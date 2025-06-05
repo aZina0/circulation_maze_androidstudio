@@ -2,9 +2,8 @@ package com.aZina0.circulationmaze.profile
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -12,6 +11,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -20,15 +21,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.aZina0.circulationmaze.CustomHeader
 import com.aZina0.circulationmaze.Global
+import com.aZina0.circulationmaze.R
+import com.aZina0.circulationmaze.RelativeHorizontalSpacer
 import com.aZina0.circulationmaze.RelativeVerticalSpacer
 import java.time.format.DateTimeFormatter
 
 @Composable
 fun ProfileScreen(
+    userUid: String,
     onSignOut: () -> Unit,
     onReturnClicked: () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel(),
@@ -36,7 +41,53 @@ fun ProfileScreen(
     val padding = Global.relativeWidth(0.03f)
 
     Column {
-        CustomHeader("Profile", viewModel.loadingBarActive)
+        CustomHeader(
+            title = "Profile",
+            displayProgressBar = viewModel.loadingBarActive,
+            secondComposable = {
+                Row {
+                    Button(
+                        onClick = { },
+                        modifier = Modifier
+                            .width(Global.relativeWidth(0.12f)),
+                        shape = RoundedCornerShape(percent = 30),
+                        contentPadding = PaddingValues(0.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                            contentColor = MaterialTheme.colorScheme.onSurface,
+                        )
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.edit_profile),
+                            contentDescription = "180",
+                        )
+                    }
+                    RelativeHorizontalSpacer(.02f)
+                    Button(
+                        onClick = {
+                            viewModel.onLogoutClick()
+                            onSignOut()
+                        },
+                        modifier = Modifier
+                            .width(Global.relativeWidth(0.12f)),
+                        shape = RoundedCornerShape(percent = 30),
+                        contentPadding = PaddingValues(0.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                            contentColor = Color.Red,
+                        )
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.logout),
+                            contentDescription = "180",
+                        )
+                    }
+                    RelativeHorizontalSpacer(.02f)
+                }
+            },
+        )
+
+
         Column (
             modifier = Modifier
                 .fillMaxWidth(),
@@ -179,17 +230,6 @@ fun ProfileScreen(
                         fontSize = Global.relativeFont(.025f),
                     )
                 }
-            }
-            RelativeVerticalSpacer(.02f)
-            Button (
-                onClick = {
-                    viewModel.onLogoutClick()
-                    onSignOut()
-                }
-            ) {
-                Text (
-                    text = "Log out"
-                )
             }
         }
     }
