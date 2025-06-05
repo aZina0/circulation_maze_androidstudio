@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import com.aZina0.circulationmaze.AccountManager
+import com.aZina0.circulationmaze.SaveManager
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,6 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val accountManager: AccountManager,
+    private val saveManager: SaveManager,
 ): ViewModel() {
     var picture: ImageBitmap? = null
         private set
@@ -61,6 +63,6 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun onLogoutClick() {
-        Firebase.auth.signOut()
+        accountManager.signOut(saveManager)
     }
 }

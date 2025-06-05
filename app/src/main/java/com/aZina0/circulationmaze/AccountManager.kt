@@ -177,6 +177,11 @@ class AccountManager @Inject constructor(
         }
     }
 
+    fun signOut(saveManager: SaveManager) {
+        Firebase.auth.signOut()
+        saveManager.deleteAllLocalSaves()
+    }
+
     private fun deleteAccount() {
         val user = Firebase.auth.currentUser
         if (user == null) {

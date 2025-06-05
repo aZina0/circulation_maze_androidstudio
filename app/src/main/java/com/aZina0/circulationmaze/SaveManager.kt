@@ -45,6 +45,7 @@ class SaveManager @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
     fun syncSavesAndReturn(
+        accountManager: AccountManager,
         onFinished: (saveList: List<SaveInfo>) -> Unit,
     ) {
         val localSaves = mutableMapOf<String, SaveInfo>()
@@ -60,8 +61,7 @@ class SaveManager @Inject constructor(
             }
         }
 
-        val user = Firebase.auth.currentUser
-        if (user == null) {
+        if (!accountManager.isOnline() || !accountManager.isLoggedIn()) {
             onFinished(localSaves.values.toList())
             return
         }
@@ -75,7 +75,7 @@ class SaveManager @Inject constructor(
             if (responsesReceived >= requestsSent) {
                 val saveList = mutableListOf<SaveInfo>()
 
-                val cloudSaveUids = cloudSaves.keys
+                var cloudSaveUids = cloudSaves.keys
                 for (cloudSaveUid in cloudSaveUids) {
                     if (cloudSaveUid in localSaves) {
                         val cloudSaveInfo = cloudSaves[cloudSaveUid]!!
@@ -88,9 +88,34 @@ class SaveManager @Inject constructor(
                             localSaves.remove(cloudSaveUid)
                         } else if (cloudSaveDate.isAfter(localSaveDate)) {
                             localSaves.remove(cloudSaveUid)
+                            saveGameToFile(cloudSaveInfo.gameData)
+                            saveGameImageToFile(cloudSaveInfo.gameData, cloudSaveInfo.imageBitmap!!)
                         } else if (localSaveDate.isAfter(cloudSaveDate)) {
                             cloudSaves.remove(cloudSaveUid)
+                            saveGameToCloud(localSaveInfo.gameData)
+                            saveGameImageToCloud(localSaveInfo.gameData, localSaveInfo.imageBitmap!!)
                         }
+                    }
+                }
+
+                val localSaveUids = localSaves.keys
+                for (localSaveUid in localSaveUids) {
+                    if (localSaveUid !in cloudSaves) {
+                        val localSaveInfo = localSaves[localSaveUid]!!
+
+                        localSaveInfo.gameData.savedOnCloud = true
+                        saveGameToCloud(localSaveInfo.gameData)
+                        saveGameImageToCloud(localSaveInfo.gameData, localSaveInfo.imageBitmap!!)
+                    }
+                }
+
+                cloudSaveUids = cloudSaves.keys
+                for (cloudSaveUid in cloudSaveUids) {
+                    if (cloudSaveUid !in localSaves) {
+                        val cloudSaveInfo = cloudSaves[cloudSaveUid]!!
+
+                        saveGameToFile(cloudSaveInfo.gameData)
+                        saveGameImageToFile(cloudSaveInfo.gameData, cloudSaveInfo.imageBitmap!!)
                     }
                 }
 
@@ -100,6 +125,7 @@ class SaveManager @Inject constructor(
             }
         }
 
+        val user = Firebase.auth.currentUser!!
         val db = FirebaseFirestore.getInstance()
         db.collection("users")
             .document(user.uid)
@@ -123,6 +149,7 @@ class SaveManager @Inject constructor(
                         }
                     )
                 }
+                checkForAllResponses()
             }
     }
 
@@ -177,15 +204,16 @@ class SaveManager @Inject constructor(
     }
 
     fun saveGameImage(gameData: GameData, imageBitmap: ImageBitmap) {
+        saveGameImageToFile(gameData, imageBitmap)
+        saveGameImageToCloud(gameData, imageBitmap)
+    }
+
+    fun saveGameImageToFile(gameData: GameData, imageBitmap: ImageBitmap) {
         val bitmap = imageBitmap.asAndroidBitmap()
         val byteStream = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteStream)
         val bytes = byteStream.toByteArray()
-        saveGameImageToFile(gameData, bytes)
-        saveGameImageToCloud(gameData, bytes)
-    }
 
-    fun saveGameImageToFile(gameData: GameData, bytes: ByteArray) {
         val dir = File(context.filesDir, "save_images")
         if (!dir.exists()) {
             dir.mkdirs()
@@ -194,7 +222,12 @@ class SaveManager @Inject constructor(
         file.writeBytes(bytes)
     }
 
-    fun saveGameImageToCloud(gameData: GameData, bytes: ByteArray) {
+    fun saveGameImageToCloud(gameData: GameData, imageBitmap: ImageBitmap) {
+        val bitmap = imageBitmap.asAndroidBitmap()
+        val byteStream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteStream)
+        val bytes = byteStream.toByteArray()
+
         val user = Firebase.auth.currentUser
         if (user == null) {
             return
@@ -308,16 +341,16 @@ class SaveManager @Inject constructor(
         }
     }
 
-    fun deleteAllSaves() {
+    fun deleteAllLocalSaves() {
         val dir = File(context.filesDir, "saves")
         if (dir.exists() && dir.isDirectory) {
             for (fileName in dir.list()!!) {
-                deleteSaveGame(fileName)
+                deleteSaveGameFromFile(fileName)
             }
         }
     }
 
-    fun deleteSaveGame(uid: String) {
+    fun deleteSaveGameFromFile(uid: String) {
         val savesDir = File(context.filesDir, "saves")
         if (savesDir.exists() && savesDir.isDirectory) {
             for (fileName in savesDir.list()!!) {
@@ -343,7 +376,33 @@ class SaveManager @Inject constructor(
         }
     }
 
-    fun gameDataToString(gameData: GameData): String {
+    fun deleteSaveGameFromCloud(
+        uid: String,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit,
+    ) {
+        val user = Firebase.auth.currentUser!!
+        val db = FirebaseFirestore.getInstance()
+        db.collection("users")
+            .document(user.uid)
+            .collection("saves")
+            .document(uid)
+            .delete()
+            .addOnSuccessListener {
+                onSuccess()
+            }
+            .addOnFailureListener {
+                onFailure()
+            }
+
+        db.collection("users")
+            .document(user.uid)
+            .collection("save_images")
+            .document(uid)
+            .delete()
+    }
+
+    private fun gameDataToString(gameData: GameData): String {
         return JsonObject(
             mapOf(
                 "uid" to JsonPrimitive(gameData.uid),

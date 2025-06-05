@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.aZina0.circulationmaze.AccountManager
 import com.aZina0.circulationmaze.SaveInfo
 import com.aZina0.circulationmaze.SaveManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,6 +15,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LoadGameViewModel @Inject constructor(
     private val saveManager: SaveManager,
+    private val accountManager: AccountManager,
 ) : ViewModel() {
     var saves = mutableListOf<SaveInfo>()
     var redrawIndicator by mutableStateOf(false)
@@ -30,14 +32,8 @@ class LoadGameViewModel @Inject constructor(
         loadingBar = true
         saves.clear()
 
-//        val filesList = saveManager.getSavesList()
-//        for (file in filesList) {
-//            val gameData = saveManager.loadGameFromFile(file)!!
-//            val imageBitmap = saveManager.loadGameImageFromFile(gameData)
-//            saves.add(SaveInfo(gameData, imageBitmap))
-//        }
-
         saveManager.syncSavesAndReturn(
+            accountManager = accountManager,
             onFinished = { resultSaves ->
                 saves = resultSaves.toMutableList()
                 saves.sortByDescending {
@@ -56,10 +52,27 @@ class LoadGameViewModel @Inject constructor(
 
     fun deleteSave() {
         if (uidToDelete != null) {
-            saveManager.deleteSaveGame(uidToDelete!!)
+            saveManager.deleteSaveGameFromFile(uidToDelete!!)
+
+            if (accountManager.isLoggedIn() && accountManager.isOnline()) {
+                saveManager.deleteSaveGameFromCloud(
+                    uid = uidToDelete!!,
+                    onSuccess = {
+                        closeDialog()
+                        updateSaveList()
+                    },
+                    onFailure = {
+                        closeDialog()
+                        updateSaveList()
+                    },
+                )
+            } else {
+                closeDialog()
+                updateSaveList()
+            }
+        } else {
+            closeDialog()
         }
-        closeDialog()
-        updateSaveList()
     }
 
     fun closeDialog() {
