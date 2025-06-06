@@ -1,5 +1,8 @@
 package com.aZina0.circulationmaze.game
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -22,7 +25,7 @@ class GameViewModel @Inject constructor(
     private val boardManager: BoardManager,
 ) : ViewModel() {
     var graphicsLayer: GraphicsLayer? = null
-    var boardSolved = false
+    var boardSolved by mutableStateOf(false)
 
     init {
         val startType = savedStateHandle["startType"] ?: ""
@@ -88,6 +91,15 @@ class GameViewModel @Inject constructor(
                 onFailure = {}
             )
         }
+    }
+
+    fun onShareSolveClicked() {
+        boardManager.shareBoard(
+            boardUid = Game.uid,
+            accountManager = accountManager,
+            onSuccess = {},
+            onFailure = {}
+        )
     }
 
     fun onMenuClicked() {

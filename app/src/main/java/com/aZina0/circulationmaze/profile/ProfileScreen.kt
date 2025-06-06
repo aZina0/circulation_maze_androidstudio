@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -41,6 +43,7 @@ fun ProfileScreen(
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val padding = Global.relativeWidth(0.03f)
+    val scrollState = rememberScrollState()
 
     Column {
         CustomHeader(
@@ -97,7 +100,8 @@ fun ProfileScreen(
 
         Column (
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Surface (
@@ -219,6 +223,58 @@ fun ProfileScreen(
                         text = "Shared games",
                         fontSize = Global.relativeFont(.025f),
                     )
+                    Row(
+                        modifier = Modifier
+                            .background(MaterialTheme.colorScheme.surfaceContainer)
+                    ) {
+                        Text(
+                            text = "Grid size",
+                            modifier = Modifier
+                                .weight(0.5f)
+                        )
+                        Text(
+                            text = "Time",
+                            modifier = Modifier
+                                .weight(0.5f)
+                        )
+                    }
+
+                    var index = 0
+                    for (boardSmallInfo in viewModel.allSharedBoardsSmallInfo) {
+                        Row(
+                            modifier = Modifier
+                                .background(
+                                    if (isSystemInDarkTheme()) {
+                                        if (index % 2 == 0) {
+                                            MaterialTheme.colorScheme.surfaceContainerLow
+                                        } else {
+                                            Color(0xFF161616)
+                                        }
+                                    } else {
+                                        if (index % 2 == 0) {
+                                            MaterialTheme.colorScheme.surfaceContainerLow
+                                        } else {
+                                            MaterialTheme.colorScheme.surfaceContainerLowest
+                                        }
+                                    }
+                                )
+                        ) {
+                            Text(
+                                text = "%dx%d".format(
+                                    boardSmallInfo.gameData.gridSize,
+                                    boardSmallInfo.gameData.gridSize,
+                                ),
+                                modifier = Modifier
+                                    .weight(0.5f)
+                            )
+                            Text(
+                                text = boardSmallInfo.time.toString(),
+                                modifier = Modifier
+                                    .weight(0.5f)
+                            )
+                        }
+                        index++
+                    }
                 }
             }
             RelativeVerticalSpacer(.02f)

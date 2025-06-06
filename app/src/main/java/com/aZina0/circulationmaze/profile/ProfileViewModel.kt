@@ -43,6 +43,8 @@ class ProfileViewModel @Inject constructor(
     var xpRemainder by mutableFloatStateOf(0f)
         private set
 
+    var allSharedBoardsSmallInfo by mutableStateOf(listOf<BoardSmallInfo>())
+        private set
     var allSolvedBoardsSmallInfo by mutableStateOf(listOf<BoardSmallInfo>())
         private set
 
@@ -112,6 +114,21 @@ class ProfileViewModel @Inject constructor(
             accountManager = accountManager,
             onSuccess = {
                 allSolvedBoardsSmallInfo = it
+                responsesReceived++
+                checkForAllResponses()
+            },
+            onFailure = {
+                responsesReceived++
+                checkForAllResponses()
+            }
+        )
+
+        requestsSent++
+        boardManager.getSharedBoards(
+            userUid = userUid,
+            accountManager = accountManager,
+            onSuccess = {
+                allSharedBoardsSmallInfo = it
                 responsesReceived++
                 checkForAllResponses()
             },

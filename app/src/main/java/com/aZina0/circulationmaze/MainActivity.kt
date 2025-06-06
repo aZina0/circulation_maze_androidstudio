@@ -188,7 +188,10 @@ fun CirculationMazeApp() {
                         GameScreen(
                             onReturnClicked = {
                                 navController.navigate(route = MainMenuRoute)
-                            }
+                            },
+                            onStartNewGameClicked = {
+                                navController.navigate(route = NewGameRoute)
+                            },
                         )
                     }
 

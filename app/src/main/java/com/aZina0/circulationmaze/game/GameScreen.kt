@@ -15,6 +15,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -23,7 +24,6 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,6 +38,7 @@ import com.aZina0.circulationmaze.RelativeVerticalSpacer
 @Composable
 fun GameScreen(
     onReturnClicked: () -> Unit,
+    onStartNewGameClicked: () -> Unit,
     viewModel: GameViewModel = hiltViewModel()
 ) {
     if (!Game.initialized) {
@@ -82,7 +83,21 @@ fun GameScreen(
         RelativeVerticalSpacer(0.075f)
         ActualGameComposable(viewModel)
         RelativeVerticalSpacer(0.05f)
-        ControlsComposable(viewModel)
+        if (!viewModel.boardSolved) {
+            ControlsComposable(viewModel)
+        } else {
+            BoardSolvedComposable(
+                viewModel = viewModel,
+                onStartNewGameClicked = {
+                    viewModel.exitGameScreen()
+                    onStartNewGameClicked()
+                },
+                onReturnClicked = {
+                    viewModel.exitGameScreen()
+                    onReturnClicked()
+                }
+            )
+        }
     }
 
     BackHandler(enabled = true) {
@@ -329,6 +344,54 @@ fun ControlsComposable(viewModel: GameViewModel) {
                     style = MaterialTheme.typography.bodyLarge.copy(
                         textDecoration = TextDecoration.Underline,
                     ),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun BoardSolvedComposable(
+    viewModel: GameViewModel,
+    onStartNewGameClicked: () -> Unit,
+    onReturnClicked: () -> Unit
+) {
+    Surface(
+        modifier = Modifier
+            .width(Global.relativeWidth(.7f))
+    ) {
+        Column {
+            Text(
+                text = "Board solved!"
+            )
+            Button(
+                onClick = { viewModel.onShareSolveClicked() },
+                modifier = Modifier
+                    .width(Global.relativeWidth(0.12f)),
+                shape = RoundedCornerShape(percent = 30),
+                contentPadding = PaddingValues(0.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                    contentColor = MaterialTheme.colorScheme.onSurface,
+                )
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.share),
+                    contentDescription = "share",
+                )
+            }
+            Button(
+                onClick = { onStartNewGameClicked() }
+            ) {
+                Text(
+                    text = "Start new game"
+                )
+            }
+            Button(
+                onClick = { onReturnClicked() }
+            ) {
+                Text(
+                    text = "Return to main menu"
                 )
             }
         }

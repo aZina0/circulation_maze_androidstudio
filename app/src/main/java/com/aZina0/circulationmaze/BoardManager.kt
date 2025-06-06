@@ -16,6 +16,13 @@ data class BoardSmallInfo(
     val time: Int,
 )
 
+data class BoardInfo(
+    val gameData: GameData,
+    val time: Int,
+    val imageBitmap: ImageBitmap,
+    val userUid: String,
+)
+
 @Singleton
 class BoardManager @Inject constructor(
     @ApplicationContext private val context: Context
@@ -82,6 +89,129 @@ class BoardManager @Inject constructor(
 
                 } else {
                     onFailure()
+                }
+            }
+            .addOnFailureListener {
+                onFailure()
+            }
+    }
+
+    fun shareBoard(
+        boardUid: String,
+        accountManager: AccountManager,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit,
+    ) {
+        if (!accountManager.isLoggedIn() || !accountManager.isOnline()) {
+            onFailure()
+            return
+        }
+
+        val user = Firebase.auth.currentUser!!
+        val db = FirebaseFirestore.getInstance()
+        db.collection("users")
+            .document(user.uid)
+            .collection("sharedBoards")
+            .document(boardUid)
+            .set(emptyMap<String, Any>())
+            .addOnSuccessListener {
+                onSuccess()
+            }
+            .addOnFailureListener {
+                onFailure()
+            }
+    }
+
+    fun getBoardInfo(
+        boardUid: String,
+        accountManager: AccountManager,
+        onSuccess: (boardInfo: BoardInfo) -> Unit,
+        onFailure: () -> Unit,
+    ) {
+        if (!accountManager.isOnline()) {
+            onFailure()
+            return
+        }
+
+        val db = FirebaseFirestore.getInstance()
+        db.collection("solvedBoards")
+            .document(boardUid)
+            .get()
+            .addOnSuccessListener { document ->
+                val gameDataString = document.getString("gameData")!!
+                val gameData = Global.stringToGameData(gameDataString)
+
+                val imageBitmapString = document.getString("image")!!
+                val imageBitmap = Global.byteStringToImageBitmap(imageBitmapString)
+
+                val time = document.getLong("time")!!.toInt()
+
+                val userUid = document.getString("user")!!
+
+                onSuccess(
+                    BoardInfo(
+                        gameData = gameData,
+                        time = time,
+                        imageBitmap = imageBitmap,
+                        userUid = userUid
+                    )
+                )
+            }
+            .addOnFailureListener {
+                onFailure()
+            }
+    }
+
+    fun getSharedBoards(
+        userUid: String,
+        accountManager: AccountManager,
+        onSuccess: (boardSmallInfos: List<BoardSmallInfo>) -> Unit,
+        onFailure: () -> Unit,
+    ) {
+        if (!accountManager.isOnline()) {
+            onFailure()
+            return
+        }
+
+        val boardSmallInfos = mutableListOf<BoardSmallInfo>()
+
+        var requestsSent = 0
+        var responsesReceived = 0
+        val checkForAllResponses: () -> Unit = {
+            if (responsesReceived >= requestsSent) {
+                onSuccess(boardSmallInfos)
+            }
+        }
+
+        val db = FirebaseFirestore.getInstance()
+        db.collection("users")
+            .document(userUid)
+            .collection("sharedBoards")
+            .get()
+            .addOnSuccessListener { documents ->
+
+                for (document in documents.documents) {
+                    val boardUid = document.id
+
+                    requestsSent++
+                    getBoardInfo(
+                        boardUid = boardUid,
+                        accountManager = accountManager,
+                        onSuccess = { boardInfo ->
+                            boardSmallInfos.add(
+                                BoardSmallInfo(
+                                    gameData = boardInfo.gameData,
+                                    time = boardInfo.time,
+                                )
+                            )
+                            responsesReceived++
+                            checkForAllResponses()
+                        },
+                        onFailure = {
+                            responsesReceived++
+                            checkForAllResponses()
+                        }
+                    )
                 }
             }
             .addOnFailureListener {
