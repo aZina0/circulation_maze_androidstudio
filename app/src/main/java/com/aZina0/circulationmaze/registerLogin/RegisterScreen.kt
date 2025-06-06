@@ -88,7 +88,7 @@ fun RegisterScreen(
         OutlinedTextField(
             value = viewModel.passwordAgain,
             onValueChange = { viewModel.onPasswordAgainChange(it) },
-            label = { Text(text = "Confirm password") },
+            label = { Text(text = "Repeat password") },
             modifier = Modifier.width(Global.relativeWidth(.7f)),
             singleLine = true,
             visualTransformation = PasswordVisualTransformation(),

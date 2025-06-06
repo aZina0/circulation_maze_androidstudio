@@ -14,6 +14,15 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
+
+data class AccountInfo(
+    val username: String,
+    val email: String,
+    val xp: Int,
+    val image: ImageBitmap,
+    val description: String,
+)
+
 @Singleton
 class AccountManager @Inject constructor(
     @ApplicationContext private val context: Context
@@ -45,6 +54,44 @@ class AccountManager @Inject constructor(
 
     fun checkIfUsernameExists(username: String): Boolean {
         return true
+    }
+
+    fun getAccountInfo(
+        userUid: String,
+        onSuccess: (accountInfo: AccountInfo) -> Unit,
+        onFailure: () -> Unit
+    ) {
+
+        if (!isOnline()) {
+            onFailure()
+            return
+        }
+
+        val db = FirebaseFirestore.getInstance()
+        db.collection("users")
+            .document(userUid)
+            .get()
+            .addOnSuccessListener { document ->
+                val username = document.data?.get("username").toString()
+                val email = document.data?.get("email").toString()
+                val xp = document.data?.get("xp").toString().toInt()
+                val image = Global.byteStringToImageBitmap(
+                    document.data?.get("image").toString()
+                )
+                val description = document.data?.get("description").toString()
+                onSuccess(
+                    AccountInfo(
+                        username = username,
+                        email = email,
+                        xp = xp,
+                        image = image,
+                        description = description
+                    )
+                )
+            }
+            .addOnFailureListener {
+                onFailure()
+            }
     }
 
     fun getImage(
@@ -150,6 +197,44 @@ class AccountManager @Inject constructor(
         db.collection("users")
             .document(user.uid)
             .update("image", Global.imageBitmapToByteString(newImageBitmap))
+            .addOnSuccessListener {
+                onSuccess()
+            }
+            .addOnFailureListener {
+                onFailure()
+            }
+    }
+
+    fun updateUsername(
+        newUsername: String,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
+    ) {
+
+        val user = Firebase.auth.currentUser!!
+        val db = FirebaseFirestore.getInstance()
+        db.collection("users")
+            .document(user.uid)
+            .update("username", newUsername)
+            .addOnSuccessListener {
+                onSuccess()
+            }
+            .addOnFailureListener {
+                onFailure()
+            }
+    }
+
+    fun updateDescription(
+        newDescription: String,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
+    ) {
+
+        val user = Firebase.auth.currentUser!!
+        val db = FirebaseFirestore.getInstance()
+        db.collection("users")
+            .document(user.uid)
+            .update("description", newDescription)
             .addOnSuccessListener {
                 onSuccess()
             }

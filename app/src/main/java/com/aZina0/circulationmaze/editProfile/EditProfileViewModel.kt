@@ -3,6 +3,7 @@ package com.aZina0.circulationmaze.editProfile
 import android.app.Application
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.util.Patterns
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -20,56 +21,101 @@ class EditProfileViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val application: Application
 ): ViewModel() {
+    var userUid by mutableStateOf("")
+        private set
+
     var image by mutableStateOf(accountManager.defaultProfileImage)
         private set
     var loadedImage by mutableStateOf<ImageBitmap?>(null)
         private set
+
     var username by mutableStateOf("")
         private set
-    var userUid by mutableStateOf("")
+    var newUsername by mutableStateOf("")
         private set
+    var usernameError by mutableStateOf(false)
+        private set
+    var usernameErrorText by mutableStateOf("")
+        private set
+
+    var staticDescription by mutableStateOf("")
+        private set
+    var description by mutableStateOf("")
+        private set
+    var descriptionError by mutableStateOf(false)
+        private set
+    var descriptionErrorText by mutableStateOf("")
+        private set
+
+    var email by mutableStateOf("")
+        private set
+    var newEmail by mutableStateOf("")
+        private set
+    var emailError by mutableStateOf(false)
+        private set
+    var emailErrorText by mutableStateOf("")
+        private set
+    var emailPassword by mutableStateOf("")
+        private set
+    var emailPasswordError by mutableStateOf(false)
+        private set
+    var emailPasswordErrorText by mutableStateOf("")
+        private set
+
+    var newPassword by mutableStateOf("")
+        private set
+    var newPasswordAgain by mutableStateOf("")
+        private set
+    var newPasswordError by mutableStateOf(false)
+        private set
+    var newPasswordErrorText by mutableStateOf("")
+        private set
+    var currentPassword by mutableStateOf("")
+        private set
+    var currentPasswordError by mutableStateOf(false)
+        private set
+    var currentPasswordErrorText by mutableStateOf("")
+        private set
+
     var loadingBarActive by mutableStateOf(false)
         private set
 
 
     init {
         userUid = savedStateHandle["userUid"] ?: ""
+        refreshUi()
+    }
 
+    fun refreshUi() {
         loadingBarActive = true
 
-        var requestsSent = 0
-        var responsesReceived = 0
-        val checkForAllResponses: () -> Unit = {
-            if (responsesReceived >= requestsSent) {
-                loadingBarActive = false
-            }
-        }
-
-        requestsSent++
-        accountManager.getImage(
-            onSuccess = {
-                image = it
-                responsesReceived++
-                checkForAllResponses()
-            },
-            onFailure = {
-                responsesReceived++
-                checkForAllResponses()
-            }
-        )
-
-        requestsSent++
-        accountManager.getUsername(
+        accountManager.getAccountInfo(
             userUid = userUid,
-            onSuccess = {
-                username = it
-                responsesReceived++
-                checkForAllResponses()
+            onSuccess = { accountInfo ->
+                username = accountInfo.username
+                image = accountInfo.image
+                description = accountInfo.description
+                staticDescription = accountInfo.description
+
+                val fullEmail = accountInfo.email
+                val emailSplit = fullEmail.split("@")
+                val firstPart = emailSplit[0]
+                val lastPart = emailSplit[1]
+                var censoredFirstPart = ""
+                if (firstPart.length >= 3) {
+                    censoredFirstPart =
+                        firstPart.first() +
+                                "*".repeat(firstPart.length - 2) +
+                                firstPart.last()
+                } else {
+                    censoredFirstPart = "*".repeat(firstPart.length)
+                }
+                email = censoredFirstPart + "@" + lastPart
+                loadingBarActive = false
             },
             onFailure = {
-                responsesReceived++
-                checkForAllResponses()
-            },
+
+            }
         )
     }
 
@@ -93,6 +139,7 @@ class EditProfileViewModel @Inject constructor(
                 accountManager.getImage(
                     onSuccess = {
                         image = it
+                        loadedImage = null
                     },
                     onFailure = {
 
@@ -103,5 +150,107 @@ class EditProfileViewModel @Inject constructor(
 
             }
         )
+    }
+
+    fun onUsernameChange(newValue: String) {
+        newUsername = newValue
+        usernameError = false
+        usernameErrorText = ""
+    }
+
+    fun onUpdateUsernameClicked() {
+        if (newUsername.length <= 2) {
+            usernameError = true
+            usernameErrorText = "Username must be longer than 2 characters."
+            return
+        }
+
+        accountManager.updateUsername(
+            newUsername = newUsername,
+            onSuccess = {
+                newUsername = ""
+                refreshUi()
+            },
+            onFailure = {
+                usernameError = true
+                usernameErrorText = "Couldn't update username."
+            }
+        )
+    }
+
+    fun onDescriptionChange(newValue: String) {
+        description = newValue
+        descriptionError = false
+        descriptionErrorText = ""
+    }
+
+    fun onUpdateDescriptionClicked() {
+        accountManager.updateDescription(
+            newDescription = description,
+            onSuccess = {
+                refreshUi()
+            },
+            onFailure = {
+                descriptionError = true
+                descriptionErrorText = "Couldn't update 'about'."
+            }
+        )
+    }
+
+    fun onEmailChange(newValue: String) {
+        newEmail = newValue
+        emailError = false
+        emailErrorText = ""
+    }
+
+    fun onEmailPasswordChange(newValue: String) {
+        emailPassword = newValue
+        emailPasswordError = false
+        emailPasswordErrorText = ""
+    }
+
+    fun onUpdateEmailClicked() {
+        if (!Patterns.EMAIL_ADDRESS.matcher(newEmail).matches()) {
+            emailError = true
+            emailErrorText = "Invalid email."
+            return
+        }
+    }
+
+
+    fun onNewPasswordChange(newValue: String) {
+        newPassword = newValue
+        newPasswordError = false
+        newPasswordErrorText = ""
+    }
+
+    fun onNewPasswordAgainChange(newValue: String) {
+        newPasswordAgain = newValue
+        newPasswordError = false
+        newPasswordErrorText = ""
+    }
+
+    fun onCurrentPasswordChange(newValue: String) {
+        currentPassword = newValue
+        currentPasswordError = false
+        currentPasswordErrorText = ""
+    }
+
+    fun onUpdatePasswordClicked() {
+        if (newPassword != newPasswordAgain) {
+            newPasswordError = true
+            newPasswordErrorText = "Passwords must match."
+            return
+        }
+        if (newPassword.length < 8) {
+            newPasswordError = true
+            newPasswordErrorText = "Password must be longer than 7 characters."
+            return
+        }
+        if (!newPassword.contains(Regex("\\d"))) {
+            newPasswordError = true
+            newPasswordErrorText = "Password must contain at least one digit."
+            return
+        }
     }
 }

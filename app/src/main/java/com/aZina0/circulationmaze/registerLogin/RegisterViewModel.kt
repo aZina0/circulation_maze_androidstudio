@@ -86,12 +86,12 @@ class RegisterViewModel @Inject constructor(
         }
         if (password.length < 8) {
             passwordError = true
-            passwordErrorText = "Passwords must be longer than 7 characters."
+            passwordErrorText = "Password must be longer than 7 characters."
             return
         }
         if (!password.contains(Regex("\\d"))) {
             passwordError = true
-            passwordErrorText = "Passwords must contain at least one digit."
+            passwordErrorText = "Password must contain at least one digit."
             return
         }
         if (username.length <= 2) {
