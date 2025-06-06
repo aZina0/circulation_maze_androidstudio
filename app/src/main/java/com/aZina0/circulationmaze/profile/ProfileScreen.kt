@@ -136,6 +136,10 @@ fun ProfileScreen(
                                 .format(DateTimeFormatter.ofPattern("dd.MM.yyyy.")),
                             fontSize = Global.relativeFont(.02f)
                         )
+                        Text (
+                            text = viewModel.description,
+                            fontSize = Global.relativeFont(.03f)
+                        )
                     }
                 }
             }

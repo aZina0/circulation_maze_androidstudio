@@ -38,6 +38,8 @@ class ProfileViewModel @Inject constructor(
         private set
     var dateJoined: LocalDateTime by mutableStateOf(LocalDateTime.MIN)
         private set
+    var description by mutableStateOf("")
+        private set
     var level by mutableIntStateOf(0)
         private set
     var xpRemainder by mutableFloatStateOf(0f)
@@ -92,6 +94,20 @@ class ProfileViewModel @Inject constructor(
         dateJoined = Instant.ofEpochMilli(Firebase.auth.currentUser!!.metadata!!.creationTimestamp)
             .atZone(ZoneId.systemDefault())
             .toLocalDateTime()
+
+        requestsSent++
+        accountManager.getDescription(
+            userUid = userUid,
+            onSuccess = {
+                description = it
+                responsesReceived++
+                checkForAllResponses()
+            },
+            onFailure = {
+                responsesReceived++
+                checkForAllResponses()
+            },
+        )
 
         requestsSent++
         accountManager.getXp(

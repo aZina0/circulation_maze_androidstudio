@@ -92,6 +92,28 @@ class AccountManager @Inject constructor(
         }
     }
 
+    fun getDescription(
+        userUid: String,
+        onSuccess: (description: String) -> Unit,
+        onFailure: () -> Unit,
+    ) {
+        if (!isOnline()) {
+            onFailure()
+            return
+        }
+
+        val db = FirebaseFirestore.getInstance()
+        db.collection("users")
+            .document(userUid)
+            .get()
+            .addOnSuccessListener { document ->
+                onSuccess(document.data?.get("description").toString())
+            }
+            .addOnFailureListener {
+                onFailure()
+            }
+    }
+
     fun getXp(
         onSuccess: (xp: Int) -> Unit,
         onFailure: () -> Unit,
@@ -159,7 +181,8 @@ class AccountManager @Inject constructor(
                             "xp" to 0,
                             "image" to Global.imageBitmapToByteString(
                                 defaultProfileImage
-                            )
+                            ),
+                            "description" to "",
                         )
 
                         val db = FirebaseFirestore.getInstance()
