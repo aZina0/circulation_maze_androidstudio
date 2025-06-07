@@ -17,7 +17,7 @@ import com.aZina0.circulationmaze.Global
 
 @Composable
 fun LeaderboardsScreen(
-    onBoardClicked: (boardUid: String, selectedTabIndex: Int) -> Unit,
+    onBoardClicked: (boardUid: String) -> Unit,
     onReturnClicked: () -> Unit,
     viewModel: LeaderboardsViewModel = hiltViewModel(),
 ) {
@@ -69,7 +69,6 @@ fun LeaderboardsScreen(
                     onClick = {
                         onBoardClicked(
                             board.boardInfo.gameData.uid,
-                            viewModel.selectedTabIndex
                         )
                     },
                     shape = RectangleShape

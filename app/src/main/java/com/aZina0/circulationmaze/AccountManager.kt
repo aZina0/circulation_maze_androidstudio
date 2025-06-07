@@ -6,10 +6,12 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import com.google.android.gms.tasks.Tasks
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QuerySnapshot
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -52,8 +54,57 @@ class AccountManager @Inject constructor(
         return Firebase.auth.currentUser != null
     }
 
-    fun checkIfUsernameExists(username: String): Boolean {
-        return true
+    fun followUser(
+        userUidFollowing: String,
+        userUidFollowed: String,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
+    ) {
+        val db = FirebaseFirestore.getInstance()
+        val task1 = db
+            .collection("users")
+            .document(userUidFollowing)
+            .collection("followedUsers")
+            .document(userUidFollowed)
+            .set(emptyMap<String, Any>())
+        val task2 = db
+            .collection("users")
+            .document(userUidFollowed)
+            .collection("followingUsers")
+            .document(userUidFollowing)
+            .set(emptyMap<String, Any>())
+
+        Tasks.whenAllSuccess<QuerySnapshot>(task1, task2)
+            .addOnSuccessListener {
+                onSuccess()
+            }
+            .addOnFailureListener {
+                onFailure()
+            }
+    }
+
+    fun checkIfFollowed(
+        userUidFollowing: String,
+        userUidFollowed: String,
+        onSuccess: (followed: Boolean) -> Unit,
+        onFailure: () -> Unit
+    ) {
+        val db = FirebaseFirestore.getInstance()
+        db.collection("users")
+            .document(userUidFollowing)
+            .collection("followedUsers")
+            .document(userUidFollowed)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (documents.exists()) {
+                    onSuccess(true)
+                } else {
+                    onSuccess(false)
+                }
+            }
+            .addOnFailureListener {
+                onFailure()
+            }
     }
 
     fun getAccountInfo(

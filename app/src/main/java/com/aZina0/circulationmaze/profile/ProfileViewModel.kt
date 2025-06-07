@@ -38,8 +38,13 @@ class ProfileViewModel @Inject constructor(
         private set
     var dateJoined: LocalDateTime by mutableStateOf(LocalDateTime.MIN)
         private set
+
+    var userFollowed by mutableStateOf(false)
+        private set
+
     var description by mutableStateOf("")
         private set
+
     var level by mutableIntStateOf(0)
         private set
     var xpRemainder by mutableFloatStateOf(0f)
@@ -89,6 +94,21 @@ class ProfileViewModel @Inject constructor(
             .toLocalDateTime()
 
         requestsSent++
+        accountManager.checkIfFollowed(
+            userUidFollowing = Firebase.auth.currentUser?.uid ?: "",
+            userUidFollowed = userUid,
+            onSuccess = { result ->
+                userFollowed = result
+                responsesReceived++
+                checkForAllResponses()
+            },
+            onFailure = {
+                responsesReceived++
+                checkForAllResponses()
+            }
+        )
+
+        requestsSent++
         boardManager.getAllSolvedBoards(
             userUid = userUid,
             accountManager = accountManager,
@@ -121,5 +141,19 @@ class ProfileViewModel @Inject constructor(
 
     fun onLogoutClick() {
         accountManager.signOut(saveManager)
+    }
+
+    fun onFollowClicked() {
+        val userUidFollowing = Firebase.auth.currentUser?.uid ?: ""
+        val userUidFollowed = userUid
+
+        accountManager.followUser(
+            userUidFollowing = userUidFollowing,
+            userUidFollowed = userUidFollowed,
+            onSuccess = {
+                userFollowed = true
+            },
+            onFailure = {}
+        )
     }
 }

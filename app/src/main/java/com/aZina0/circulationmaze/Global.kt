@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -42,6 +43,12 @@ object Global {
 
     fun relativeFont(percent: Float): TextUnit {
         return (screenHeightDp!! * percent).sp
+    }
+
+    fun getRouteName(navController: NavHostController): String {
+        val fullName = navController.previousBackStackEntry?.destination?.route ?: ""
+        val route = fullName.removePrefix("com.aZina0.circulationmaze.")
+        return route.split("/")[0]
     }
 
     fun byteStringToImageBitmap(byteString: String): ImageBitmap {

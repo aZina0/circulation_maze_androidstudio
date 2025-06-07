@@ -50,9 +50,11 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@Serializable
+open class Route
 
 @Serializable
-object MainMenuRoute
+object MainMenuRoute: Route()
 
 @Serializable
 object LoadGameRoute
@@ -96,9 +98,6 @@ data class GameRoute(
 @Serializable
 data class BoardDetailsRoute(
     val boardUid: String,
-    val sourceRoute: String,
-    val leaderboardTabIndex: Int = 0,
-    val profileUserUid: String = ""
 )
 
 @Composable
@@ -213,13 +212,10 @@ fun CirculationMazeApp() {
 
                     composable<LeaderboardsRoute> {
                         LeaderboardsScreen(
-                            onBoardClicked = { boardUid, selectedTabIndex ->
+                            onBoardClicked = { boardUid ->
                                 navController.navigate(
                                     route = BoardDetailsRoute(
                                         boardUid = boardUid,
-                                        sourceRoute = "LeaderboardsRoute",
-                                        leaderboardTabIndex = selectedTabIndex,
-                                        profileUserUid = ""
                                     )
                                 )
                             },
@@ -231,23 +227,13 @@ fun CirculationMazeApp() {
 
                     composable<BoardDetailsRoute> {
                         BoardDetailsScreen(
-                            onReturnClicked = { sourceRoute, leaderboardsTabIndex, profileUserUid ->
-                                when (sourceRoute) {
-                                    "LeaderboardsRoute" -> {
-                                        navController.navigate(route =
-                                            LeaderboardsRoute(
-                                                tabIndex = leaderboardsTabIndex
-                                            )
-                                        )
-                                    }
-                                    "ProfileRoute" -> {
-                                        navController.navigate(route =
-                                            ProfileRoute(
-                                                userUid = profileUserUid
-                                            )
-                                        )
-                                    }
-                                }
+                            onReturnClicked = {
+                                navController.popBackStack()
+                            },
+                            onProfileClicked = { userUid ->
+                                navController.navigate(route = ProfileRoute(
+                                    userUid = userUid,
+                                ))
                             },
                         )
                     }
@@ -290,17 +276,15 @@ fun CirculationMazeApp() {
                             onSignOut = {
                                 navController.navigate(route = MainMenuRoute)
                             },
-                            onBoardClicked = { boardUid, profileUserUid ->
+                            onBoardClicked = { boardUid ->
                                 navController.navigate(
                                     route = BoardDetailsRoute(
                                         boardUid = boardUid,
-                                        sourceRoute = "ProfileRoute",
-                                        profileUserUid = profileUserUid
                                     )
                                 )
                             },
                             onReturnClicked = {
-                                navController.navigate(route = MainMenuRoute)
+                                navController.popBackStack()
                             },
                         )
                     }

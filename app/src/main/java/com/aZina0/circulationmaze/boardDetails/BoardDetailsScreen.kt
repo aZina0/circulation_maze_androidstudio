@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -17,11 +18,8 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun BoardDetailsScreen(
-    onReturnClicked: (
-        sourceRoute: String,
-        leaderboardsTabIndex: Int,
-        profileUserUid: String,
-    ) -> Unit,
+    onProfileClicked: (userUid: String) -> Unit,
+    onReturnClicked: () -> Unit,
     viewModel: BoardDetailsViewModel = hiltViewModel(),
 ) {
     Column {
@@ -81,29 +79,29 @@ fun BoardDetailsScreen(
                         text = viewModel.boardInfo!!.time.toString()
                     )
                 }
-                Row {
-                    viewModel.userImage?.let {
-                        Image(
-                            bitmap = it,
-                            contentDescription = "picture",
-                            modifier = Modifier
-                                .width(Global.relativeWidth(.4f))
-                                .height(Global.relativeWidth(.4f)),
+                Button(
+                    onClick = { onProfileClicked(viewModel.boardInfo!!.userUid) }
+                ) {
+                    Row {
+                        viewModel.userImage?.let {
+                            Image(
+                                bitmap = it,
+                                contentDescription = "picture",
+                                modifier = Modifier
+                                    .width(Global.relativeWidth(.4f))
+                                    .height(Global.relativeWidth(.4f)),
+                            )
+                        }
+                        Text(
+                            text = viewModel.username
                         )
                     }
-                    Text(
-                        text = viewModel.username
-                    )
                 }
             }
         }
     }
 
     BackHandler(enabled = true) {
-        onReturnClicked(
-            viewModel.sourceRoute,
-            viewModel.leaderboardsTabIndex,
-            viewModel.profileUserUid
-        )
+        onReturnClicked()
     }
 }

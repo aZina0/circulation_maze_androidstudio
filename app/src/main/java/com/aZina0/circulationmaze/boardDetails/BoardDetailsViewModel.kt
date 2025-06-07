@@ -9,7 +9,6 @@ import androidx.lifecycle.ViewModel
 import com.aZina0.circulationmaze.AccountManager
 import com.aZina0.circulationmaze.BoardInfo
 import com.aZina0.circulationmaze.BoardManager
-import com.aZina0.circulationmaze.Global
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -19,10 +18,6 @@ class BoardDetailsViewModel @Inject constructor(
     private val accountManager: AccountManager,
     savedStateHandle: SavedStateHandle,
 ): ViewModel() {
-    var sourceRoute = ""
-    var leaderboardsTabIndex = 0
-    var profileUserUid = ""
-
     var loadingBarActive by mutableStateOf(false)
         private set
 
@@ -36,9 +31,6 @@ class BoardDetailsViewModel @Inject constructor(
 
     init {
         val boardUid = savedStateHandle["boardUid"] ?: ""
-        sourceRoute = savedStateHandle["sourceRoute"] ?: ""
-        leaderboardsTabIndex = savedStateHandle["leaderboardTabIndex"] ?: 0
-        profileUserUid = savedStateHandle["profileUserUid"] ?: ""
 
         boardManager.getBoardInfo(
             boardUid = boardUid,

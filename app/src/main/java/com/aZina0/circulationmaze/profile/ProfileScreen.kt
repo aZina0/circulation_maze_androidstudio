@@ -35,13 +35,15 @@ import com.aZina0.circulationmaze.Global
 import com.aZina0.circulationmaze.R
 import com.aZina0.circulationmaze.RelativeHorizontalSpacer
 import com.aZina0.circulationmaze.RelativeVerticalSpacer
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import java.time.format.DateTimeFormatter
 
 @Composable
 fun ProfileScreen(
     onEditProfileClicked: (userUid: String) -> Unit,
     onSignOut: () -> Unit,
-    onBoardClicked: (boardUid: String, profileUserUid: String) -> Unit,
+    onBoardClicked: (boardUid: String) -> Unit,
     onReturnClicked: () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
@@ -58,44 +60,46 @@ fun ProfileScreen(
                 )
             },
             lastComposable = {
-                Row {
-                    Button(
-                        onClick = { onEditProfileClicked(viewModel.userUid) },
-                        modifier = Modifier
-                            .width(Global.relativeWidth(0.12f)),
-                        shape = RoundedCornerShape(percent = 30),
-                        contentPadding = PaddingValues(0.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
-                            contentColor = MaterialTheme.colorScheme.onSurface,
-                        )
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.edit_profile),
-                            contentDescription = "editProfile",
-                        )
+                if (viewModel.userUid == (Firebase.auth.currentUser?.uid ?: "")) {
+                    Row {
+                        Button(
+                            onClick = { onEditProfileClicked(viewModel.userUid) },
+                            modifier = Modifier
+                                .width(Global.relativeWidth(0.12f)),
+                            shape = RoundedCornerShape(percent = 30),
+                            contentPadding = PaddingValues(0.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                                contentColor = MaterialTheme.colorScheme.onSurface,
+                            )
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.edit_profile),
+                                contentDescription = "editProfile",
+                            )
+                        }
+                        RelativeHorizontalSpacer(.02f)
+                        Button(
+                            onClick = {
+                                viewModel.onLogoutClick()
+                                onSignOut()
+                            },
+                            modifier = Modifier
+                                .width(Global.relativeWidth(0.12f)),
+                            shape = RoundedCornerShape(percent = 30),
+                            contentPadding = PaddingValues(0.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                                contentColor = Color.Red,
+                            )
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.logout),
+                                contentDescription = "logout",
+                            )
+                        }
+                        RelativeHorizontalSpacer(.02f)
                     }
-                    RelativeHorizontalSpacer(.02f)
-                    Button(
-                        onClick = {
-                            viewModel.onLogoutClick()
-                            onSignOut()
-                        },
-                        modifier = Modifier
-                            .width(Global.relativeWidth(0.12f)),
-                        shape = RoundedCornerShape(percent = 30),
-                        contentPadding = PaddingValues(0.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
-                            contentColor = Color.Red,
-                        )
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.logout),
-                            contentDescription = "logout",
-                        )
-                    }
-                    RelativeHorizontalSpacer(.02f)
                 }
             },
         )
@@ -139,9 +143,43 @@ fun ProfileScreen(
                                 .format(DateTimeFormatter.ofPattern("dd.MM.yyyy.")),
                             fontSize = Global.relativeFont(.02f)
                         )
+                        if (viewModel.userUid != (Firebase.auth.currentUser?.uid ?: "")) {
+                            Button(
+                                onClick = { viewModel.onFollowClicked() }
+                            ) {
+                                if (!viewModel.userFollowed) {
+                                    Text(
+                                        text = "Follow"
+                                    )
+                                } else {
+                                    Text(
+                                        text = "Unfollow"
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (viewModel.description != "") {
+                RelativeVerticalSpacer(.02f)
+                Surface(
+                    modifier = Modifier
+                        .width(Global.relativeWidth(.9f)),
+                    color = MaterialTheme.colorScheme.surfaceContainerLow,
+                    shape = RoundedCornerShape(15.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .padding(padding),
+                    ) {
+                        Text(
+                            text = "About",
+                            fontSize = Global.relativeFont(.025f),
+                        )
                         Text (
                             text = viewModel.description,
-                            fontSize = Global.relativeFont(.03f)
+                            fontSize = Global.relativeFont(.019f)
                         )
                     }
                 }
@@ -253,7 +291,6 @@ fun ProfileScreen(
                             onClick = {
                                 onBoardClicked(
                                     boardSmallInfo.gameData.uid,
-                                    viewModel.userUid
                                 )
                             },
                             modifier = Modifier
@@ -299,90 +336,92 @@ fun ProfileScreen(
                 }
             }
             RelativeVerticalSpacer(.02f)
-            Surface (
-                modifier = Modifier
-                    .width(Global.relativeWidth(.9f)),
-                color = MaterialTheme.colorScheme.surfaceContainerLow,
-                shape = RoundedCornerShape(15.dp)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .padding(padding),
-                ) {
-                    Row {
-                        Text (
-                            text = "All solved boards",
-                            fontSize = Global.relativeFont(.025f),
-                        )
-                        Icon(
-                            painter = painterResource(id = R.drawable.hidden),
-                            contentDescription = "hidden",
-                        )
-                    }
-                    Row(
-                        modifier = Modifier
-                            .background(MaterialTheme.colorScheme.surfaceContainer)
-                    ) {
-                        Text(
-                            text = "Grid size",
-                            modifier = Modifier
-                                .weight(0.5f)
-                        )
-                        Text(
-                            text = "Time",
-                            modifier = Modifier
-                                .weight(0.5f)
-                        )
-                    }
 
-                    var index = 0
-                    for (boardSmallInfo in viewModel.allSolvedBoardsSmallInfo) {
-                        Button(
-                            onClick = {
-                                onBoardClicked(
-                                    boardSmallInfo.gameData.uid,
-                                    viewModel.userUid
-                                )
-                            },
-                            modifier = Modifier
-                                .height(Global.relativeHeight(0.05f)),
-                            contentPadding = PaddingValues(0.dp),
-                            shape = RectangleShape,
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor =
-                                if (isSystemInDarkTheme()) {
-                                    if (index % 2 == 0) {
-                                        MaterialTheme.colorScheme.surfaceContainerLow
-                                    } else {
-                                        Color(0xFF161616)
-                                    }
-                                } else {
-                                    if (index % 2 == 0) {
-                                        MaterialTheme.colorScheme.surfaceContainerLow
-                                    } else {
-                                        MaterialTheme.colorScheme.surfaceContainerLowest
-                                    }
-                                },
-                                contentColor = MaterialTheme.colorScheme.onSurface,
+            if (viewModel.userUid == (Firebase.auth.currentUser?.uid ?: "")) {
+                Surface(
+                    modifier = Modifier
+                        .width(Global.relativeWidth(.9f)),
+                    color = MaterialTheme.colorScheme.surfaceContainerLow,
+                    shape = RoundedCornerShape(15.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .padding(padding),
+                    ) {
+                        Row {
+                            Text(
+                                text = "All solved boards",
+                                fontSize = Global.relativeFont(.025f),
                             )
-                        ) {
-                            Row {
-                                Text(
-                                    text = "%dx%d".format(
-                                        boardSmallInfo.gameData.gridSize,
-                                        boardSmallInfo.gameData.gridSize,
-                                    ),
-                                    modifier = Modifier
-                                        .weight(0.5f)
-                                )
-                                Text(
-                                    text = boardSmallInfo.time.toString(),
-                                    modifier = Modifier
-                                        .weight(0.5f)
-                                )
-                            }
+                            Icon(
+                                painter = painterResource(id = R.drawable.hidden),
+                                contentDescription = "hidden",
+                            )
                         }
-                        index++
+                        Row(
+                            modifier = Modifier
+                                .background(MaterialTheme.colorScheme.surfaceContainer)
+                        ) {
+                            Text(
+                                text = "Grid size",
+                                modifier = Modifier
+                                    .weight(0.5f)
+                            )
+                            Text(
+                                text = "Time",
+                                modifier = Modifier
+                                    .weight(0.5f)
+                            )
+                        }
+
+                        var index = 0
+                        for (boardSmallInfo in viewModel.allSolvedBoardsSmallInfo) {
+                            Button(
+                                onClick = {
+                                    onBoardClicked(
+                                        boardSmallInfo.gameData.uid,
+                                    )
+                                },
+                                modifier = Modifier
+                                    .height(Global.relativeHeight(0.05f)),
+                                contentPadding = PaddingValues(0.dp),
+                                shape = RectangleShape,
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor =
+                                    if (isSystemInDarkTheme()) {
+                                        if (index % 2 == 0) {
+                                            MaterialTheme.colorScheme.surfaceContainerLow
+                                        } else {
+                                            Color(0xFF161616)
+                                        }
+                                    } else {
+                                        if (index % 2 == 0) {
+                                            MaterialTheme.colorScheme.surfaceContainerLow
+                                        } else {
+                                            MaterialTheme.colorScheme.surfaceContainerLowest
+                                        }
+                                    },
+                                    contentColor = MaterialTheme.colorScheme.onSurface,
+                                )
+                            ) {
+                                Row {
+                                    Text(
+                                        text = "%dx%d".format(
+                                            boardSmallInfo.gameData.gridSize,
+                                            boardSmallInfo.gameData.gridSize,
+                                        ),
+                                        modifier = Modifier
+                                            .weight(0.5f)
+                                    )
+                                    Text(
+                                        text = boardSmallInfo.time.toString(),
+                                        modifier = Modifier
+                                            .weight(0.5f)
+                                    )
+                                }
+                            }
+                            index++
+                        }
                     }
                 }
             }
