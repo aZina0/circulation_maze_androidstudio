@@ -20,6 +20,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.aZina0.circulationmaze.boardDetails.BoardDetailsScreen
 import com.aZina0.circulationmaze.editProfile.EditProfileScreen
 import com.aZina0.circulationmaze.game.GameScreen
 import com.aZina0.circulationmaze.leaderboards.LeaderboardsScreen
@@ -60,7 +61,9 @@ object LoadGameRoute
 object NewGameRoute
 
 @Serializable
-object LeaderboardsRoute
+data class LeaderboardsRoute(
+    val tabIndex: Int,
+)
 
 @Serializable
 object SettingsRoute
@@ -91,7 +94,12 @@ data class GameRoute(
 )
 
 @Serializable
-object Leaderboards
+data class BoardDetailsRoute(
+    val boardUid: String,
+    val sourceRoute: String,
+    val leaderboardTabIndex: Int = 0,
+    val profileUserUid: String = ""
+)
 
 @Composable
 fun CirculationMazeApp() {
@@ -132,7 +140,11 @@ fun CirculationMazeApp() {
                                 navController.navigate(route = NewGameRoute)
                             },
                             onLeaderboardsClick = {
-                                navController.navigate(route = LeaderboardsRoute)
+                                navController.navigate(route =
+                                    LeaderboardsRoute(
+                                        tabIndex = 0
+                                    )
+                                )
                             },
                             onSettingsClick = {
                                 navController.navigate(route = SettingsRoute)
@@ -201,8 +213,41 @@ fun CirculationMazeApp() {
 
                     composable<LeaderboardsRoute> {
                         LeaderboardsScreen(
+                            onBoardClicked = { boardUid, selectedTabIndex ->
+                                navController.navigate(
+                                    route = BoardDetailsRoute(
+                                        boardUid = boardUid,
+                                        sourceRoute = "LeaderboardsRoute",
+                                        leaderboardTabIndex = selectedTabIndex,
+                                        profileUserUid = ""
+                                    )
+                                )
+                            },
                             onReturnClicked = {
                                 navController.navigate(route = MainMenuRoute)
+                            },
+                        )
+                    }
+
+                    composable<BoardDetailsRoute> {
+                        BoardDetailsScreen(
+                            onReturnClicked = { sourceRoute, leaderboardsTabIndex, profileUserUid ->
+                                when (sourceRoute) {
+                                    "LeaderboardsRoute" -> {
+                                        navController.navigate(route =
+                                            LeaderboardsRoute(
+                                                tabIndex = leaderboardsTabIndex
+                                            )
+                                        )
+                                    }
+                                    "ProfileRoute" -> {
+                                        navController.navigate(route =
+                                            ProfileRoute(
+                                                userUid = profileUserUid
+                                            )
+                                        )
+                                    }
+                                }
                             },
                         )
                     }
@@ -244,6 +289,15 @@ fun CirculationMazeApp() {
                             },
                             onSignOut = {
                                 navController.navigate(route = MainMenuRoute)
+                            },
+                            onBoardClicked = { boardUid, profileUserUid ->
+                                navController.navigate(
+                                    route = BoardDetailsRoute(
+                                        boardUid = boardUid,
+                                        sourceRoute = "ProfileRoute",
+                                        profileUserUid = profileUserUid
+                                    )
+                                )
                             },
                             onReturnClicked = {
                                 navController.navigate(route = MainMenuRoute)

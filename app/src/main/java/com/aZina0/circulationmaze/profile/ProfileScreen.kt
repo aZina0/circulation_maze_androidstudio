@@ -4,6 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -25,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -39,6 +41,7 @@ import java.time.format.DateTimeFormatter
 fun ProfileScreen(
     onEditProfileClicked: (userUid: String) -> Unit,
     onSignOut: () -> Unit,
+    onBoardClicked: (boardUid: String, profileUserUid: String) -> Unit,
     onReturnClicked: () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
@@ -216,12 +219,14 @@ fun ProfileScreen(
             Surface (
                 modifier = Modifier
                     .width(Global.relativeWidth(.9f)),
-                color = MaterialTheme.colorScheme.surfaceContainerLow,
+                color = Color.Red,
                 shape = RoundedCornerShape(15.dp)
             ) {
                 Column(
                     modifier = Modifier
                         .padding(padding),
+                    verticalArrangement = Arrangement.spacedBy(0.dp)
+
                 ) {
                     Text (
                         text = "Shared games",
@@ -242,40 +247,52 @@ fun ProfileScreen(
                                 .weight(0.5f)
                         )
                     }
-
                     var index = 0
                     for (boardSmallInfo in viewModel.allSharedBoardsSmallInfo) {
-                        Row(
-                            modifier = Modifier
-                                .background(
-                                    if (isSystemInDarkTheme()) {
-                                        if (index % 2 == 0) {
-                                            MaterialTheme.colorScheme.surfaceContainerLow
-                                        } else {
-                                            Color(0xFF161616)
-                                        }
-                                    } else {
-                                        if (index % 2 == 0) {
-                                            MaterialTheme.colorScheme.surfaceContainerLow
-                                        } else {
-                                            MaterialTheme.colorScheme.surfaceContainerLowest
-                                        }
-                                    }
+                        Button(
+                            onClick = {
+                                onBoardClicked(
+                                    boardSmallInfo.gameData.uid,
+                                    viewModel.userUid
                                 )
+                            },
+                            modifier = Modifier
+                                .height(Global.relativeHeight(0.05f)),
+                            contentPadding = PaddingValues(0.dp),
+                            shape = RectangleShape,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor =
+                                if (isSystemInDarkTheme()) {
+                                    if (index % 2 == 0) {
+                                        MaterialTheme.colorScheme.surfaceContainerLow
+                                    } else {
+                                        Color(0xFF161616)
+                                    }
+                                } else {
+                                    if (index % 2 == 0) {
+                                        MaterialTheme.colorScheme.surfaceContainerLow
+                                    } else {
+                                        MaterialTheme.colorScheme.surfaceContainerLowest
+                                    }
+                                },
+                                contentColor = MaterialTheme.colorScheme.onSurface,
+                            )
                         ) {
-                            Text(
-                                text = "%dx%d".format(
-                                    boardSmallInfo.gameData.gridSize,
-                                    boardSmallInfo.gameData.gridSize,
-                                ),
-                                modifier = Modifier
-                                    .weight(0.5f)
-                            )
-                            Text(
-                                text = boardSmallInfo.time.toString(),
-                                modifier = Modifier
-                                    .weight(0.5f)
-                            )
+                            Row {
+                                Text(
+                                    text = "%dx%d".format(
+                                        boardSmallInfo.gameData.gridSize,
+                                        boardSmallInfo.gameData.gridSize,
+                                    ),
+                                    modifier = Modifier
+                                        .weight(0.5f)
+                                )
+                                Text(
+                                    text = boardSmallInfo.time.toString(),
+                                    modifier = Modifier
+                                        .weight(0.5f)
+                                )
+                            }
                         }
                         index++
                     }
@@ -320,37 +337,50 @@ fun ProfileScreen(
 
                     var index = 0
                     for (boardSmallInfo in viewModel.allSolvedBoardsSmallInfo) {
-                        Row(
-                            modifier = Modifier
-                                .background(
-                                    if (isSystemInDarkTheme()) {
-                                        if (index % 2 == 0) {
-                                            MaterialTheme.colorScheme.surfaceContainerLow
-                                        } else {
-                                            Color(0xFF161616)
-                                        }
-                                    } else {
-                                        if (index % 2 == 0) {
-                                            MaterialTheme.colorScheme.surfaceContainerLow
-                                        } else {
-                                            MaterialTheme.colorScheme.surfaceContainerLowest
-                                        }
-                                    }
+                        Button(
+                            onClick = {
+                                onBoardClicked(
+                                    boardSmallInfo.gameData.uid,
+                                    viewModel.userUid
                                 )
+                            },
+                            modifier = Modifier
+                                .height(Global.relativeHeight(0.05f)),
+                            contentPadding = PaddingValues(0.dp),
+                            shape = RectangleShape,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor =
+                                if (isSystemInDarkTheme()) {
+                                    if (index % 2 == 0) {
+                                        MaterialTheme.colorScheme.surfaceContainerLow
+                                    } else {
+                                        Color(0xFF161616)
+                                    }
+                                } else {
+                                    if (index % 2 == 0) {
+                                        MaterialTheme.colorScheme.surfaceContainerLow
+                                    } else {
+                                        MaterialTheme.colorScheme.surfaceContainerLowest
+                                    }
+                                },
+                                contentColor = MaterialTheme.colorScheme.onSurface,
+                            )
                         ) {
-                            Text(
-                                text = "%dx%d".format(
-                                    boardSmallInfo.gameData.gridSize,
-                                    boardSmallInfo.gameData.gridSize,
-                                ),
-                                modifier = Modifier
-                                    .weight(0.5f)
-                            )
-                            Text(
-                                text = boardSmallInfo.time.toString(),
-                                modifier = Modifier
-                                    .weight(0.5f)
-                            )
+                            Row {
+                                Text(
+                                    text = "%dx%d".format(
+                                        boardSmallInfo.gameData.gridSize,
+                                        boardSmallInfo.gameData.gridSize,
+                                    ),
+                                    modifier = Modifier
+                                        .weight(0.5f)
+                                )
+                                Text(
+                                    text = boardSmallInfo.time.toString(),
+                                    modifier = Modifier
+                                        .weight(0.5f)
+                                )
+                            }
                         }
                         index++
                     }

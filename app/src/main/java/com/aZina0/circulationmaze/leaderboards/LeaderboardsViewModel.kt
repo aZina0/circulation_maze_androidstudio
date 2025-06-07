@@ -3,11 +3,11 @@ package com.aZina0.circulationmaze.leaderboards
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.aZina0.circulationmaze.AccountManager
 import com.aZina0.circulationmaze.BoardInfo
 import com.aZina0.circulationmaze.BoardManager
-import com.aZina0.circulationmaze.Global
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -19,6 +19,7 @@ data class LeaderboardsInfo(
 
 @HiltViewModel
 class LeaderboardsViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val boardManager: BoardManager,
     private val accountManager: AccountManager,
 ): ViewModel() {
@@ -33,13 +34,15 @@ class LeaderboardsViewModel @Inject constructor(
     var bestBoardsInfo by mutableStateOf(listOf<LeaderboardsInfo>())
 
     init {
-        Global.print(tabs.toString())
+        selectedTabIndex = savedStateHandle["tabIndex"] ?: 0
+        onTabClicked(selectedTabIndex)
     }
 
-    fun onTabClicked(gridSize: Int, index: Int) {
+    fun onTabClicked(index: Int) {
         loadingBarActive = true
         selectedTabIndex = index
 
+        val gridSize = tabs[index]
         val leaderboardInfos = mutableListOf<LeaderboardsInfo>()
 
         var requestsSent = 0

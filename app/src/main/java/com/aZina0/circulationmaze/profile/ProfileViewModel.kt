@@ -65,9 +65,16 @@ class ProfileViewModel @Inject constructor(
         }
 
         requestsSent++
-        accountManager.getImage(
-            onSuccess = {
-                picture = it
+        accountManager.getAccountInfo(
+            userUid = userUid,
+            onSuccess = { accountInfo ->
+                picture = accountInfo.image
+                username = accountInfo.username
+                description = accountInfo.description
+
+                val levelAndRemainder = accountManager.getLevelAndRemainder(accountInfo.xp)
+                level = levelAndRemainder.first
+                xpRemainder = levelAndRemainder.second
                 responsesReceived++
                 checkForAllResponses()
             },
@@ -77,52 +84,9 @@ class ProfileViewModel @Inject constructor(
             }
         )
 
-        requestsSent++
-        accountManager.getUsername(
-            userUid = userUid,
-            onSuccess = {
-                username = it
-                responsesReceived++
-                checkForAllResponses()
-            },
-            onFailure = {
-                responsesReceived++
-                checkForAllResponses()
-            },
-        )
-
         dateJoined = Instant.ofEpochMilli(Firebase.auth.currentUser!!.metadata!!.creationTimestamp)
             .atZone(ZoneId.systemDefault())
             .toLocalDateTime()
-
-        requestsSent++
-        accountManager.getDescription(
-            userUid = userUid,
-            onSuccess = {
-                description = it
-                responsesReceived++
-                checkForAllResponses()
-            },
-            onFailure = {
-                responsesReceived++
-                checkForAllResponses()
-            },
-        )
-
-        requestsSent++
-        accountManager.getXp(
-            onSuccess = {
-                val levelAndRemainder = accountManager.getLevelAndRemainder(it)
-                level = levelAndRemainder.first
-                xpRemainder = levelAndRemainder.second
-                responsesReceived++
-                checkForAllResponses()
-            },
-            onFailure = {
-                responsesReceived++
-                checkForAllResponses()
-            },
-        )
 
         requestsSent++
         boardManager.getAllSolvedBoards(

@@ -1,5 +1,6 @@
 package com.aZina0.circulationmaze.leaderboards
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Button
@@ -16,6 +17,7 @@ import com.aZina0.circulationmaze.Global
 
 @Composable
 fun LeaderboardsScreen(
+    onBoardClicked: (boardUid: String, selectedTabIndex: Int) -> Unit,
     onReturnClicked: () -> Unit,
     viewModel: LeaderboardsViewModel = hiltViewModel(),
 ) {
@@ -37,7 +39,7 @@ fun LeaderboardsScreen(
             viewModel.tabs.forEachIndexed { index, gridSize ->
                 Tab(
                     selected = viewModel.selectedTabIndex == index,
-                    onClick = { viewModel.onTabClicked(gridSize, index) },
+                    onClick = { viewModel.onTabClicked(index) },
                     text = { Text(text = "%dx%d".format(gridSize, gridSize)) }
                 )
             }
@@ -64,7 +66,12 @@ fun LeaderboardsScreen(
             for (board in viewModel.bestBoardsInfo) {
                 rank++
                 Button(
-                    onClick = {},
+                    onClick = {
+                        onBoardClicked(
+                            board.boardInfo.gameData.uid,
+                            viewModel.selectedTabIndex
+                        )
+                    },
                     shape = RectangleShape
                 ) {
                     Row {
@@ -85,5 +92,9 @@ fun LeaderboardsScreen(
                 }
             }
         }
+    }
+
+    BackHandler(enabled = true) {
+        onReturnClicked()
     }
 }
