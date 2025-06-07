@@ -219,7 +219,7 @@ fun ProfileScreen(
             Surface (
                 modifier = Modifier
                     .width(Global.relativeWidth(.9f)),
-                color = Color.Red,
+                color = MaterialTheme.colorScheme.surfaceContainerLow,
                 shape = RoundedCornerShape(15.dp)
             ) {
                 Column(
