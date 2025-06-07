@@ -26,7 +26,7 @@ class ProfileViewModel @Inject constructor(
     private val accountManager: AccountManager,
     private val saveManager: SaveManager,
     private val boardManager: BoardManager,
-    savedStateHandle: SavedStateHandle,
+    private val savedStateHandle: SavedStateHandle,
 ): ViewModel() {
     var loadingBarActive by mutableStateOf(false)
         private set
@@ -50,12 +50,17 @@ class ProfileViewModel @Inject constructor(
     var xpRemainder by mutableFloatStateOf(0f)
         private set
 
+    var followersCount by mutableIntStateOf(0)
+        private set
+    var followingCount by mutableIntStateOf(0)
+        private set
+
     var allSharedBoardsSmallInfo by mutableStateOf(listOf<BoardSmallInfo>())
         private set
     var allSolvedBoardsSmallInfo by mutableStateOf(listOf<BoardSmallInfo>())
         private set
 
-    init {
+    fun onStart() {
         userUid = savedStateHandle["userUid"] ?: ""
         val highlightAllSolvedBoards = savedStateHandle["highlightAllSolvedBoards"] ?: false
 
@@ -99,6 +104,34 @@ class ProfileViewModel @Inject constructor(
             userUidFollowed = userUid,
             onSuccess = { result ->
                 userFollowed = result
+                responsesReceived++
+                checkForAllResponses()
+            },
+            onFailure = {
+                responsesReceived++
+                checkForAllResponses()
+            }
+        )
+
+        requestsSent++
+        accountManager.getFollowers(
+            userUid = userUid,
+            onSuccess = {
+                followersCount = it.size
+                responsesReceived++
+                checkForAllResponses()
+            },
+            onFailure = {
+                responsesReceived++
+                checkForAllResponses()
+            }
+        )
+
+        requestsSent++
+        accountManager.getFollowing(
+            userUid = userUid,
+            onSuccess = {
+                followingCount = it.size
                 responsesReceived++
                 checkForAllResponses()
             },
@@ -153,6 +186,15 @@ class ProfileViewModel @Inject constructor(
                 userUidFollowed = userUidFollowed,
                 onSuccess = {
                     userFollowed = true
+                    accountManager.getFollowers(
+                        userUid = userUid,
+                        onSuccess = {
+                            followersCount = it.size
+                        },
+                        onFailure = {
+
+                        }
+                    )
                 },
                 onFailure = {}
             )
@@ -162,6 +204,15 @@ class ProfileViewModel @Inject constructor(
                 userUidFollowed = userUidFollowed,
                 onSuccess = {
                     userFollowed = false
+                    accountManager.getFollowers(
+                        userUid = userUid,
+                        onSuccess = {
+                            followersCount = it.size
+                        },
+                        onFailure = {
+
+                        }
+                    )
                 },
                 onFailure = {}
             )

@@ -31,6 +31,7 @@ import com.aZina0.circulationmaze.profile.ProfileScreen
 import com.aZina0.circulationmaze.registerLogin.LoginScreen
 import com.aZina0.circulationmaze.registerLogin.RegisterScreen
 import com.aZina0.circulationmaze.ui.theme.AppTheme
+import com.aZina0.circulationmaze.userList.UserListScreen
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import dagger.hilt.android.AndroidEntryPoint
@@ -98,6 +99,12 @@ data class GameRoute(
 @Serializable
 data class BoardDetailsRoute(
     val boardUid: String,
+)
+
+@Serializable
+data class UserListRoute(
+    val type: String,
+    val userUid: String = "",
 )
 
 @Composable
@@ -269,9 +276,11 @@ fun CirculationMazeApp() {
                     composable<ProfileRoute> {
                         ProfileScreen(
                             onEditProfileClicked = {
-                                navController.navigate(route = EditProfileRoute(
-                                    userUid = it
-                                ))
+                                navController.navigate(
+                                    route = EditProfileRoute(
+                                        userUid = it
+                                    )
+                                )
                             },
                             onSignOut = {
                                 navController.navigate(route = MainMenuRoute)
@@ -286,6 +295,22 @@ fun CirculationMazeApp() {
                             onReturnClicked = {
                                 navController.popBackStack()
                             },
+                            onFollowersClicked = { userUid ->
+                                navController.navigate(
+                                    route = UserListRoute(
+                                        type = "followers",
+                                        userUid = userUid
+                                    )
+                                )
+                            },
+                            onFollowingClicked = { userUid ->
+                                navController.navigate(
+                                    route = UserListRoute(
+                                        type = "following",
+                                        userUid = userUid
+                                    )
+                                )
+                            },
                         )
                     }
 
@@ -294,6 +319,19 @@ fun CirculationMazeApp() {
                             onReturnClicked = {
                                 navController.navigate(
                                     route = ProfileRoute(it)
+                                )
+                            },
+                        )
+                    }
+
+                    composable<UserListRoute> {
+                        UserListScreen(
+                            onReturnClicked = {
+                                navController.popBackStack()
+                            },
+                            onUserClicked = { userUid ->
+                                navController.navigate(
+                                    route = ProfileRoute(userUid)
                                 )
                             },
                         )

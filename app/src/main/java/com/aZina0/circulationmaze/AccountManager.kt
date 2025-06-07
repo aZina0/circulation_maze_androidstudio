@@ -18,6 +18,7 @@ import javax.inject.Singleton
 
 
 data class AccountInfo(
+    val userUid: String,
     val username: String,
     val email: String,
     val xp: Int,
@@ -136,6 +137,92 @@ class AccountManager @Inject constructor(
             }
     }
 
+    fun getFollowers(
+        userUid: String,
+        onSuccess: (followerList: List<AccountInfo>) -> Unit,
+        onFailure: () -> Unit
+    ) {
+        val followerList = mutableListOf<AccountInfo>()
+
+        var requestsSent = 0
+        var responsesReceived = 0
+        val checkForAllResponses: () -> Unit = {
+            if (responsesReceived >= requestsSent) {
+                onSuccess(followerList)
+            }
+        }
+
+        val db = FirebaseFirestore.getInstance()
+        db.collection("users")
+            .document(userUid)
+            .collection("followingUsers")
+            .get()
+            .addOnSuccessListener { documents ->
+                for (document in documents.documents) {
+                    requestsSent++
+                    getAccountInfo(
+                        userUid = document.id,
+                        onSuccess = {
+                            followerList.add(it)
+                            responsesReceived++
+                            checkForAllResponses()
+                        },
+                        onFailure = {
+                            responsesReceived++
+                            checkForAllResponses()
+                        }
+                    )
+                }
+                checkForAllResponses()
+            }
+            .addOnFailureListener {
+                onFailure()
+            }
+    }
+
+    fun getFollowing(
+        userUid: String,
+        onSuccess: (followingList: List<AccountInfo>) -> Unit,
+        onFailure: () -> Unit
+    ) {
+        val followingList = mutableListOf<AccountInfo>()
+
+        var requestsSent = 0
+        var responsesReceived = 0
+        val checkForAllResponses: () -> Unit = {
+            if (responsesReceived >= requestsSent) {
+                onSuccess(followingList)
+            }
+        }
+
+        val db = FirebaseFirestore.getInstance()
+        db.collection("users")
+            .document(userUid)
+            .collection("followedUsers")
+            .get()
+            .addOnSuccessListener { documents ->
+                for (document in documents.documents) {
+                    requestsSent++
+                    getAccountInfo(
+                        userUid = document.id,
+                        onSuccess = {
+                            followingList.add(it)
+                            responsesReceived++
+                            checkForAllResponses()
+                        },
+                        onFailure = {
+                            responsesReceived++
+                            checkForAllResponses()
+                        }
+                    )
+                }
+                checkForAllResponses()
+            }
+            .addOnFailureListener {
+                onFailure()
+            }
+    }
+
     fun getAccountInfo(
         userUid: String,
         onSuccess: (accountInfo: AccountInfo) -> Unit,
@@ -161,6 +248,7 @@ class AccountManager @Inject constructor(
                 val description = document.data?.get("description").toString()
                 onSuccess(
                     AccountInfo(
+                        userUid = userUid,
                         username = username,
                         email = email,
                         xp = xp,

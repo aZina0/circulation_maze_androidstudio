@@ -23,13 +23,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import com.aZina0.circulationmaze.CustomHeader
 import com.aZina0.circulationmaze.Global
 import com.aZina0.circulationmaze.R
@@ -43,10 +48,19 @@ import java.time.format.DateTimeFormatter
 fun ProfileScreen(
     onEditProfileClicked: (userUid: String) -> Unit,
     onSignOut: () -> Unit,
+    onFollowersClicked: (userUid: String) -> Unit,
+    onFollowingClicked: (userUid: String) -> Unit,
     onBoardClicked: (boardUid: String) -> Unit,
     onReturnClicked: () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(Unit) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.onStart()
+        }
+    }
+
     val padding = Global.relativeWidth(0.03f)
     val scrollState = rememberScrollState()
 
@@ -222,18 +236,65 @@ fun ProfileScreen(
                 color = MaterialTheme.colorScheme.surfaceContainerLow,
                 shape = RoundedCornerShape(15.dp)
             ) {
-                Column(
+                Row(
                     modifier = Modifier
                         .padding(padding),
                 ) {
-                    Text (
-                        text = "Followers",
-                        fontSize = Global.relativeFont(.025f),
-                    )
-                    Text (
-                        text = "Followed",
-                        fontSize = Global.relativeFont(.025f),
-                    )
+                    Button(
+                        onClick = {
+                            onFollowersClicked(viewModel.userUid)
+                        },
+                        modifier = Modifier.weight(0.5f),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                            contentColor = MaterialTheme.colorScheme.onSurface,
+                        )
+                    ) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text (
+                                text = "Followers",
+                                fontSize = Global.relativeFont(.025f),
+                                style = MaterialTheme.typography.bodyLarge.copy(
+                                    textDecoration = TextDecoration.Underline,
+                                ),
+                            )
+                            Text (
+                                text = "%d".format(viewModel.followersCount),
+                                fontSize = Global.relativeFont(.025f),
+                            )
+                        }
+
+                    }
+                    Button(
+                        onClick = {
+                            onFollowingClicked(viewModel.userUid)
+                        },
+                        modifier = Modifier.weight(0.5f),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                            contentColor = MaterialTheme.colorScheme.onSurface,
+                        )
+                    ) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text (
+                                text = "Following",
+                                fontSize = Global.relativeFont(.025f),
+                                style = MaterialTheme.typography.bodyLarge.copy(
+                                    textDecoration = TextDecoration.Underline,
+                                ),
+                            )
+                            Text (
+                                text = "%d".format(viewModel.followingCount),
+                                fontSize = Global.relativeFont(.025f),
+                            )
+                        }
+                    }
                 }
             }
             RelativeVerticalSpacer(.02f)
@@ -285,8 +346,7 @@ fun ProfileScreen(
                                 .weight(0.5f)
                         )
                     }
-                    var index = 0
-                    for (boardSmallInfo in viewModel.allSharedBoardsSmallInfo) {
+                    for ((index, boardSmallInfo) in viewModel.allSharedBoardsSmallInfo.withIndex()) {
                         Button(
                             onClick = {
                                 onBoardClicked(
@@ -331,7 +391,6 @@ fun ProfileScreen(
                                 )
                             }
                         }
-                        index++
                     }
                 }
             }
@@ -374,8 +433,7 @@ fun ProfileScreen(
                             )
                         }
 
-                        var index = 0
-                        for (boardSmallInfo in viewModel.allSolvedBoardsSmallInfo) {
+                        for ((index, boardSmallInfo) in viewModel.allSolvedBoardsSmallInfo.withIndex()) {
                             Button(
                                 onClick = {
                                     onBoardClicked(
@@ -420,7 +478,6 @@ fun ProfileScreen(
                                     )
                                 }
                             }
-                            index++
                         }
                     }
                 }
