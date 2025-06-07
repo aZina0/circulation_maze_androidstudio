@@ -23,6 +23,7 @@ data class BoardInfo(
     val userUid: String,
 )
 
+
 @Singleton
 class BoardManager @Inject constructor(
     @ApplicationContext private val context: Context
@@ -48,6 +49,7 @@ class BoardManager @Inject constructor(
                     "time" to 0,
                     "image" to Global.imageBitmapToByteString(imageBitmap),
                     "user" to user.uid,
+                    "gridSize" to gameData.gridSize,
                 )
             )
             .addOnSuccessListener {
@@ -216,6 +218,52 @@ class BoardManager @Inject constructor(
             }
             .addOnFailureListener {
                 onFailure()
+            }
+    }
+
+    fun getBestBoardInfos(
+        gridSize: Int,
+        accountManager: AccountManager,
+        onSuccess: (bestBoardInfos: List<BoardInfo>) -> Unit,
+        onFailure: () -> Unit,
+    ) {
+        val bestBoardInfos = mutableListOf<BoardInfo>()
+
+        val db = FirebaseFirestore.getInstance()
+        db.collection("solvedBoards")
+            .whereEqualTo("gridSize", gridSize)
+            .orderBy("time")
+            .limit(100)
+            .get()
+            .addOnSuccessListener { documents ->
+
+                for (document in documents.documents) {
+                    val gameDataString = document.getString("gameData")!!
+                    val gameData = Global.stringToGameData(gameDataString)
+
+                    val imageBitmapString = document.getString("image")!!
+                    val imageBitmap = Global.byteStringToImageBitmap(imageBitmapString)
+
+                    val time = document.getLong("time")!!.toInt()
+
+                    val userUid = document.getString("user")!!
+
+                    bestBoardInfos.add(
+                        BoardInfo(
+                            gameData = gameData,
+                            time = time,
+                            imageBitmap = imageBitmap,
+                            userUid = userUid
+                        )
+                    )
+                }
+
+                onSuccess(bestBoardInfos)
+
+            }
+            .addOnFailureListener { e ->
+                onFailure()
+                Global.print(e.toString())
             }
     }
 }

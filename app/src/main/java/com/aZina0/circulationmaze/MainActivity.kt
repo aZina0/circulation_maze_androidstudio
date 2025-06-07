@@ -22,6 +22,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.aZina0.circulationmaze.editProfile.EditProfileScreen
 import com.aZina0.circulationmaze.game.GameScreen
+import com.aZina0.circulationmaze.leaderboards.LeaderboardsScreen
 import com.aZina0.circulationmaze.loadGame.LoadGameScreen
 import com.aZina0.circulationmaze.mainMenu.MainMenuScreen
 import com.aZina0.circulationmaze.newGame.NewGameScreen
@@ -88,6 +89,9 @@ data class GameRoute(
     val seed: Long = 0L,
     val gridSize: Int = 0,
 )
+
+@Serializable
+object Leaderboards
 
 @Composable
 fun CirculationMazeApp() {
@@ -191,6 +195,14 @@ fun CirculationMazeApp() {
                             },
                             onStartNewGameClicked = {
                                 navController.navigate(route = NewGameRoute)
+                            },
+                        )
+                    }
+
+                    composable<LeaderboardsRoute> {
+                        LeaderboardsScreen(
+                            onReturnClicked = {
+                                navController.navigate(route = MainMenuRoute)
                             },
                         )
                     }
