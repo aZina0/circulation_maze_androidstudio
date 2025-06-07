@@ -83,6 +83,35 @@ class AccountManager @Inject constructor(
             }
     }
 
+    fun unfollowUser(
+        userUidFollowing: String,
+        userUidFollowed: String,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
+    ) {
+        val db = FirebaseFirestore.getInstance()
+        val task1 = db
+            .collection("users")
+            .document(userUidFollowing)
+            .collection("followedUsers")
+            .document(userUidFollowed)
+            .delete()
+        val task2 = db
+            .collection("users")
+            .document(userUidFollowed)
+            .collection("followingUsers")
+            .document(userUidFollowing)
+            .delete()
+
+        Tasks.whenAllSuccess<QuerySnapshot>(task1, task2)
+            .addOnSuccessListener {
+                onSuccess()
+            }
+            .addOnFailureListener {
+                onFailure()
+            }
+    }
+
     fun checkIfFollowed(
         userUidFollowing: String,
         userUidFollowed: String,

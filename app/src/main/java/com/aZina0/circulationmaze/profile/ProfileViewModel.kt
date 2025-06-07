@@ -147,13 +147,24 @@ class ProfileViewModel @Inject constructor(
         val userUidFollowing = Firebase.auth.currentUser?.uid ?: ""
         val userUidFollowed = userUid
 
-        accountManager.followUser(
-            userUidFollowing = userUidFollowing,
-            userUidFollowed = userUidFollowed,
-            onSuccess = {
-                userFollowed = true
-            },
-            onFailure = {}
-        )
+        if (!userFollowed) {
+            accountManager.followUser(
+                userUidFollowing = userUidFollowing,
+                userUidFollowed = userUidFollowed,
+                onSuccess = {
+                    userFollowed = true
+                },
+                onFailure = {}
+            )
+        } else {
+            accountManager.unfollowUser(
+                userUidFollowing = userUidFollowing,
+                userUidFollowed = userUidFollowed,
+                onSuccess = {
+                    userFollowed = false
+                },
+                onFailure = {}
+            )
+        }
     }
 }
