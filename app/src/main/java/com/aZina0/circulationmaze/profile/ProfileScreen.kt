@@ -6,11 +6,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -127,12 +131,14 @@ fun ProfileScreen(
         ) {
             Surface (
                 modifier = Modifier
-                    .width(Global.relativeWidth(.9f)),
+                    .width(Global.relativeWidth(.9f))
+                    .height(IntrinsicSize.Max),
                 color = MaterialTheme.colorScheme.surfaceContainerLow,
                 shape = RoundedCornerShape(15.dp)
             ) {
                 Row (
                     modifier = Modifier
+                        .fillMaxSize()
                         .padding(padding)
                 ) {
                     Image(
@@ -142,24 +148,39 @@ fun ProfileScreen(
                             .width(Global.relativeWidth(.4f))
                             .height(Global.relativeWidth(.4f)),
                     )
-                    Column {
+                    RelativeHorizontalSpacer(0.02f)
+                    Column(
+                        modifier = Modifier
+                            .height(Global.relativeWidth(.4f))
+                            .fillMaxWidth()
+                    ) {
                         Text (
                             text = viewModel.username,
-                            fontSize = Global.relativeFont(.04f)
+                            fontSize = Global.relativeFont(.03f),
+                            modifier = Modifier
+                                .weight(0.40f)
                         )
-                        Text (
-                            text = "joined:",
-                            fontSize = Global.relativeFont(.015f),
-                            lineHeight = Global.relativeFont(.015f)
-                        )
-                        Text (
-                            text = viewModel.dateJoined
-                                .format(DateTimeFormatter.ofPattern("dd.MM.yyyy.")),
-                            fontSize = Global.relativeFont(.02f)
-                        )
+                        Column(
+                            modifier = Modifier
+                                .weight(0.35f)
+                        ) {
+                            Text (
+                                text = "joined:",
+                                fontSize = Global.relativeFont(.015f),
+                                lineHeight = Global.relativeFont(.015f),
+                            )
+                            Text (
+                                text = viewModel.dateJoined
+                                    .format(DateTimeFormatter.ofPattern("dd.MM.yyyy.")),
+                                fontSize = Global.relativeFont(.02f),
+                            )
+                        }
                         if (viewModel.userUid != (Firebase.auth.currentUser?.uid ?: "")) {
                             Button(
-                                onClick = { viewModel.onFollowClicked() }
+                                onClick = { viewModel.onFollowClicked() },
+                                modifier = Modifier
+                                    .weight(0.25f)
+                                    .align(Alignment.End)
                             ) {
                                 if (!viewModel.userFollowed) {
                                     Text(
@@ -191,6 +212,7 @@ fun ProfileScreen(
                             text = "About",
                             fontSize = Global.relativeFont(.025f),
                         )
+                        RelativeVerticalSpacer(0.007f)
                         Text (
                             text = viewModel.description,
                             fontSize = Global.relativeFont(.019f)
@@ -213,6 +235,7 @@ fun ProfileScreen(
                         text = "Level",
                         fontSize = Global.relativeFont(.025f),
                     )
+                    RelativeVerticalSpacer(0.007f)
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -314,81 +337,104 @@ fun ProfileScreen(
                     )
                 }
             }
-            RelativeVerticalSpacer(.02f)
-            Surface (
-                modifier = Modifier
-                    .width(Global.relativeWidth(.9f)),
-                color = MaterialTheme.colorScheme.surfaceContainerLow,
-                shape = RoundedCornerShape(15.dp)
-            ) {
-                Column(
+            if (viewModel.allSharedBoardsSmallInfo.isNotEmpty()) {
+                RelativeVerticalSpacer(.02f)
+                Surface(
                     modifier = Modifier
-                        .padding(padding),
-                    verticalArrangement = Arrangement.spacedBy(0.dp)
-
+                        .width(Global.relativeWidth(.9f)),
+                    color = MaterialTheme.colorScheme.surfaceContainerLow,
+                    shape = RoundedCornerShape(15.dp)
                 ) {
-                    Text (
-                        text = "Shared games",
-                        fontSize = Global.relativeFont(.025f),
-                    )
-                    Row(
+                    Column(
                         modifier = Modifier
-                            .background(MaterialTheme.colorScheme.surfaceContainer)
+                            .padding(padding),
+                        verticalArrangement = Arrangement.spacedBy(0.dp)
+
                     ) {
                         Text(
-                            text = "Grid size",
-                            modifier = Modifier
-                                .weight(0.5f)
+                            text = "Shared solved boards",
+                            fontSize = Global.relativeFont(.025f),
                         )
-                        Text(
-                            text = "Time",
+                        RelativeVerticalSpacer(0.01f)
+                        Row(
                             modifier = Modifier
-                                .weight(0.5f)
-                        )
-                    }
-                    for ((index, boardSmallInfo) in viewModel.allSharedBoardsSmallInfo.withIndex()) {
-                        Button(
-                            onClick = {
-                                onBoardClicked(
-                                    boardSmallInfo.gameData.uid,
-                                )
-                            },
-                            modifier = Modifier
-                                .height(Global.relativeHeight(0.05f)),
-                            contentPadding = PaddingValues(0.dp),
-                            shape = RectangleShape,
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor =
-                                if (isSystemInDarkTheme()) {
-                                    if (index % 2 == 0) {
-                                        MaterialTheme.colorScheme.surfaceContainerLow
-                                    } else {
-                                        Color(0xFF161616)
-                                    }
-                                } else {
-                                    if (index % 2 == 0) {
-                                        MaterialTheme.colorScheme.surfaceContainerLow
-                                    } else {
-                                        MaterialTheme.colorScheme.surfaceContainerLowest
-                                    }
-                                },
-                                contentColor = MaterialTheme.colorScheme.onSurface,
-                            )
+                                .background(MaterialTheme.colorScheme.surfaceContainer)
                         ) {
-                            Row {
-                                Text(
-                                    text = "%dx%d".format(
-                                        boardSmallInfo.gameData.gridSize,
-                                        boardSmallInfo.gameData.gridSize,
-                                    ),
-                                    modifier = Modifier
-                                        .weight(0.5f)
+                            Text(
+                                text = "Grid size",
+                                fontSize = Global.relativeFont(.02f),
+                                modifier = Modifier
+                                    .weight(0.5f)
+                                    .padding(start = Global.relativeWidth(0.02f))
+                            )
+                            Text(
+                                text = "Time",
+                                fontSize = Global.relativeFont(.02f),
+                                textAlign = TextAlign.End,
+                                modifier = Modifier
+                                    .weight(0.3f)
+                            )
+                            Text(
+                                text = "",
+                                modifier = Modifier
+                                    .weight(0.2f)
+                            )
+                        }
+                        for ((index, boardSmallInfo) in viewModel.allSharedBoardsSmallInfo.withIndex()) {
+                            Button(
+                                onClick = {
+                                    onBoardClicked(
+                                        boardSmallInfo.gameData.uid,
+                                    )
+                                },
+                                modifier = Modifier
+                                    .height(Global.relativeHeight(0.05f)),
+                                contentPadding = PaddingValues(0.dp),
+                                shape = RectangleShape,
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor =
+                                    if (isSystemInDarkTheme()) {
+                                        if (index % 2 == 0) {
+                                            MaterialTheme.colorScheme.surfaceContainerLow
+                                        } else {
+                                            Color(0xFF161616)
+                                        }
+                                    } else {
+                                        if (index % 2 == 0) {
+                                            MaterialTheme.colorScheme.surfaceContainerLow
+                                        } else {
+                                            MaterialTheme.colorScheme.surfaceContainerLowest
+                                        }
+                                    },
+                                    contentColor = MaterialTheme.colorScheme.onSurface,
                                 )
-                                Text(
-                                    text = boardSmallInfo.time.toString(),
-                                    modifier = Modifier
-                                        .weight(0.5f)
-                                )
+                            ) {
+                                Row {
+                                    Text(
+                                        text = "%dx%d".format(
+                                            boardSmallInfo.gameData.gridSize,
+                                            boardSmallInfo.gameData.gridSize,
+                                        ),
+                                        fontSize = Global.relativeFont(.017f),
+                                        modifier = Modifier
+                                            .weight(0.5f)
+                                            .padding(start = Global.relativeWidth(0.02f))
+                                    )
+                                    Text(
+                                        text = boardSmallInfo.time.toString(),
+                                        fontSize = Global.relativeFont(.017f),
+                                        textAlign = TextAlign.End,
+                                        modifier = Modifier
+                                            .weight(0.3f)
+                                    )
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.info),
+                                        contentDescription = "openBoard",
+                                        modifier = Modifier
+                                            .size(Global.relativeHeight(0.023f))
+                                            .weight(0.2f)
+                                    )
+                                }
                             }
                         }
                     }
@@ -396,7 +442,10 @@ fun ProfileScreen(
             }
             RelativeVerticalSpacer(.02f)
 
-            if (viewModel.userUid == (Firebase.auth.currentUser?.uid ?: "")) {
+            if (
+                viewModel.userUid == (Firebase.auth.currentUser?.uid ?: "") &&
+                viewModel.allSolvedBoardsSmallInfo.isNotEmpty()
+            ) {
                 Surface(
                     modifier = Modifier
                         .width(Global.relativeWidth(.9f)),
@@ -411,25 +460,38 @@ fun ProfileScreen(
                             Text(
                                 text = "All solved boards",
                                 fontSize = Global.relativeFont(.025f),
+                                modifier = Modifier
+                                    .weight(1f)
                             )
                             Icon(
                                 painter = painterResource(id = R.drawable.hidden),
                                 contentDescription = "hidden",
+                                tint = Color(0xFF808080)
                             )
                         }
+                        RelativeVerticalSpacer(0.01f)
                         Row(
                             modifier = Modifier
                                 .background(MaterialTheme.colorScheme.surfaceContainer)
                         ) {
                             Text(
                                 text = "Grid size",
+                                fontSize = Global.relativeFont(.02f),
                                 modifier = Modifier
                                     .weight(0.5f)
+                                    .padding(start = Global.relativeWidth(0.02f))
                             )
                             Text(
                                 text = "Time",
+                                fontSize = Global.relativeFont(.02f),
+                                textAlign = TextAlign.End,
                                 modifier = Modifier
-                                    .weight(0.5f)
+                                    .weight(0.3f)
+                            )
+                            Text(
+                                text = "",
+                                modifier = Modifier
+                                    .weight(0.2f)
                             )
                         }
 
@@ -468,13 +530,24 @@ fun ProfileScreen(
                                             boardSmallInfo.gameData.gridSize,
                                             boardSmallInfo.gameData.gridSize,
                                         ),
+                                        fontSize = Global.relativeFont(.017f),
                                         modifier = Modifier
                                             .weight(0.5f)
+                                            .padding(start = Global.relativeWidth(0.02f))
                                     )
                                     Text(
                                         text = boardSmallInfo.time.toString(),
+                                        fontSize = Global.relativeFont(.017f),
+                                        textAlign = TextAlign.End,
                                         modifier = Modifier
-                                            .weight(0.5f)
+                                            .weight(0.3f)
+                                    )
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.info),
+                                        contentDescription = "openBoard",
+                                        modifier = Modifier
+                                            .size(Global.relativeHeight(0.023f))
+                                            .weight(0.2f)
                                     )
                                 }
                             }

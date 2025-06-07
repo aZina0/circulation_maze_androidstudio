@@ -124,6 +124,62 @@ class BoardManager @Inject constructor(
             }
     }
 
+    fun unshareBoard(
+        boardUid: String,
+        accountManager: AccountManager,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit,
+    ) {
+        if (!accountManager.isLoggedIn() || !accountManager.isOnline()) {
+            onFailure()
+            return
+        }
+
+        val user = Firebase.auth.currentUser!!
+        val db = FirebaseFirestore.getInstance()
+        db.collection("users")
+            .document(user.uid)
+            .collection("sharedBoards")
+            .document(boardUid)
+            .delete()
+            .addOnSuccessListener {
+                onSuccess()
+            }
+            .addOnFailureListener {
+                onFailure()
+            }
+    }
+
+    fun isBoardShared(
+        boardUid: String,
+        accountManager: AccountManager,
+        onSuccess: (isShared: Boolean) -> Unit,
+        onFailure: () -> Unit,
+    ) {
+        if (!accountManager.isLoggedIn() || !accountManager.isOnline()) {
+            onFailure()
+            return
+        }
+
+        val user = Firebase.auth.currentUser!!
+        val db = FirebaseFirestore.getInstance()
+        db.collection("users")
+            .document(user.uid)
+            .collection("sharedBoards")
+            .document(boardUid)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (documents.exists()) {
+                    onSuccess(true)
+                } else {
+                    onSuccess(false)
+                }
+            }
+            .addOnFailureListener {
+                onFailure()
+            }
+    }
+
     fun getBoardInfo(
         boardUid: String,
         accountManager: AccountManager,
@@ -215,6 +271,7 @@ class BoardManager @Inject constructor(
                         }
                     )
                 }
+                checkForAllResponses()
             }
             .addOnFailureListener {
                 onFailure()

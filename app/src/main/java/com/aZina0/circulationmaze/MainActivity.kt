@@ -293,7 +293,12 @@ fun CirculationMazeApp() {
                                 )
                             },
                             onReturnClicked = {
-                                navController.popBackStack()
+                                val route = Global.getRouteName(navController)
+                                if (route == "EditProfileRoute") {
+                                    navController.navigate(route = MainMenuRoute)
+                                } else {
+                                    navController.popBackStack()
+                                }
                             },
                             onFollowersClicked = { userUid ->
                                 navController.navigate(
