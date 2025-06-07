@@ -50,6 +50,7 @@ class LeaderboardsViewModel @Inject constructor(
         val checkForAllResponses: () -> Unit = {
             if (responsesReceived >= requestsSent) {
                 bestBoardsInfo = leaderboardInfos
+//                bestBoardsInfo = List(30) { leaderboardInfos }.flatten()
                 loadingBarActive = false
             }
         }

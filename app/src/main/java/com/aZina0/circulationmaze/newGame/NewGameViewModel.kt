@@ -42,7 +42,11 @@ class NewGameViewModel : ViewModel() {
         gridSize = newValue
         val validInput: Boolean
         if (newValue.toIntOrNull() != null) {
-            if (newValue.toInt() < Game.GRID_SIZE_MIN || newValue.toInt() > Game.GRID_SIZE_MAX) {
+            if (
+                newValue.toInt() < Game.GRID_SIZE_MIN ||
+                newValue.toInt() > Game.GRID_SIZE_MAX ||
+                newValue.toInt() % 2 == 0
+            ) {
                 validInput = false
             } else {
                 validInput = true
@@ -57,7 +61,7 @@ class NewGameViewModel : ViewModel() {
             gridErrorText = ""
         } else {
             gridError = true
-            gridErrorText = "Grid size must be a number between %d and %d.".format(Game.GRID_SIZE_MIN, Game.GRID_SIZE_MAX)
+            gridErrorText = "Grid size must be an odd number between %d and %d.".format(Game.GRID_SIZE_MIN, Game.GRID_SIZE_MAX)
         }
         startGameEnabled = !seedError && !gridError
     }
