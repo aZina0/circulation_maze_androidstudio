@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import com.aZina0.circulationmaze.AccountManager
 import com.aZina0.circulationmaze.BoardInfo
 import com.aZina0.circulationmaze.BoardManager
+import com.aZina0.circulationmaze.Global
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -57,7 +58,6 @@ class LeaderboardsViewModel @Inject constructor(
 
         boardManager.getBestBoardInfos(
             gridSize = gridSize,
-            accountManager = accountManager,
             onSuccess = { bestBoardInfos ->
 
                 for (boardInfo in bestBoardInfos) {

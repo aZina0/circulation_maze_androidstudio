@@ -291,20 +291,16 @@ class AccountManager @Inject constructor(
         onSuccess: (username: String) -> Unit,
         onFailure: () -> Unit,
     ) {
-        val user = Firebase.auth.currentUser
-        if (user != null) {
-
-            val db = FirebaseFirestore.getInstance()
-            db.collection("users")
-                .document(userUid)
-                .get()
-                .addOnSuccessListener { document ->
-                    onSuccess(document.data?.get("username").toString())
-                }
-                .addOnFailureListener {
-                    onFailure()
-                }
-        }
+        val db = FirebaseFirestore.getInstance()
+        db.collection("users")
+            .document(userUid)
+            .get()
+            .addOnSuccessListener { document ->
+                onSuccess(document.data?.get("username").toString())
+            }
+            .addOnFailureListener {
+                onFailure()
+            }
     }
 
     fun getDescription(

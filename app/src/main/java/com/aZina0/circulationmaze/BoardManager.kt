@@ -280,7 +280,6 @@ class BoardManager @Inject constructor(
 
     fun getBestBoardInfos(
         gridSize: Int,
-        accountManager: AccountManager,
         onSuccess: (bestBoardInfos: List<BoardInfo>) -> Unit,
         onFailure: () -> Unit,
     ) {
