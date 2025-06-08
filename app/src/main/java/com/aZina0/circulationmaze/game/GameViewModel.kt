@@ -1,5 +1,6 @@
 package com.aZina0.circulationmaze.game
 
+import android.content.Context
 import android.os.SystemClock
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -8,6 +9,9 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.layer.GraphicsLayer
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -18,6 +22,7 @@ import com.aZina0.circulationmaze.SaveManager
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -29,6 +34,7 @@ class GameViewModel @Inject constructor(
     private val saveManager: SaveManager,
     private val accountManager: AccountManager,
     private val boardManager: BoardManager,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
     var graphicsLayer: GraphicsLayer? = null
     var boardSolved by mutableStateOf(false)
@@ -43,7 +49,24 @@ class GameViewModel @Inject constructor(
     var xp by mutableFloatStateOf(0f)
     var level by mutableIntStateOf(0)
 
+    private val lifecycleObserver = LifecycleEventObserver { _, event ->
+        when (event) {
+            Lifecycle.Event.ON_STOP -> {
+                exitGameScreen()
+            }
+            Lifecycle.Event.ON_DESTROY -> {
+                exitGameScreen()
+            }
+            Lifecycle.Event.ON_PAUSE -> {
+                exitGameScreen()
+            }
+            else -> {}
+        }
+    }
+
     init {
+        ProcessLifecycleOwner.get().lifecycle.addObserver(lifecycleObserver)
+
         milliSeconds = 0L
         val startType = savedStateHandle["startType"] ?: ""
         val uid = savedStateHandle["uid"] ?: ""
@@ -267,5 +290,11 @@ class GameViewModel @Inject constructor(
             val imageBitmap = graphicsLayer!!.toImageBitmap()
             saveManager.saveGameImage(gameData, imageBitmap)
         }
+    }
+
+
+    override fun onCleared() {
+        super.onCleared()
+        ProcessLifecycleOwner.get().lifecycle.removeObserver(lifecycleObserver)
     }
 }

@@ -52,6 +52,7 @@ dependencies {
 
     implementation("com.google.dagger:hilt-android:2.50")
     implementation(libs.firebase.firestore.ktx)
+    implementation(libs.androidx.lifecycle.process)
     kapt("com.google.dagger:hilt-android-compiler:2.50")
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
