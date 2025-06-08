@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -94,6 +95,46 @@ fun PieceComposable(modifier: Modifier, piece: Piece) {
                 .size((Piece.BASE_SIZE * Piece.scale).dp)
                 .rotate(piece.rotation.toFloat())
         )
+        if (piece.upArrow) {
+            Image(
+                painter = painterResource(id = R.drawable.go),
+                contentDescription = "img",
+                modifier = Modifier
+                    .size((Piece.BASE_SIZE * Piece.scale).dp * 0.4f)
+                    .offset(x = 10.dp, y = 0.dp)
+                    .rotate(90f)
+            )
+        }
+        if (piece.rightArrow) {
+            Image(
+                painter = painterResource(id = R.drawable.go),
+                contentDescription = "img",
+                modifier = Modifier
+                    .size((Piece.BASE_SIZE * Piece.scale).dp * 0.4f)
+                    .offset(x = 20.dp, y = 10.dp)
+                    .rotate(180f)
+            )
+        }
+        if (piece.downArrow) {
+            Image(
+                painter = painterResource(id = R.drawable.go),
+                contentDescription = "img",
+                modifier = Modifier
+                    .size((Piece.BASE_SIZE * Piece.scale).dp * 0.4f)
+                    .offset(x = 10.dp, y = 20.dp)
+                    .rotate(270f)
+            )
+        }
+        if (piece.leftArrow) {
+            Image(
+                painter = painterResource(id = R.drawable.go),
+                contentDescription = "img",
+                modifier = Modifier
+                    .size((Piece.BASE_SIZE * Piece.scale).dp * 0.4f)
+                    .offset(x = 0.dp, y = 10.dp)
+                    .rotate(0f)
+            )
+        }
     }
 }
 
@@ -126,6 +167,10 @@ class Piece(val coordinate: IntOffset, val position: Offset, type: Type) {
 
     var triggerRedraw by mutableStateOf(false)
 
+    var upArrow by mutableStateOf(false)
+    var rightArrow by mutableStateOf(false)
+    var downArrow by mutableStateOf(false)
+    var leftArrow by mutableStateOf(false)
 
     companion object {
 //        val DEFAULT_COLOR: Color = Color.getColor("#515151")
@@ -236,6 +281,22 @@ class Piece(val coordinate: IntOffset, val position: Offset, type: Type) {
 
 
     fun updateSourceArrows() {
+//        upArrow = false
+//        rightArrow = false
+//        downArrow = false
+//        leftArrow = false
+//
+//        for (sourcePiece in sourcePieces) {
+//            var relativeCoordinate = sourcePiece.coordinate - coordinate
+//            when (relativeCoordinate) {
+//                UP -> upArrow = true
+//                RIGHT -> rightArrow = true
+//                DOWN -> downArrow = true
+//                LEFT -> leftArrow = true
+//            }
+//        }
+
+//        Global.print((sourcePieces.size != sourcePieces.toSet().size).toString())
 //        for node : Polygon2D in [$up, $right, $down, $left]:
 //        node.visible = false
 //

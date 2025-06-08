@@ -110,6 +110,7 @@ object Game {
             piece.unlock()
         }
         shufflePieces()
+        connectSubgraph(rootPiece!!)
 
         playerPlaying = true
     }
