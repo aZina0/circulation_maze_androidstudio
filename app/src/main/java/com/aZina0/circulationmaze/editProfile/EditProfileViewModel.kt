@@ -12,6 +12,9 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.aZina0.circulationmaze.AccountManager
 import com.aZina0.circulationmaze.Global
+import com.google.firebase.Firebase
+import com.google.firebase.auth.EmailAuthProvider
+import com.google.firebase.auth.auth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -47,7 +50,8 @@ class EditProfileViewModel @Inject constructor(
     var descriptionErrorText by mutableStateOf("")
         private set
 
-    var email by mutableStateOf("")
+    private var actualEmail by mutableStateOf("")
+    var censoredEmail by mutableStateOf("")
         private set
     var newEmail by mutableStateOf("")
         private set
@@ -97,6 +101,7 @@ class EditProfileViewModel @Inject constructor(
                 description = accountInfo.description
                 staticDescription = accountInfo.description
 
+                actualEmail = accountInfo.email
                 val fullEmail = accountInfo.email
                 val emailSplit = fullEmail.split("@")
                 val firstPart = emailSplit[0]
@@ -110,7 +115,7 @@ class EditProfileViewModel @Inject constructor(
                 } else {
                     censoredFirstPart = "*".repeat(firstPart.length)
                 }
-                email = censoredFirstPart + "@" + lastPart
+                censoredEmail = censoredFirstPart + "@" + lastPart
                 loadingBarActive = false
             },
             onFailure = {
@@ -215,6 +220,28 @@ class EditProfileViewModel @Inject constructor(
             emailErrorText = "Invalid email."
             return
         }
+
+        val user = Firebase.auth.currentUser ?: return
+        val credential = EmailAuthProvider.getCredential(actualEmail, emailPassword)
+
+        user.reauthenticate(credential)
+            .addOnSuccessListener {
+                user.verifyBeforeUpdateEmail(newEmail)
+                    .addOnSuccessListener {
+                        emailErrorText = "You will receive a confirmation email on $newEmail. Follow the link inside to verify the new email address."
+                        newEmail = ""
+                        emailPassword = ""
+                        refreshUi()
+                    }
+                    .addOnFailureListener {
+                        emailError = true
+                        emailErrorText = "Could not update email."
+                    }
+            }
+            .addOnFailureListener {
+                emailError = true
+                emailErrorText = "Could not authenticate."
+            }
     }
 
 
@@ -252,5 +279,28 @@ class EditProfileViewModel @Inject constructor(
             newPasswordErrorText = "Password must contain at least one digit."
             return
         }
+
+        val user = Firebase.auth.currentUser ?: return
+        val credential = EmailAuthProvider.getCredential(actualEmail, currentPassword)
+
+        user.reauthenticate(credential)
+            .addOnSuccessListener {
+                user.updatePassword(newPassword)
+                    .addOnSuccessListener {
+                        currentPassword = ""
+                        newPassword = ""
+                        newPasswordAgain = ""
+                        refreshUi()
+                    }
+                    .addOnFailureListener {
+                        currentPasswordError = true
+                        currentPasswordErrorText = "Could not update password."
+                    }
+            }
+            .addOnFailureListener {
+                currentPasswordError = true
+                currentPasswordErrorText = "Could not authenticate."
+            }
+
     }
 }

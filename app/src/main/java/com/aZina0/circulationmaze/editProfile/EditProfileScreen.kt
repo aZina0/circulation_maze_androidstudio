@@ -244,7 +244,7 @@ fun EditProfileScreen(
                             fontSize = Global.relativeFont(0.025f)
                         )
                         Text(
-                            text = viewModel.email,
+                            text = viewModel.censoredEmail,
                             fontSize = Global.relativeFont(0.02f),
                             textAlign = TextAlign.End,
                             modifier = Modifier

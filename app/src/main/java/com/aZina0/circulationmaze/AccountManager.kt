@@ -246,6 +246,19 @@ class AccountManager @Inject constructor(
                     document.data?.get("image").toString()
                 )
                 val description = document.data?.get("description").toString()
+
+                if (Firebase.auth.currentUser != null) {
+                    if (Firebase.auth.currentUser!!.uid == userUid) {
+                        if (Firebase.auth.currentUser!!.email != email) {
+                            updateEmail(
+                                newEmail = Firebase.auth.currentUser!!.email!!,
+                                onSuccess = {},
+                                onFailure = {}
+                            )
+                        }
+                    }
+                }
+
                 onSuccess(
                     AccountInfo(
                         userUid = userUid,
@@ -407,6 +420,24 @@ class AccountManager @Inject constructor(
             }
     }
 
+    fun updateEmail(
+        newEmail: String,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
+    ) {
+        val user = Firebase.auth.currentUser!!
+        val db = FirebaseFirestore.getInstance()
+        db.collection("users")
+            .document(user.uid)
+            .update("email", newEmail)
+            .addOnSuccessListener {
+                onSuccess()
+            }
+            .addOnFailureListener {
+                onFailure()
+            }
+    }
+
     fun attemptRegister(
         username: String,
         email: String,
@@ -516,17 +547,9 @@ class AccountManager @Inject constructor(
         val uid = user.uid
 
         user.delete()
-//            .addOnFailureListener { exception ->
-//                Toast.makeText(context, exception.toString(), Toast.LENGTH_LONG).show()
-//            }
-
         val db = FirebaseFirestore.getInstance()
         db.collection("users")
             .document(uid)
             .delete()
-//            .addOnFailureListener { exception ->
-//                Toast.makeText(context, exception.toString(), Toast.LENGTH_LONG).show()
-//            }
-
     }
 }
