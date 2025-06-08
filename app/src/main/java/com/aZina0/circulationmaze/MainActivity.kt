@@ -8,15 +8,17 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.painterResource
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -117,9 +119,17 @@ fun CirculationMazeApp() {
             modifier = Modifier.fillMaxSize()
         ) { innerPadding ->
 
+            Image(
+                painter = painterResource(id = R.drawable.background),
+                contentDescription = "picture",
+                modifier = Modifier
+                    .fillMaxWidth(),
+                contentScale = ContentScale.Crop
+            )
+
             Box(
                 modifier = Modifier
-                    .background(MaterialTheme.colorScheme.surfaceContainerLowest)
+//                    .background(MaterialTheme.colorScheme.surfaceContainerLowest)
                     .padding(innerPadding)
                     .fillMaxSize()
             ) {
@@ -146,7 +156,8 @@ fun CirculationMazeApp() {
                                 navController.navigate(route = NewGameRoute)
                             },
                             onLeaderboardsClick = {
-                                navController.navigate(route =
+                                navController.navigate(
+                                    route =
                                     LeaderboardsRoute(
                                         tabIndex = 0
                                     )
@@ -158,10 +169,15 @@ fun CirculationMazeApp() {
                             onLoginClick = {
                                 navController.navigate(route = LoginRoute)
                             },
+                            onRegisterClick = {
+                                navController.navigate(route = RegisterRoute)
+                            },
                             onProfileClicked = {
-                                navController.navigate(route = ProfileRoute(
-                                    userUid = Firebase.auth.currentUser?.uid ?: ""
-                                ))
+                                navController.navigate(
+                                    route = ProfileRoute(
+                                        userUid = Firebase.auth.currentUser?.uid ?: ""
+                                    )
+                                )
                             },
                         )
                     }
