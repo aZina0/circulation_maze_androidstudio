@@ -23,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
@@ -33,12 +34,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.aZina0.circulationmaze.CustomHeader
 import com.aZina0.circulationmaze.Global
 import com.aZina0.circulationmaze.R
+import com.aZina0.circulationmaze.RelativeHorizontalSpacer
 import com.aZina0.circulationmaze.RelativeVerticalSpacer
 
 
 @Composable
 fun GameScreen(
     onReturnClicked: () -> Unit,
+    onHomeClicked: () -> Unit,
     onStartNewGameClicked: () -> Unit,
     viewModel: GameViewModel = hiltViewModel()
 ) {
@@ -57,21 +60,57 @@ fun GameScreen(
         CustomHeader(
             displayProgressBar = false,
             firstComposable = {
-                Button(
-                    onClick = { viewModel.onMenuClicked() },
-                    modifier = Modifier
-                        .width(Global.relativeWidth(0.12f)),
-                    shape = RoundedCornerShape(percent = 30),
-                    contentPadding = PaddingValues(0.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
-                        contentColor = MaterialTheme.colorScheme.onSurface,
-                    )
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.menu),
-                        contentDescription = "menu",
-                    )
+                Row {
+                    RelativeHorizontalSpacer(0.015f)
+                    Button(
+                        onClick = {
+                            viewModel.exitGameScreen()
+                            onHomeClicked()
+                        },
+                        modifier = Modifier
+                            .width(Global.relativeWidth(0.12f)),
+                        shape = RoundedCornerShape(percent = 30),
+                        contentPadding = PaddingValues(0.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                            contentColor = MaterialTheme.colorScheme.onSurface,
+                        )
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.home),
+                            modifier = Modifier
+                                .size(Global.relativeHeight(0.04f)),
+                            contentDescription = "menu",
+                        )
+                    }
+                    RelativeHorizontalSpacer(0.01f)
+                    if (viewModel.pauseButtonVisible) {
+                        Button(
+                            onClick = {
+                                viewModel.onPauseClicked()
+                            },
+                            modifier = Modifier
+                                .width(Global.relativeWidth(0.12f)),
+                            shape = RoundedCornerShape(percent = 30),
+                            contentPadding = PaddingValues(0.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                                contentColor = MaterialTheme.colorScheme.onSurface,
+                            )
+                        ) {
+                            Icon(
+                                painter =
+                                if (viewModel.timerRunning) {
+                                    painterResource(id = R.drawable.pause)
+                                } else {
+                                    painterResource(id = R.drawable.play)
+                                },
+                                modifier = Modifier
+                                    .size(Global.relativeHeight(0.04f)),
+                                contentDescription = "playPause",
+                            )
+                        }
+                    }
                 }
             },
             lastComposable = {
@@ -122,6 +161,13 @@ fun ActualGameComposable(viewModel: GameViewModel) {
                 }
                 drawLayer(graphicsLayer)
             }
+            .blur(
+                if (viewModel.timerRunning) {
+                    0.dp
+                } else {
+                    15.dp
+                }
+            )
     ) {
         Game.triggerRedraw
         for (piece in Game.pieces.values) {

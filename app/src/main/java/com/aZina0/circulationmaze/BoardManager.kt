@@ -39,7 +39,7 @@ class BoardManager @Inject constructor(
             return
         }
 
-        Toast.makeText(context, "board saved", Toast.LENGTH_LONG).show()
+//        Toast.makeText(context, "board saved", Toast.LENGTH_LONG).show()
         val db = FirebaseFirestore.getInstance()
         db.collection("solvedBoards")
             .document(gameData.uid)

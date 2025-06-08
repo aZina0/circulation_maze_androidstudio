@@ -31,8 +31,10 @@ class GameViewModel @Inject constructor(
 
     var shared by mutableStateOf(false)
 
+    var pauseButtonVisible by mutableStateOf(true)
+
     var milliSeconds by mutableLongStateOf(0L)
-    var timerRunning = false
+    var timerRunning by mutableStateOf(false)
 
     init {
         milliSeconds = 0L
@@ -82,6 +84,14 @@ class GameViewModel @Inject constructor(
     fun resetTimer() {
         timerRunning = false
         milliSeconds = 0L
+    }
+
+    fun onPauseClicked() {
+        if (timerRunning) {
+            pauseTimer()
+        } else {
+            startTimer()
+        }
     }
 
     fun startGenerationTest() {
@@ -137,10 +147,6 @@ class GameViewModel @Inject constructor(
             },
             onFailure = {}
         )
-    }
-
-    fun onMenuClicked() {
-
     }
 
     fun onLockClicked() {

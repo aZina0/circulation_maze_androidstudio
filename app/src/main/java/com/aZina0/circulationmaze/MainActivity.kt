@@ -244,6 +244,9 @@ fun CirculationMazeApp() {
                             onStartNewGameClicked = {
                                 navController.navigate(route = NewGameRoute)
                             },
+                            onHomeClicked = {
+                                navController.navigate(route = MainMenuRoute)
+                            },
                         )
                     }
 
