@@ -9,18 +9,23 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
-import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -118,6 +123,8 @@ fun CirculationMazeApp() {
         dynamicColor = false,
     ) {
 
+        var backgroundTransparent by rememberSaveable { mutableStateOf(true) }
+
         Scaffold(
             modifier = Modifier.fillMaxSize()
         ) { innerPadding ->
@@ -132,7 +139,7 @@ fun CirculationMazeApp() {
 
             Box(
                 modifier = Modifier
-//                    .background(MaterialTheme.colorScheme.surfaceContainerLowest)
+                    .background((if (backgroundTransparent) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerLowest))
                     .padding(innerPadding)
                     .fillMaxSize()
             ) {
@@ -151,6 +158,7 @@ fun CirculationMazeApp() {
                     }
                 ) {
                     composable<MainMenuRoute> {
+                        backgroundTransparent = true
                         MainMenuScreen(
                             onContinueClick = {
                                 navController.navigate(route = LoadGameRoute)
@@ -186,6 +194,7 @@ fun CirculationMazeApp() {
                     }
 
                     composable<LoadGameRoute> {
+                        backgroundTransparent = true
                         LoadGameScreen(
                             onSaveClicked = { uid ->
                                 navController.navigate(
@@ -208,6 +217,7 @@ fun CirculationMazeApp() {
                     }
 
                     composable<NewGameRoute> {
+                        backgroundTransparent = true
                         NewGameScreen(
                             onStartClicked = { uid, seed, gridSize ->
                                 navController.navigate(
@@ -226,6 +236,7 @@ fun CirculationMazeApp() {
                     }
 
                     composable<GameRoute> {
+                        backgroundTransparent = false
                         GameScreen(
                             onReturnClicked = {
                                 navController.navigate(route = MainMenuRoute)
@@ -237,6 +248,7 @@ fun CirculationMazeApp() {
                     }
 
                     composable<LeaderboardsRoute> {
+                        backgroundTransparent = true
                         LeaderboardsScreen(
                             onBoardClicked = { boardUid ->
                                 navController.navigate(
@@ -252,6 +264,7 @@ fun CirculationMazeApp() {
                     }
 
                     composable<BoardDetailsRoute> {
+                        backgroundTransparent = true
                         BoardDetailsScreen(
                             onReturnClicked = {
                                 navController.popBackStack()
@@ -265,6 +278,7 @@ fun CirculationMazeApp() {
                     }
 
                     composable<LoginRoute> {
+                        backgroundTransparent = true
                         LoginScreen(
                             onSwapToRegisterClick = {
                                 navController.navigate(route = RegisterRoute)
@@ -279,6 +293,7 @@ fun CirculationMazeApp() {
                     }
 
                     composable<RegisterRoute> {
+                        backgroundTransparent = true
                         RegisterScreen(
                             onSwapToLoginClick = {
                                 navController.navigate(route = LoginRoute)
@@ -293,6 +308,7 @@ fun CirculationMazeApp() {
                     }
 
                     composable<ProfileRoute> {
+                        backgroundTransparent = true
                         ProfileScreen(
                             onEditProfileClicked = {
                                 navController.navigate(
@@ -339,6 +355,7 @@ fun CirculationMazeApp() {
                     }
 
                     composable<EditProfileRoute> {
+                        backgroundTransparent = true
                         EditProfileScreen(
                             onReturnClicked = {
                                 navController.navigate(
@@ -349,6 +366,7 @@ fun CirculationMazeApp() {
                     }
 
                     composable<UserListRoute> {
+                        backgroundTransparent = true
                         UserListScreen(
                             onReturnClicked = {
                                 navController.popBackStack()

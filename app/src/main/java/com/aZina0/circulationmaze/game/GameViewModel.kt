@@ -1,6 +1,8 @@
 package com.aZina0.circulationmaze.game
 
+import android.os.SystemClock
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.layer.GraphicsLayer
@@ -27,7 +29,11 @@ class GameViewModel @Inject constructor(
     var graphicsLayer: GraphicsLayer? = null
     var boardSolved by mutableStateOf(false)
 
+    var milliSeconds by mutableLongStateOf(0L)
+    var timerRunning = false
+
     init {
+        milliSeconds = 0L
         val startType = savedStateHandle["startType"] ?: ""
         val uid = savedStateHandle["uid"] ?: ""
         val seed = savedStateHandle["seed"] ?: 0L
@@ -43,12 +49,37 @@ class GameViewModel @Inject constructor(
             )
         } else if (startType == "loadGame") {
             val gameData = saveManager.loadGameFromFile(uid)!!
+            milliSeconds = gameData.time
             Game.importGameData(gameData)
         }
 
         Game.triggerRedraw = !Game.triggerRedraw
 
-//        startGenerationTest()
+        startTimer()
+    }
+
+    fun startTimer() {
+        if (timerRunning) {
+            return
+        }
+
+        timerRunning = true
+        val startTime = SystemClock.elapsedRealtime() - milliSeconds
+        viewModelScope.launch {
+            while (timerRunning) {
+                milliSeconds = SystemClock.elapsedRealtime() - startTime
+                delay(10L)
+            }
+        }
+    }
+
+    fun pauseTimer() {
+        timerRunning = false
+    }
+
+    fun resetTimer() {
+        timerRunning = false
+        milliSeconds = 0L
     }
 
     fun startGenerationTest() {
@@ -72,6 +103,7 @@ class GameViewModel @Inject constructor(
     fun onBoardSolve() {
         boardSolved = true
         val gameData = Game.getGameData()
+        gameData.time = milliSeconds
 
         Highlight.hide()
         Game.triggerRedraw = !Game.triggerRedraw
@@ -133,6 +165,7 @@ class GameViewModel @Inject constructor(
         }
 
         val gameData = Game.getGameData()
+        gameData.time = milliSeconds
         saveManager.saveGame(gameData)
 
         Highlight.hide()

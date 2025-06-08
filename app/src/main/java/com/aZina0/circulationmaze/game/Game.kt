@@ -269,6 +269,7 @@ object Game {
             lastModifiedDate = LocalDateTime.now(),
             savedOnCloud = false,
             pieces = JsonObject(piecesMap),
+            time = 0L,
         )
     }
 

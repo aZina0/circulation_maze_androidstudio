@@ -13,12 +13,12 @@ import javax.inject.Singleton
 
 data class BoardSmallInfo(
     val gameData: GameData,
-    val time: Int,
+    val time: Long,
 )
 
 data class BoardInfo(
     val gameData: GameData,
-    val time: Int,
+    val time: Long,
     val imageBitmap: ImageBitmap,
     val userUid: String,
 )
@@ -46,7 +46,7 @@ class BoardManager @Inject constructor(
             .set(
                 mapOf(
                     "gameData" to Global.gameDataToString(gameData),
-                    "time" to 0,
+                    "time" to gameData.time,
                     "image" to Global.imageBitmapToByteString(imageBitmap),
                     "user" to user.uid,
                     "gridSize" to gameData.gridSize,
@@ -78,7 +78,7 @@ class BoardManager @Inject constructor(
                         val gameDataString = document.getString("gameData")!!
                         val gameData = Global.stringToGameData(gameDataString)
 
-                        val time = document.getLong("time")!!.toInt()
+                        val time = document.getLong("time")!!
 
                         boardSmallInfos.add(
                             BoardSmallInfo(
@@ -202,7 +202,7 @@ class BoardManager @Inject constructor(
                 val imageBitmapString = document.getString("image")!!
                 val imageBitmap = Global.byteStringToImageBitmap(imageBitmapString)
 
-                val time = document.getLong("time")!!.toInt()
+                val time = document.getLong("time")!!
 
                 val userUid = document.getString("user")!!
 
@@ -300,7 +300,7 @@ class BoardManager @Inject constructor(
                     val imageBitmapString = document.getString("image")!!
                     val imageBitmap = Global.byteStringToImageBitmap(imageBitmapString)
 
-                    val time = document.getLong("time")!!.toInt()
+                    val time = document.getLong("time")!!
 
                     val userUid = document.getString("user")!!
 

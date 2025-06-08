@@ -25,6 +25,7 @@ data class GameData(
     val lastModifiedDate: LocalDateTime,
     var savedOnCloud: Boolean,
     val pieces: JsonObject,
+    var time: Long,
 )
 
 data class SaveInfo(
@@ -151,21 +152,6 @@ class SaveManager @Inject constructor(
         if (Firebase.auth.currentUser != null) {
             saveGameToCloud(gameData)
         }
-//        val existingJsonObject = readJsonObjectFromFile(newBasicInfo.uid)
-//        val existingBasicInfo = getBasicInfo(existingJsonObject!!)
-//
-//        val existingDate = LocalDateTime.parse(
-//            existingBasicInfo.lastModifiedDate,
-//            DateTimeFormatter.ISO_DATE_TIME
-//        )
-//        val newDate = LocalDateTime.parse(
-//            newBasicInfo.lastModifiedDate,
-//            DateTimeFormatter.ISO_DATE_TIME
-//        )
-//
-//        if (existingDate.isBefore(newDate)) {
-//
-//        }
     }
 
     private fun saveGameToFile(gameData: GameData) {
@@ -189,10 +175,6 @@ class SaveManager @Inject constructor(
             .collection("saves")
             .document(gameData.uid)
             .set(mapOf("data" to Global.gameDataToString(gameData)))
-//            .addOnSuccessListener {
-//                gameData.savedOnCloud = true
-//                saveGameToFile(gameData)
-//            }
     }
 
     fun saveGameImage(gameData: GameData, imageBitmap: ImageBitmap) {

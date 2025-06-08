@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -70,10 +71,11 @@ fun GameScreen(
                     )
                 }
             },
-            middleComposable = {
+            lastComposable = {
                 Text (
-                    text = "Edit profile",
+                    text = Global.timerFormat(viewModel.milliSeconds),
                     fontSize = Global.relativeFont(0.04f),
+                    modifier = Modifier.padding(end = 8.dp)
                 )
             },
         )

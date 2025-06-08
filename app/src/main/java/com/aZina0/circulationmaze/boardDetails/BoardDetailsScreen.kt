@@ -104,7 +104,7 @@ fun BoardDetailsScreen(
                                     fontSize = Global.relativeFont(0.017f),
                                 )
                                 Text(
-                                    text = viewModel.boardInfo!!.time.toString(),
+                                    text = Global.timerFormat2(viewModel.boardInfo!!.time),
                                     fontSize = Global.relativeFont(0.025f),
                                 )
                             }

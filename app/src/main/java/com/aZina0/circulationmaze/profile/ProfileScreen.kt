@@ -421,7 +421,7 @@ fun ProfileScreen(
                                             .padding(start = Global.relativeWidth(0.02f))
                                     )
                                     Text(
-                                        text = boardSmallInfo.time.toString(),
+                                        text = Global.timerFormat2(boardSmallInfo.time),
                                         fontSize = Global.relativeFont(.017f),
                                         textAlign = TextAlign.End,
                                         modifier = Modifier
@@ -536,7 +536,7 @@ fun ProfileScreen(
                                             .padding(start = Global.relativeWidth(0.02f))
                                     )
                                     Text(
-                                        text = boardSmallInfo.time.toString(),
+                                        text = Global.timerFormat2(boardSmallInfo.time),
                                         fontSize = Global.relativeFont(.017f),
                                         textAlign = TextAlign.End,
                                         modifier = Modifier

@@ -155,7 +155,7 @@ fun LeaderboardsScreen(
                                     .weight(0.38f)
                             )
                             Text(
-                                text = board.boardInfo.time.toString(),
+                                text = Global.timerFormat2(board.boardInfo.time),
                                 fontSize = Global.relativeFont(.02f),
                                 textAlign = TextAlign.End,
                                 modifier = Modifier

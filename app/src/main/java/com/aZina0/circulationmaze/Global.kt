@@ -65,6 +65,38 @@ object Global {
         return Base64.encodeToString(bytes, Base64.DEFAULT)
     }
 
+    fun timerFormat(m: Long): String {
+        val totalSeconds = m / 1000
+        val hours = totalSeconds / 3600
+        val minutes = (totalSeconds % 3600) / 60
+        val seconds = totalSeconds % 60
+        if (minutes == 0L) {
+            return "%02d".format(seconds)
+        } else {
+            if (hours == 0L) {
+                return "%02d:%02d".format(minutes, seconds)
+            } else {
+                return "%02d:%02d:%02d".format(hours, minutes, seconds)
+            }
+        }
+    }
+
+    fun timerFormat2(m: Long): String {
+        val totalSeconds = m / 1000
+        val hours = totalSeconds / 3600
+        val minutes = (totalSeconds % 3600) / 60
+        val seconds = totalSeconds % 60
+        if (minutes == 0L && hours == 0L) {
+            return "%02ds".format(seconds)
+        } else {
+            if (hours == 0L) {
+                return "%02dm %02ds".format(minutes, seconds)
+            } else {
+                return "%02dh %02dm %02ds".format(hours, minutes, seconds)
+            }
+        }
+    }
+
     fun gameDataToString(gameData: GameData): String {
         return JsonObject(
             mapOf(
@@ -76,6 +108,7 @@ object Global {
                 ),
                 "savedOnCloud" to JsonPrimitive(gameData.savedOnCloud),
                 "pieces" to gameData.pieces,
+                "time" to JsonPrimitive(gameData.time),
             )
         ).toString()
     }
@@ -91,7 +124,8 @@ object Global {
                 DateTimeFormatter.ISO_DATE_TIME
             ),
             savedOnCloud = jsonObject["savedOnCloud"]!!.jsonPrimitive.boolean,
-            pieces = jsonObject["pieces"]!!.jsonObject
+            pieces = jsonObject["pieces"]!!.jsonObject,
+            time = jsonObject["time"]!!.jsonPrimitive.long
         )
     }
 
