@@ -237,15 +237,21 @@ fun ProfileScreen(
                     )
                     RelativeVerticalSpacer(0.007f)
                     Row(
-                        verticalAlignment = Alignment.CenterVertically
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
                         Text (
+                            modifier = Modifier
+                                .width(Global.relativeWidth(0.1f)),
                             text = viewModel.level.toString(),
-                            fontSize = Global.relativeFont(.025f),
+                            fontSize = Global.relativeFont(.035f),
+                            textAlign = TextAlign.Center
                         )
                         LinearProgressIndicator(
                             modifier = Modifier
-                                .height(Global.relativeHeight(0.01f)),
+                                .height(Global.relativeHeight(0.01f))
+                                .width(Global.relativeWidth(0.7f)),
                             color = Color.Green,
                             progress = { viewModel.xpRemainder },
                         )

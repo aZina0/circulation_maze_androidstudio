@@ -2,6 +2,8 @@ package com.aZina0.circulationmaze.game
 
 import android.os.SystemClock
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -13,6 +15,8 @@ import com.aZina0.circulationmaze.AccountManager
 import com.aZina0.circulationmaze.BoardManager
 import com.aZina0.circulationmaze.Global
 import com.aZina0.circulationmaze.SaveManager
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -36,12 +40,27 @@ class GameViewModel @Inject constructor(
     var milliSeconds by mutableLongStateOf(0L)
     var timerRunning by mutableStateOf(false)
 
+    var xp by mutableFloatStateOf(0f)
+    var level by mutableIntStateOf(0)
+
     init {
         milliSeconds = 0L
         val startType = savedStateHandle["startType"] ?: ""
         val uid = savedStateHandle["uid"] ?: ""
         val seed = savedStateHandle["seed"] ?: 0L
         val gridSize = savedStateHandle["gridSize"] ?: 0
+
+        accountManager.getXp(
+            onSuccess = {
+                val levelAndRemainder = accountManager.getLevelAndRemainder(it)
+                level = levelAndRemainder.first
+                xp = levelAndRemainder.second
+            },
+            onFailure = {
+
+            }
+        )
+
 
         Game.solveCallback = { onBoardSolve() }
 
@@ -120,22 +139,77 @@ class GameViewModel @Inject constructor(
         gameData.time = milliSeconds
 
         Highlight.hide()
+
+        for (piece in Game.pieces.values) {
+            piece.unlock()
+        }
+
         Game.triggerRedraw = !Game.triggerRedraw
+
         viewModelScope.launch {
-            val imageBitmap = graphicsLayer!!.toImageBitmap()
-            boardManager.saveBoard(
-                gameData = gameData,
-                imageBitmap = imageBitmap,
-                onSuccess = {
-                    saveManager.deleteSaveGameFromFile(gameData.uid)
-                    saveManager.deleteSaveGameFromCloud(
-                        gameData.uid,
-                        onSuccess = {},
-                        onFailure = {}
-                    )
-                },
-                onFailure = {}
-            )
+
+            delay(500)
+
+            if (Firebase.auth.currentUser != null) {
+                val imageBitmap = graphicsLayer!!.toImageBitmap()
+                boardManager.saveBoard(
+                    gameData = gameData,
+                    imageBitmap = imageBitmap,
+                    onSuccess = {
+                        saveManager.deleteSaveGameFromFile(gameData.uid)
+                        saveManager.deleteSaveGameFromCloud(
+                            gameData.uid,
+                            onSuccess = {},
+                            onFailure = {}
+                        )
+                        beginAnimation()
+                    },
+                    onFailure = {}
+                )
+            } else {
+                beginAnimation()
+            }
+        }
+    }
+
+    fun beginAnimation() {
+
+        var currentWave = mutableListOf<Piece>()
+        var nextWave = mutableListOf<Piece>()
+
+        for (piece in Game.rootPiece!!.linkedPieces) {
+            currentWave.add(piece)
+        }
+
+        viewModelScope.launch {
+            while (currentWave.isNotEmpty()) {
+                var xpGained = currentWave.size
+                level += (xpGained / 100)
+                var xpLeft = xpGained - (xpGained / 100) * 100
+
+                xp += xpLeft / 100f
+                if (xp > 1f) {
+                    level++
+                    xp -= 1f
+                }
+
+                while (currentWave.size > 0) {
+                    var piece = currentWave.removeAt(currentWave.lastIndex)
+
+                    piece.makeGolden()
+                    piece.triggerRedraw = !piece.triggerRedraw
+
+                    for (linkedPiece in piece.linkedPieces) {
+                        if (linkedPiece !in piece.sourcePieces) {
+                            nextWave.add(linkedPiece)
+                        }
+                    }
+                }
+
+                currentWave = nextWave.toMutableList()
+                nextWave.clear()
+                delay((8 * Game.gridRows * Game.gridRows).toLong())
+            }
         }
     }
 

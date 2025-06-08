@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -25,9 +26,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -36,6 +39,8 @@ import com.aZina0.circulationmaze.Global
 import com.aZina0.circulationmaze.R
 import com.aZina0.circulationmaze.RelativeHorizontalSpacer
 import com.aZina0.circulationmaze.RelativeVerticalSpacer
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 
 
 @Composable
@@ -56,7 +61,9 @@ fun GameScreen(
         Game.initialized = true
     }
 
-    Column {
+    Column (
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         CustomHeader(
             displayProgressBar = false,
             firstComposable = {
@@ -121,23 +128,79 @@ fun GameScreen(
                 )
             },
         )
-        RelativeVerticalSpacer(0.075f)
-        ActualGameComposable(viewModel)
-        RelativeVerticalSpacer(0.05f)
-        if (!viewModel.boardSolved) {
-            ControlsComposable(viewModel)
-        } else {
-            BoardSolvedComposable(
-                viewModel = viewModel,
-                onStartNewGameClicked = {
-                    viewModel.exitGameScreen()
-                    onStartNewGameClicked()
-                },
-                onReturnClicked = {
-                    viewModel.exitGameScreen()
-                    onReturnClicked()
+
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            if (Firebase.auth.currentUser != null && viewModel.boardSolved) {
+                Surface(
+                    modifier = Modifier
+                        .width(Global.relativeWidth(.9f))
+                        .weight(0.1f),
+                    color = MaterialTheme.colorScheme.surfaceContainerLowest,
+                    shape = RoundedCornerShape(15.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .padding(Global.relativeWidth(0.02f)),
+                    ) {
+                        Text(
+                            text = "Level",
+                            fontSize = Global.relativeFont(.025f),
+                        )
+                        RelativeVerticalSpacer(0.007f)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            Text(
+                                modifier = Modifier
+                                    .width(Global.relativeWidth(0.1f)),
+                                text = viewModel.level.toString(),
+                                fontSize = Global.relativeFont(.035f),
+                                textAlign = TextAlign.Center
+                            )
+                            LinearProgressIndicator(
+                                modifier = Modifier
+                                    .height(Global.relativeHeight(0.01f))
+                                    .width(Global.relativeWidth(0.7f)),
+                                color = Color.Green,
+                                progress = { viewModel.xp },
+                            )
+                        }
+                    }
                 }
-            )
+            } else {
+                Box(modifier = Modifier.weight(0.1f))
+            }
+
+            Box (
+                modifier = Modifier.weight(0.6f)
+            ) {
+                ActualGameComposable(viewModel)
+            }
+
+            Box (
+                modifier = Modifier.weight(0.3f)
+            ) {
+                if (!viewModel.boardSolved) {
+                    ControlsComposable(viewModel)
+                } else {
+                    BoardSolvedComposable(
+                        viewModel = viewModel,
+                        onStartNewGameClicked = {
+                            viewModel.exitGameScreen()
+                            onStartNewGameClicked()
+                        },
+                        onReturnClicked = {
+                            viewModel.exitGameScreen()
+                            onReturnClicked()
+                        }
+                    )
+                }
+            }
+
         }
     }
 
@@ -389,19 +452,21 @@ fun BoardSolvedComposable(
                     contentColor = MaterialTheme.colorScheme.onSurface,
                 )
             ) {
-                Text(
-                    text = if (!viewModel.shared) "Share it." else "Shared.",
-                    fontSize = Global.relativeFont(0.02f),
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        textDecoration = TextDecoration.Underline,
-                    ),
-                    color =
+                if (Firebase.auth.currentUser != null) {
+                    Text(
+                        text = if (!viewModel.shared) "Share it." else "Shared.",
+                        fontSize = Global.relativeFont(0.02f),
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            textDecoration = TextDecoration.Underline,
+                        ),
+                        color =
                         if (!viewModel.shared) {
                             MaterialTheme.colorScheme.onSurface
                         } else {
                             MaterialTheme.colorScheme.surfaceContainer
                         }
-                )
+                    )
+                }
             }
 
             Row {

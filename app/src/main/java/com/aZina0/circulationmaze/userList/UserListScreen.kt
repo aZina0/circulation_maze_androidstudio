@@ -5,17 +5,19 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -23,6 +25,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import com.aZina0.circulationmaze.CustomHeader
 import com.aZina0.circulationmaze.Global
+import com.aZina0.circulationmaze.RelativeHorizontalSpacer
 
 @Composable
 fun UserListScreen(
@@ -55,7 +58,8 @@ fun UserListScreen(
                         onUserClicked(accountInfo.userUid)
                     },
                     modifier = Modifier
-                        .height(Global.relativeHeight(0.05f)),
+                        .height(Global.relativeHeight(0.09f))
+                        .fillMaxWidth(),
                     contentPadding = PaddingValues(0.dp),
                     shape = RectangleShape,
                     colors = ButtonDefaults.buttonColors(
@@ -76,18 +80,21 @@ fun UserListScreen(
                         contentColor = MaterialTheme.colorScheme.onSurface,
                     )
                 ) {
-                    Row {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
                         Image(
                             bitmap = accountInfo.image,
                             contentDescription = "picture",
-                            modifier = Modifier
-                                .width(Global.relativeWidth(.1f))
-                                .height(Global.relativeWidth(.1f)),
                         )
+                        RelativeHorizontalSpacer(0.02f)
                         Text(
                             text = accountInfo.username,
-                            modifier = Modifier
-                                .weight(0.5f)
+                            fontSize = Global.relativeFont(0.025f),
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                textDecoration = TextDecoration.Underline,
+                            ),
+                            modifier = Modifier.weight(1f)
                         )
                     }
                 }

@@ -64,6 +64,10 @@ fun PieceComposable(modifier: Modifier, piece: Piece) {
         pieceColor = ROOT_PIECE_COLOR
     }
 
+    if (piece.golden) {
+        pieceColor = ROOT_PIECE_COLOR
+    }
+
     Global.redrawAmount++
 //    Global.print("%s redrawn. (%s total)".format(piece, Global.redrawAmount))
     piece.triggerRedraw
@@ -172,6 +176,8 @@ class Piece(val coordinate: IntOffset, val position: Offset, type: Type) {
     var downArrow by mutableStateOf(false)
     var leftArrow by mutableStateOf(false)
 
+    var golden by mutableStateOf(false)
+
     companion object {
 //        val DEFAULT_COLOR: Color = Color.getColor("#515151")
         const val BASE_SIZE = 64.0F
@@ -264,7 +270,9 @@ class Piece(val coordinate: IntOffset, val position: Offset, type: Type) {
         triggerRedraw()
     }
 
-
+    fun makeGolden() {
+        golden = true
+    }
 //    fun refresh() {
 //        if (direction == 90) {
 //            rotateByCCW90()
