@@ -166,6 +166,13 @@ class GameViewModel @Inject constructor(
                     },
                     onFailure = {}
                 )
+
+                accountManager.addXp(
+                    Game.gridRows * Game.gridRows,
+                    onSuccess = {},
+                    onFailure = {}
+                )
+
             } else {
                 beginAnimation()
             }

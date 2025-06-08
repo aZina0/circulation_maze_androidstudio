@@ -78,9 +78,6 @@ data class LeaderboardsRoute(
 )
 
 @Serializable
-object SettingsRoute
-
-@Serializable
 object RegisterRoute
 
 @Serializable
@@ -173,9 +170,6 @@ fun CirculationMazeApp() {
                                         tabIndex = 0
                                     )
                                 )
-                            },
-                            onSettingsClick = {
-                                navController.navigate(route = SettingsRoute)
                             },
                             onLoginClick = {
                                 navController.navigate(route = LoginRoute)

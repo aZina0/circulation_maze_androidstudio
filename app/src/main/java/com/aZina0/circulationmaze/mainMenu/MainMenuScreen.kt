@@ -37,7 +37,6 @@ fun MainMenuScreen(
     onContinueClick: () -> Unit,
     onNewGameClick: () -> Unit,
     onLeaderboardsClick: () -> Unit,
-    onSettingsClick: () -> Unit,
     onLoginClick: () -> Unit,
     onRegisterClick: () -> Unit,
     onProfileClicked: (userUid: String) -> Unit,
@@ -162,38 +161,6 @@ fun MainMenuScreen(
                     }
                 }
 
-                RelativeVerticalSpacer(0.02f)
-                Button(
-                    onClick = { onSettingsClick() },
-                    contentPadding = PaddingValues(),
-                    shape = RectangleShape,
-                    modifier = Modifier
-                        .height(Global.relativeHeight(0.065f))
-                        .width(Global.relativeWidth(0.5f)),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .background(
-                                brush = Brush.horizontalGradient(
-                                    colors = listOf(
-                                        Color(0x00000000),
-                                        Color(0xFF1C1C1C)
-                                    ) // example blue gradient
-                                ),
-                                shape = RectangleShape,
-                            )
-                            .height(Global.relativeHeight(0.075f))
-                            .width(Global.relativeWidth(0.5f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "Settings",
-                            fontSize = Global.relativeFont(.026f),
-                            color = Color.White
-                        )
-                    }
-                }
             }
         }
 

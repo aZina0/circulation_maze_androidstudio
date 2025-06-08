@@ -10,6 +10,7 @@ import com.google.android.gms.tasks.Tasks
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -362,6 +363,27 @@ class AccountManager @Inject constructor(
         val level = xp.floorDiv(100)
         val xpRemainder = (xp - level * 100) / 100f
         return Pair(level, xpRemainder)
+    }
+
+    fun addXp(
+        xpAmount: Int,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit,
+    ) {
+        val user = Firebase.auth.currentUser
+        if (user != null) {
+
+            val db = FirebaseFirestore.getInstance()
+            db.collection("users")
+                .document(user.uid)
+                .update("xp", FieldValue.increment(xpAmount.toLong()))
+                .addOnSuccessListener {
+                    onSuccess()
+                }
+                .addOnFailureListener {
+                    onFailure()
+                }
+        }
     }
 
     fun updateImage(
