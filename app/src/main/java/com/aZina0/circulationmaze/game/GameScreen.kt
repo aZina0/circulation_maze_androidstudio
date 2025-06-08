@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -25,6 +27,7 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.aZina0.circulationmaze.CustomHeader
@@ -315,41 +318,79 @@ fun BoardSolvedComposable(
 ) {
     Surface(
         modifier = Modifier
-            .width(Global.relativeWidth(.7f))
+            .fillMaxSize(),
+        color = MaterialTheme.colorScheme.surfaceContainerLowest,
+        shape = RoundedCornerShape(15.dp)
     ) {
-        Column {
+        Column(
+            modifier = Modifier
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceEvenly
+        ) {
             Text(
-                text = "Board solved!"
+                text = "Board solved!",
+                fontSize = Global.relativeFont(0.04f),
             )
             Button(
                 onClick = { viewModel.onShareSolveClicked() },
                 modifier = Modifier
-                    .width(Global.relativeWidth(0.12f)),
+                    .width(Global.relativeWidth(.35f))
+                    .height(Global.relativeHeight(.07f)),
                 shape = RoundedCornerShape(percent = 30),
-                contentPadding = PaddingValues(0.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
                     contentColor = MaterialTheme.colorScheme.onSurface,
                 )
             ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.share),
-                    contentDescription = "share",
+                Text(
+                    text = if (!viewModel.shared) "Share it." else "Shared.",
+                    fontSize = Global.relativeFont(0.02f),
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        textDecoration = TextDecoration.Underline,
+                    ),
+                    color =
+                        if (!viewModel.shared) {
+                            MaterialTheme.colorScheme.onSurface
+                        } else {
+                            MaterialTheme.colorScheme.surfaceContainer
+                        }
                 )
             }
-            Button(
-                onClick = { onStartNewGameClicked() }
-            ) {
-                Text(
-                    text = "Start new game"
-                )
-            }
-            Button(
-                onClick = { onReturnClicked() }
-            ) {
-                Text(
-                    text = "Return to main menu"
-                )
+
+            Row {
+                Button(
+                    onClick = { onReturnClicked() },
+                    modifier = Modifier
+                        .width(Global.relativeWidth(.45f))
+                        .height(Global.relativeHeight(.1f)),
+                    shape = RoundedCornerShape(percent = 30),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                        contentColor = MaterialTheme.colorScheme.onSurface,
+                    )
+                ) {
+                    Text(
+                        text = "Return to main menu",
+                        fontSize = Global.relativeFont(0.027f),
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            textDecoration = TextDecoration.Underline,
+                        ),
+                    )
+                }
+                Button(
+                    onClick = { onStartNewGameClicked() },
+                    modifier = Modifier
+                        .width(Global.relativeWidth(.45f))
+                        .height(Global.relativeHeight(.1f)),
+                    shape = RoundedCornerShape(percent = 30),
+                ) {
+                    Text(
+                        text = "Start new game",
+                        fontSize = Global.relativeFont(0.03f),
+                    )
+                }
+
             }
         }
     }

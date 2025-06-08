@@ -29,6 +29,8 @@ class GameViewModel @Inject constructor(
     var graphicsLayer: GraphicsLayer? = null
     var boardSolved by mutableStateOf(false)
 
+    var shared by mutableStateOf(false)
+
     var milliSeconds by mutableLongStateOf(0L)
     var timerRunning = false
 
@@ -102,6 +104,7 @@ class GameViewModel @Inject constructor(
 
     fun onBoardSolve() {
         boardSolved = true
+        pauseTimer()
         val gameData = Game.getGameData()
         gameData.time = milliSeconds
 
@@ -129,7 +132,9 @@ class GameViewModel @Inject constructor(
         boardManager.shareBoard(
             boardUid = Game.uid,
             accountManager = accountManager,
-            onSuccess = {},
+            onSuccess = {
+                shared = true
+            },
             onFailure = {}
         )
     }
