@@ -37,7 +37,6 @@ import com.aZina0.circulationmaze.Global.relativeFont
 import com.aZina0.circulationmaze.Global.relativeHeight
 import com.aZina0.circulationmaze.Global.relativeWidth
 import com.aZina0.circulationmaze.R
-import com.aZina0.circulationmaze.RelativeHorizontalSpacer
 import com.aZina0.circulationmaze.RelativeVerticalSpacer
 import java.time.format.DateTimeFormatter
 
@@ -60,28 +59,6 @@ fun LoadGameScreen(
                     fontSize = Global.relativeFont(0.04f),
                 )
             },
-            lastComposable = {
-                Row {
-                    Button(
-                        onClick = { onViewSolvedBoardsClicked() },
-                        modifier = Modifier
-                            .width(Global.relativeWidth(0.12f)),
-                        shape = RoundedCornerShape(percent = 30),
-                        contentPadding = PaddingValues(0.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
-                            contentColor = MaterialTheme.colorScheme.onSurface,
-                        )
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.solved_history),
-                            contentDescription = "solvedHistory",
-                            tint = Color.Unspecified
-                        )
-                    }
-                    RelativeHorizontalSpacer(0.03f)
-                }
-            }
         )
 
         Column (

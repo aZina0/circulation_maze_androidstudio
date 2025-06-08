@@ -24,14 +24,11 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.aZina0.circulationmaze.CustomHeader
 import com.aZina0.circulationmaze.Global
 import com.aZina0.circulationmaze.R
-import com.aZina0.circulationmaze.RelativeHorizontalSpacer
 import com.aZina0.circulationmaze.RelativeVerticalSpacer
 
 
@@ -303,48 +300,6 @@ fun ControlsComposable(viewModel: GameViewModel) {
                     }
                     Box(modifier = Modifier.size(buttonSize))
                 }
-            }
-        }
-        RelativeVerticalSpacer(0.03f)
-        Row {
-            val buttonWidth = Global.relativeWidth(0.3f)
-            val buttonHeight = Global.relativeHeight(0.075f)
-            Button(
-                onClick = {  },
-                modifier = Modifier
-                    .size(width = buttonWidth, height = buttonHeight),
-                shape = RoundedCornerShape(percent = 30),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
-                    contentColor = MaterialTheme.colorScheme.onSurface,
-                )
-            ) {
-                Text (
-                    text = "undo",
-                    fontSize = 24.sp,
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        textDecoration = TextDecoration.Underline,
-                    ),
-                )
-            }
-            RelativeHorizontalSpacer(0.05f)
-            Button(
-                onClick = {  },
-                modifier = Modifier
-                    .size(width = buttonWidth, height = buttonHeight),
-                shape = RoundedCornerShape(percent = 30),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
-                    contentColor = MaterialTheme.colorScheme.onSurface,
-                )
-            ) {
-                Text (
-                    text = "redo",
-                    fontSize = 24.sp,
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        textDecoration = TextDecoration.Underline,
-                    ),
-                )
             }
         }
     }
