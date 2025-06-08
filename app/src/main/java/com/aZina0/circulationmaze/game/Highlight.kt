@@ -23,7 +23,6 @@ fun HighlightComposable() {
         Image(
             painter = painterResource(id = R.drawable.highlight),
             contentDescription = "highlightImg",
-            colorFilter = ColorFilter.tint(Color.Red),
             modifier = Modifier
                 .size((Piece.BASE_SIZE * Piece.scale).dp)
                 .offset(Highlight.position_x.dp, Highlight.position_y.dp)

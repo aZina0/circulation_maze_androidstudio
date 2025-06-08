@@ -247,6 +247,7 @@ object Game {
 
             pieces[coordinate] = piece
         }
+        connectSubgraph(rootPiece!!)
         playerPlaying = true
     }
 
