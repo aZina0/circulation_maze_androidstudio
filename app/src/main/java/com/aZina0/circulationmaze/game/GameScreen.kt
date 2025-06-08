@@ -162,7 +162,7 @@ fun ActualGameComposable(viewModel: GameViewModel) {
                 drawLayer(graphicsLayer)
             }
             .blur(
-                if (viewModel.timerRunning) {
+                if (viewModel.timerRunning || viewModel.boardSolved) {
                     0.dp
                 } else {
                     15.dp

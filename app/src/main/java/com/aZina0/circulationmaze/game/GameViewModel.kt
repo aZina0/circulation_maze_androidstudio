@@ -115,6 +115,7 @@ class GameViewModel @Inject constructor(
     fun onBoardSolve() {
         boardSolved = true
         pauseTimer()
+        pauseButtonVisible = false
         val gameData = Game.getGameData()
         gameData.time = milliSeconds
 
