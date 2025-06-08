@@ -320,23 +320,6 @@ fun ProfileScreen(
                     }
                 }
             }
-            RelativeVerticalSpacer(.02f)
-            Surface (
-                modifier = Modifier
-                    .width(Global.relativeWidth(.9f)),
-                color = MaterialTheme.colorScheme.surfaceContainerLow,
-                shape = RoundedCornerShape(15.dp)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .padding(padding),
-                ) {
-                    Text (
-                        text = "Leaderboards highlights",
-                        fontSize = Global.relativeFont(.025f),
-                    )
-                }
-            }
             if (viewModel.allSharedBoardsSmallInfo.isNotEmpty()) {
                 RelativeVerticalSpacer(.02f)
                 Surface(
