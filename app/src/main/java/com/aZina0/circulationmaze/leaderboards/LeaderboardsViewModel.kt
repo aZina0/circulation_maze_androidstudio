@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModel
 import com.aZina0.circulationmaze.AccountManager
 import com.aZina0.circulationmaze.BoardInfo
 import com.aZina0.circulationmaze.BoardManager
-import com.aZina0.circulationmaze.Global
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -50,6 +49,7 @@ class LeaderboardsViewModel @Inject constructor(
         var responsesReceived = 0
         val checkForAllResponses: () -> Unit = {
             if (responsesReceived >= requestsSent) {
+                leaderboardInfos.sortBy { it.boardInfo.time }
                 bestBoardsInfo = leaderboardInfos
 //                bestBoardsInfo = List(30) { leaderboardInfos }.flatten()
                 loadingBarActive = false
