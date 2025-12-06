@@ -1,3 +1,9 @@
+# Circulation Maze
+
+<p align="center">
+	<img src="screenshot.png" width=50%>
+</p>
+
 (ENG)
 
 A puzzle game where the goal is to rotate all the pieces so that they are connected to the center gold piece. All piece sides with connectable ends have to be connected.
@@ -21,7 +27,3 @@ Igru je moguće igrati potpuno bez internetske veze, ali registracija računa om
 - Mogućnost da vidite svoje vrijeme rješavanja na globalnoj ploči s najboljim rezultatima
 - Mogućnost dijeljenja vaših riješenih ploča na vašem profilu
 - Praćenje korisnika
-
----
-
-![alt text](screenshot.png)
