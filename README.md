@@ -1,8 +1,5 @@
 # Circulation Maze
 
-<p align="center">
-	<img src="screenshot.png" width=50%>
-</p>
 
 (ENG)
 
@@ -27,3 +24,8 @@ Igru je moguće igrati potpuno bez internetske veze, ali registracija računa om
 - Mogućnost da vidite svoje vrijeme rješavanja na globalnoj ploči s najboljim rezultatima
 - Mogućnost dijeljenja vaših riješenih ploča na vašem profilu
 - Praćenje korisnika
+<br>
+<br>
+<p align="center">
+	<img src="screenshot.png" width=50%>
+</p>
